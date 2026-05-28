@@ -71,9 +71,9 @@ jobs:
             -x createBundleDebugJsAndAssets \
             > /tmp/gradle.log 2>&1 || {
             echo ""
-            echo "====== BUILD FAILED — relevant errors ======"
-            grep -n "FAILURE\|What went wrong\|error:\|Exception\|> Task\|BUILD" /tmp/gradle.log | tail -60
-            echo "============================================"
+            echo "====== LAST 120 LINES OF BUILD LOG ======"
+            tail -120 /tmp/gradle.log
+            echo "=========================================="
             exit 1
           }
         env:
