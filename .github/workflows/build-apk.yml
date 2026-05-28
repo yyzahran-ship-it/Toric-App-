@@ -28,6 +28,17 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      - name: Print environment info
+        run: |
+          echo "=== Java ===" && java -version
+          echo "=== JAVA_HOME ===" && echo $JAVA_HOME
+          echo "=== ANDROID_HOME ===" && echo $ANDROID_HOME
+          echo "=== ANDROID_SDK_ROOT ===" && echo $ANDROID_SDK_ROOT
+          echo "=== Build tools ===" && ls $ANDROID_HOME/build-tools/ 2>/dev/null || echo "not found"
+          echo "=== Platforms ===" && ls $ANDROID_HOME/platforms/ 2>/dev/null || echo "not found"
+          echo "=== Node ===" && node --version
+          echo "=== npm ===" && npm --version
+
       - name: Install dependencies
         run: npm ci
 
@@ -39,9 +50,12 @@ jobs:
 
       - name: Configure Gradle
         run: |
-          echo "sdk.dir=$ANDROID_HOME"          >  android/local.properties
-          echo "org.gradle.java.home=$JAVA_HOME" >> android/gradle.properties
-          echo "org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=512m" >> android/gradle.properties
+          echo "sdk.dir=$ANDROID_HOME"                                          >  android/local.properties
+          echo "org.gradle.java.home=$JAVA_HOME"                               >> android/gradle.properties
+          echo "org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=512m"          >> android/gradle.properties
+          cat android/local.properties
+          echo "--- gradle.properties tail ---"
+          tail -5 android/gradle.properties
 
       - name: Cache Gradle packages
         uses: actions/cache@v4
