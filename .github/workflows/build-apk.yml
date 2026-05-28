@@ -67,12 +67,12 @@ jobs:
 
       - name: Build APK
         run: |
-          cd android && ./gradlew assembleDebug --no-daemon \
+          cd android && ./gradlew assembleDebug --no-daemon --stacktrace \
             -x createBundleDebugJsAndAssets \
             > /tmp/gradle.log 2>&1 || {
             echo ""
-            echo "====== LAST 120 LINES OF BUILD LOG ======"
-            tail -120 /tmp/gradle.log
+            echo "====== LAST 200 LINES OF BUILD LOG ======"
+            tail -200 /tmp/gradle.log
             echo "=========================================="
             exit 1
           }
