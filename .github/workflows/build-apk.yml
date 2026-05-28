@@ -69,8 +69,13 @@ jobs:
         run: |
           cd android && ./gradlew assembleDebug --no-daemon \
             -x createBundleDebugJsAndAssets \
-            --info 2>&1 | tee /tmp/gradle.log
-          exit ${PIPESTATUS[0]}
+            > /tmp/gradle.log 2>&1 || {
+            echo ""
+            echo "====== BUILD FAILED — relevant errors ======"
+            grep -n "FAILURE\|What went wrong\|error:\|Exception\|> Task\|BUILD" /tmp/gradle.log | tail -60
+            echo "============================================"
+            exit 1
+          }
         env:
           GRADLE_OPTS: >-
             -Dorg.gradle.daemon=false
