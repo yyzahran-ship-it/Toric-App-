@@ -8,6 +8,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 import { getPatient, updateEyeRecord } from '../storage/patients';
 import { calcToric, IOL_PLATFORMS, ToricResult } from '../utils/toricMath';
+import { getSettings } from '../storage/settings';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'ToricCalculator'>;
 type Route = RouteProp<RootStackParamList, 'ToricCalculator'>;
@@ -30,15 +31,17 @@ export default function ToricCalculatorScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      getPatient(params.patientId).then(p => {
+      Promise.all([getPatient(params.patientId), getSettings()]).then(([p, settings]) => {
         const eye = p?.eyes.find(e => e.id === params.eyeId);
         if (!eye) return;
         setEyeSide(eye.side);
         if (eye.k1Power !== undefined) setK1Power(String(eye.k1Power));
         if (eye.k1Axis !== undefined) setK1Axis(String(eye.k1Axis));
         if (eye.k2Power !== undefined) setK2Power(String(eye.k2Power));
-        if (eye.sia !== undefined) setSia(String(eye.sia));
-        if (eye.siaAxis !== undefined) setSiaAxis(String(eye.siaAxis));
+        // Use eye-specific SIA if set, otherwise fall back to user default
+        setSia(String(eye.sia !== undefined ? eye.sia : settings.defaultSia));
+        setSiaAxis(String(eye.siaAxis !== undefined ? eye.siaAxis : settings.defaultSiaAxis));
+        setPlatform(settings.defaultPlatform);
       });
     }, [params.patientId, params.eyeId])
   );

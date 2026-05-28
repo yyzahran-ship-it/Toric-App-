@@ -3,13 +3,16 @@ import {
   View, Text, Image, ScrollView, StyleSheet, TouchableOpacity,
   Dimensions, TextInput, Alert,
 } from 'react-native';
+import Svg, { Path, Line, Circle, Text as SvgText } from 'react-native-svg';
+import * as Print from 'expo-print';
+import * as Sharing from 'expo-sharing';
 import { useFocusEffect, useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { EyeRecord, Patient, RootStackParamList } from '../types';
 import { getPatient, updateEyeRecord } from '../storage/patients';
 import AlignmentOverlay from '../components/AlignmentOverlay';
 import RotationCalculator from '../components/RotationCalculator';
-import { calcResidualAtAxis } from '../utils/toricMath';
+import { calcResidualAtAxis, rotationEffect } from '../utils/toricMath';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Alignment'>;
 type Route = RouteProp<RootStackParamList, 'Alignment'>;
@@ -165,6 +168,105 @@ export default function AlignmentScreen() {
         </View>
       )}
 
+      {/* Rotation effect chart (needs K data + IOL cylinder) */}
+      {eye.iolCylinder && eye.k1Power !== undefined && eye.k2Power !== undefined && eye.k1Axis !== undefined && (() => {
+        const cornealMag = Math.abs(eye.k2Power! - eye.k1Power!);
+        const steepAxis = (eye.k1Axis! + 90) % 180;
+        const siaMag = eye.sia ?? 0;
+        const siaAxis2 = eye.siaAxis ?? 0;
+        const toRad2 = (d: number) => d * Math.PI / 180;
+        const Cx2 = cornealMag * Math.cos(2 * toRad2(steepAxis)) + siaMag * Math.cos(2 * toRad2(siaAxis2));
+        const Cy2 = cornealMag * Math.sin(2 * toRad2(steepAxis)) + siaMag * Math.sin(2 * toRad2(siaAxis2));
+        const eMag = Math.sqrt(Cx2 * Cx2 + Cy2 * Cy2);
+        let eAxis = (Math.atan2(Cy2, Cx2) * 180 / Math.PI) / 2;
+        if (eAxis < 0) eAxis += 180;
+        eAxis = Math.round(eAxis) % 180;
+        const chartData = rotationEffect(eMag, eAxis, eye.iolCylinder!, eAxis);
+        const maxR = Math.max(...chartData.map(p => p.residual), 0.5);
+        const CW = width - 64;
+        const CH = 90;
+        const pts = chartData.map(p => ({
+          x: ((p.deg + 90) / 180) * CW,
+          y: CH - (p.residual / maxR) * (CH - 12),
+          deg: p.deg,
+          residual: p.residual,
+        }));
+        const pathD = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+        const zeroX = (90 / 180) * CW;
+        const threshY = CH - (0.5 / maxR) * (CH - 12);
+        // Find where current axis lands on chart
+        let curDot = null;
+        if (hasCurrentAxis) {
+          let delta = ((currentAxisNum - eAxis) % 180 + 180) % 180;
+          if (delta > 90) delta -= 180;
+          const cx = ((delta + 90) / 180) * CW;
+          const cy = CH - (calcResidualAtAxis(eMag, eAxis, eye.iolCylinder!, currentAxisNum) / maxR) * (CH - 12);
+          curDot = { cx, cy };
+        }
+        return (
+          <View style={styles.chartCard}>
+            <Text style={styles.sectionTitle}>Rotation Effect on Residual Astigmatism</Text>
+            <Svg width={CW} height={CH + 4}>
+              {/* Threshold line at 0.5D */}
+              <Line x1={0} y1={threshY} x2={CW} y2={threshY} stroke="#FF664444" strokeWidth={1} strokeDasharray="4,3" />
+              {/* Zero rotation line */}
+              <Line x1={zeroX} y1={0} x2={zeroX} y2={CH} stroke="#44444466" strokeWidth={1} />
+              {/* Residual curve */}
+              <Path d={pathD} stroke="#4466FF" strokeWidth={2} fill="none" />
+              {/* Current axis dot */}
+              {curDot && (
+                <Circle cx={curDot.cx} cy={curDot.cy} r={5} fill="#FFD700" />
+              )}
+            </Svg>
+            <View style={styles.chartLabels}>
+              <Text style={styles.chartLabel}>−90°</Text>
+              <Text style={styles.chartLabel}>Target (0°)</Text>
+              <Text style={styles.chartLabel}>+90°</Text>
+            </View>
+            <Text style={styles.chartHint}>
+              Yellow dot = current position · Dashed = 0.5 D threshold
+            </Text>
+          </View>
+        );
+      })()}
+
+      {/* Export surgical plan */}
+      <TouchableOpacity style={styles.exportBtn} onPress={async () => {
+        if (!patient || !eye) return;
+        const html = `
+          <html><body style="font-family:Arial;padding:20px;color:#000">
+          <h2 style="color:#003366">Toric IOL Surgical Plan</h2>
+          <p><b>Patient:</b> ${patient.name}${patient.mrn ? ` &nbsp;|&nbsp; <b>MRN:</b> ${patient.mrn}` : ''}${patient.dob ? ` &nbsp;|&nbsp; <b>DOB:</b> ${patient.dob}` : ''}</p>
+          <p><b>Eye:</b> ${eye.side === 'OD' ? 'Right Eye (OD)' : 'Left Eye (OS)'} &nbsp;|&nbsp; <b>Date:</b> ${new Date(eye.date).toLocaleDateString()}</p>
+          <hr/>
+          <h3>Corneal Measurements</h3>
+          <table border="0" cellpadding="4">
+            <tr><td><b>K1 Flat:</b></td><td>${eye.k1Power !== undefined ? `${eye.k1Power} D @ ${eye.k1Axis}°` : 'Not entered'}</td></tr>
+            <tr><td><b>K2 Steep:</b></td><td>${eye.k2Power !== undefined ? `${eye.k2Power} D @ ${eye.k1Axis !== undefined ? (eye.k1Axis + 90) % 180 : '?'}°` : 'Not entered'}</td></tr>
+            <tr><td><b>SIA:</b></td><td>${eye.sia !== undefined ? `${eye.sia} D @ ${eye.siaAxis ?? 0}°` : 'Not entered'}</td></tr>
+          </table>
+          <h3>IOL Plan</h3>
+          <table border="0" cellpadding="4">
+            <tr><td><b>Model:</b></td><td>${eye.iolModel ?? '—'}</td></tr>
+            <tr><td><b>Sphere:</b></td><td>${eye.iolSphere !== undefined ? `${eye.iolSphere} D` : '—'}</td></tr>
+            <tr><td><b>Cylinder:</b></td><td>${eye.iolCylinder !== undefined ? `${eye.iolCylinder} D` : '—'}</td></tr>
+            <tr><td><b>Target Axis:</b></td><td><b style="font-size:18px">${eye.targetAxis}°</b></td></tr>
+            <tr><td><b>Reference Axis:</b></td><td>${eye.referenceAxis}°</td></tr>
+            ${eye.currentAxis !== undefined ? `<tr><td><b>Placed Axis:</b></td><td>${eye.currentAxis}°</td></tr>` : ''}
+          </table>
+          ${eye.notes ? `<h3>Notes</h3><p>${eye.notes}</p>` : ''}
+          <p style="color:#999;font-size:11px;margin-top:30px">Generated by Toric IOL App</p>
+          </body></html>`;
+        try {
+          const { uri } = await Print.printToFileAsync({ html });
+          await Sharing.shareAsync(uri, { mimeType: 'application/pdf', dialogTitle: 'Share Surgical Plan' });
+        } catch (e: any) {
+          Alert.alert('Export failed', e.message);
+        }
+      }}>
+        <Text style={styles.exportBtnText}>Export Surgical Plan (PDF)</Text>
+      </TouchableOpacity>
+
       {/* Axis summary */}
       <View style={styles.axisSummary}>
         <Text style={styles.sectionTitle}>Axis Summary</Text>
@@ -244,6 +346,18 @@ const styles = StyleSheet.create({
   residualRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   residualValue: { fontSize: 32, fontWeight: 'bold' },
   residualLabel: { color: '#8888aa', fontSize: 14 },
+  chartCard: {
+    backgroundColor: '#1a1a2e', borderRadius: 12, padding: 14,
+    borderWidth: 1, borderColor: '#2a2a4e', marginBottom: 16,
+  },
+  chartLabels: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 },
+  chartLabel: { color: '#555577', fontSize: 10 },
+  chartHint: { color: '#444466', fontSize: 10, marginTop: 4 },
+  exportBtn: {
+    borderWidth: 1, borderColor: '#4466FF', borderRadius: 12,
+    paddingVertical: 13, alignItems: 'center', marginBottom: 16,
+  },
+  exportBtnText: { color: '#4466FF', fontSize: 14, fontWeight: '600' },
   axisSummary: {
     backgroundColor: '#1a1a2e', borderRadius: 12, padding: 14,
     borderWidth: 1, borderColor: '#2a2a4e',

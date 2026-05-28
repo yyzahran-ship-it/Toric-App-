@@ -43,8 +43,13 @@ export default function PatientListScreen() {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
       <View style={styles.header}>
-        <Text style={styles.title}>Toric IOL</Text>
-        <Text style={styles.subtitle}>Alignment Tool</Text>
+        <View>
+          <Text style={styles.title}>Toric IOL</Text>
+          <Text style={styles.subtitle}>Alignment Tool</Text>
+        </View>
+        <TouchableOpacity style={styles.settingsBtn} onPress={() => nav.navigate('Settings')}>
+          <Text style={styles.settingsIcon}>⚙</Text>
+        </TouchableOpacity>
       </View>
       <View style={styles.searchRow}>
         <TextInput
@@ -95,9 +100,15 @@ export default function PatientListScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#0d0d1a' },
-  header: { paddingTop: 60, paddingBottom: 16, paddingHorizontal: 20, backgroundColor: '#0d0d1a' },
+  header: {
+    paddingTop: 60, paddingBottom: 16, paddingHorizontal: 20,
+    backgroundColor: '#0d0d1a', flexDirection: 'row',
+    justifyContent: 'space-between', alignItems: 'flex-end',
+  },
   title: { color: '#ffffff', fontSize: 28, fontWeight: 'bold' },
   subtitle: { color: '#6666aa', fontSize: 14, marginTop: 2 },
+  settingsBtn: { paddingBottom: 4, paddingLeft: 8 },
+  settingsIcon: { color: '#8888aa', fontSize: 24 },
   searchRow: { paddingHorizontal: 16, paddingBottom: 12 },
   search: {
     backgroundColor: '#1a1a2e', color: '#fff', borderRadius: 10,

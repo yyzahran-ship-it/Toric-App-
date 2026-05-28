@@ -39,4 +39,5 @@ export type RootStackParamList = {
   Camera: { patientId: string; eyeId: string };
   Alignment: { patientId: string; eyeId: string };
   ToricCalculator: { patientId: string; eyeId: string };
+  Settings: undefined;
 };
