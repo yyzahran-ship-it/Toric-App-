@@ -9,6 +9,7 @@ import { EyeRecord, Patient, RootStackParamList } from '../types';
 import { getPatient, updateEyeRecord } from '../storage/patients';
 import AlignmentOverlay from '../components/AlignmentOverlay';
 import RotationCalculator from '../components/RotationCalculator';
+import { calcResidualAtAxis } from '../utils/toricMath';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Alignment'>;
 type Route = RouteProp<RootStackParamList, 'Alignment'>;
@@ -134,6 +135,36 @@ export default function AlignmentScreen() {
         </View>
       )}
 
+      {/* Residual astigmatism (only when we have K data + IOL cylinder + placed axis) */}
+      {hasCurrentAxis && eye.iolCylinder && eye.k1Power !== undefined && eye.k2Power !== undefined && eye.k1Axis !== undefined && (
+        <View style={styles.residualCard}>
+          <Text style={styles.sectionTitle}>Predicted Residual Astigmatism</Text>
+          {(() => {
+            const cornealMag = Math.abs(eye.k2Power! - eye.k1Power!);
+            const steepAxis = (eye.k1Axis! + 90) % 180;
+            const siaMag = eye.sia ?? 0;
+            const siaAxis = eye.siaAxis ?? 0;
+            const toRad = (d: number) => d * Math.PI / 180;
+            const Cx = cornealMag * Math.cos(2 * toRad(steepAxis)) + siaMag * Math.cos(2 * toRad(siaAxis));
+            const Cy = cornealMag * Math.sin(2 * toRad(steepAxis)) + siaMag * Math.sin(2 * toRad(siaAxis));
+            const effectiveMag = Math.sqrt(Cx * Cx + Cy * Cy);
+            let effectiveAxis = (Math.atan2(Cy, Cx) * 180 / Math.PI) / 2;
+            if (effectiveAxis < 0) effectiveAxis += 180;
+            effectiveAxis = Math.round(effectiveAxis) % 180;
+            const residual = calcResidualAtAxis(effectiveMag, effectiveAxis, eye.iolCylinder!, currentAxisNum);
+            const color = residual < 0.5 ? '#44FF88' : residual < 1.0 ? '#FFD700' : '#FF6644';
+            return (
+              <View style={styles.residualRow}>
+                <Text style={[styles.residualValue, { color }]}>{residual.toFixed(2)} D</Text>
+                <Text style={styles.residualLabel}>
+                  {residual < 0.5 ? 'Excellent' : residual < 1.0 ? 'Acceptable' : 'Reposition advised'}
+                </Text>
+              </View>
+            );
+          })()}
+        </View>
+      )}
+
       {/* Axis summary */}
       <View style={styles.axisSummary}>
         <Text style={styles.sectionTitle}>Axis Summary</Text>
@@ -206,6 +237,13 @@ const styles = StyleSheet.create({
   updateBtnText: { color: '#fff', fontSize: 14, fontWeight: '600' },
   calcSection: { marginBottom: 16 },
   sectionTitle: { color: '#8888aa', fontSize: 12, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10 },
+  residualCard: {
+    backgroundColor: '#1a1a2e', borderRadius: 12, padding: 14,
+    borderWidth: 1, borderColor: '#2a2a4e', marginBottom: 16,
+  },
+  residualRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  residualValue: { fontSize: 32, fontWeight: 'bold' },
+  residualLabel: { color: '#8888aa', fontSize: 14 },
   axisSummary: {
     backgroundColor: '#1a1a2e', borderRadius: 12, padding: 14,
     borderWidth: 1, borderColor: '#2a2a4e',

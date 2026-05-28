@@ -7,6 +7,7 @@ import PatientFormScreen from '../screens/PatientFormScreen';
 import PatientDetailScreen from '../screens/PatientDetailScreen';
 import CameraScreen from '../screens/CameraScreen';
 import AlignmentScreen from '../screens/AlignmentScreen';
+import ToricCalculatorScreen from '../screens/ToricCalculatorScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -47,6 +48,11 @@ export default function AppNavigator() {
           name="Alignment"
           component={AlignmentScreen}
           options={{ title: 'IOL Alignment' }}
+        />
+        <Stack.Screen
+          name="ToricCalculator"
+          component={ToricCalculatorScreen}
+          options={{ title: 'Toric Calculator' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

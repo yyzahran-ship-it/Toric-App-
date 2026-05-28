@@ -9,6 +9,17 @@ export interface EyeRecord {
   currentAxis?: number;   // IOL current position (intraop)
   notes?: string;
   date: string;
+  // Corneal biometry
+  k1Power?: number;       // flat K (D)
+  k1Axis?: number;        // flat meridian axis 0–180°
+  k2Power?: number;       // steep K (D), axis = k1Axis + 90
+  // Surgical parameters
+  sia?: number;           // surgically induced astigmatism (D)
+  siaAxis?: number;       // incision meridian axis 0–180°
+  // IOL data
+  iolModel?: string;
+  iolSphere?: number;     // sphere power (D)
+  iolCylinder?: number;   // cylinder power (D)
 }
 
 export interface Patient {
@@ -27,4 +38,5 @@ export type RootStackParamList = {
   PatientDetail: { patientId: string };
   Camera: { patientId: string; eyeId: string };
   Alignment: { patientId: string; eyeId: string };
+  ToricCalculator: { patientId: string; eyeId: string };
 };

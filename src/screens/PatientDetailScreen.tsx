@@ -106,6 +106,12 @@ export default function PatientDetailScreen() {
                 <Text style={styles.actionBtnText}>Align</Text>
               </TouchableOpacity>
               <TouchableOpacity
+                style={[styles.actionBtn, styles.calcBtn]}
+                onPress={() => nav.navigate('ToricCalculator', { patientId: patient.id, eyeId: eye.id })}
+              >
+                <Text style={styles.actionBtnText}>Calc</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
                 style={styles.actionBtn}
                 onPress={() => nav.navigate('Camera', { patientId: patient.id, eyeId: eye.id })}
               >
@@ -178,6 +184,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8, alignItems: 'center',
   },
   editActionBtn: { backgroundColor: '#2a2a4e' },
+  calcBtn: { backgroundColor: '#886622' },
   deleteBtn: { backgroundColor: '#882222' },
   actionBtnText: { color: '#ffffff', fontSize: 13, fontWeight: '600' },
   fab: {
