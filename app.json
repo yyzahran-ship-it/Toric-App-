@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "Toric IOL",
+    "slug": "toric-iol",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Camera is needed to capture eye images for IOL alignment.",
+        "NSPhotoLibraryUsageDescription": "Photos are used to store captured eye images."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0d0d1a",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "permissions": ["CAMERA", "READ_EXTERNAL_STORAGE", "WRITE_EXTERNAL_STORAGE"],
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
