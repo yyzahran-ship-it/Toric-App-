@@ -43,7 +43,7 @@ jobs:
           echo "org.gradle.java.home=$JAVA_HOME"                      >> android/gradle.properties
           echo "org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=512m" >> android/gradle.properties
 
-      - name: Bundle JavaScript (production bundle into assets)
+      - name: Bundle JavaScript
         run: |
           mkdir -p android/app/src/main/assets
           npx expo export:embed \
@@ -52,6 +52,7 @@ jobs:
             --bundle-output android/app/src/main/assets/index.android.bundle \
             --assets-dest android/app/src/main/res \
             --dev false
+          ls -lh android/app/src/main/assets/
 
       - name: Cache Gradle packages
         uses: actions/cache@v4
@@ -63,18 +64,30 @@ jobs:
           restore-keys: gradle-
 
       - name: Build APK
-        run: cd android && ./gradlew assembleDebug --no-daemon
+        run: |
+          cd android && ./gradlew assembleDebug --no-daemon \
+            -x createBundleDebugJsAndAssets \
+            --info 2>&1 | tee /tmp/gradle.log
+          exit ${PIPESTATUS[0]}
         env:
           GRADLE_OPTS: >-
             -Dorg.gradle.daemon=false
             -Dorg.gradle.java.installations.paths=${{ env.JAVA_HOME }}
             -Dorg.gradle.java.installations.auto-provisioning=false
             -Dorg.gradle.jvmargs=-Xmx4g
-          BUNDLE_SKIP_REACT_NATIVE_METRO=1
 
       - name: Upload APK
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: toric-iol-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 30
+
+      - name: Upload build log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-log
+          path: /tmp/gradle.log
+          retention-days: 7
