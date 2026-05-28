@@ -22,7 +22,7 @@ jobs:
           node-version: 20
           cache: npm
 
-      - name: Setup Java
+      - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -37,18 +37,10 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x android/gradlew
 
-      - name: Generate signing keystore
+      - name: Configure Gradle Java toolchain
         run: |
-          keytool -genkey -v \
-            -keystore android/app/upload.keystore \
-            -alias toric \
-            -keyalg RSA -keysize 2048 -validity 10000 \
-            -storepass android -keypass android \
-            -dname "CN=Toric IOL,O=ToricApp,C=US"
-          echo "MYAPP_UPLOAD_STORE_FILE=upload.keystore" >> android/gradle.properties
-          echo "MYAPP_UPLOAD_STORE_PASSWORD=android"     >> android/gradle.properties
-          echo "MYAPP_UPLOAD_KEY_ALIAS=toric"            >> android/gradle.properties
-          echo "MYAPP_UPLOAD_KEY_PASSWORD=android"       >> android/gradle.properties
+          echo "org.gradle.java.home=$JAVA_HOME" >> android/gradle.properties
+          echo "org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=512m" >> android/gradle.properties
 
       - name: Cache Gradle packages
         uses: actions/cache@v4
@@ -60,9 +52,12 @@ jobs:
           restore-keys: gradle-
 
       - name: Build release APK
-        run: cd android && ./gradlew assembleRelease --no-daemon
+        run: cd android && ./gradlew assembleRelease --no-daemon --stacktrace
         env:
-          GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4g -Dorg.gradle.daemon=false"
+          GRADLE_OPTS: >-
+            -Dorg.gradle.daemon=false
+            -Dorg.gradle.java.installations.paths=${{ env.JAVA_HOME }}
+            -Dorg.gradle.java.installations.auto-provisioning=false
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
