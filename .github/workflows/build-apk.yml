@@ -37,8 +37,9 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x android/gradlew
 
-      - name: Configure Gradle Java toolchain
+      - name: Configure Gradle
         run: |
+          echo "sdk.dir=$ANDROID_HOME"          >  android/local.properties
           echo "org.gradle.java.home=$JAVA_HOME" >> android/gradle.properties
           echo "org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=512m" >> android/gradle.properties
 
