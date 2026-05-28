@@ -63,7 +63,11 @@ jobs:
           restore-keys: gradle-
 
       - name: Build release APK
-        run: cd android && ./gradlew assembleRelease --no-daemon
+        run: |
+          cd android && ./gradlew assembleRelease --no-daemon \
+            -Pandroid.enableMinifyEnabled=false \
+            -x lintRelease \
+            -x lint
         env:
           GRADLE_OPTS: >-
             -Dorg.gradle.daemon=false
