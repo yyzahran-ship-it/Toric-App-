@@ -70,11 +70,15 @@ jobs:
         run: |
           cd android && ./gradlew assembleDebug --no-daemon --stacktrace \
             -x createBundleDebugJsAndAssets \
+            "-Pexpo.inlineModules.watchedDirectories=[]" \
             > /tmp/gradle.log 2>&1 || {
             echo ""
-            echo "====== LAST 200 LINES OF BUILD LOG ======"
-            tail -200 /tmp/gradle.log
-            echo "=========================================="
+            echo "====== FIRST 80 LINES ======"
+            head -80 /tmp/gradle.log
+            echo ""
+            echo "====== LAST 120 LINES ======"
+            tail -120 /tmp/gradle.log
+            echo "============================="
             exit 1
           }
         env:
