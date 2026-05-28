@@ -112,10 +112,26 @@ export default function PatientDetailScreen() {
                 <Text style={styles.actionBtnText}>Calc</Text>
               </TouchableOpacity>
               <TouchableOpacity
+                style={[styles.actionBtn, styles.alpinsBtn]}
+                onPress={() => nav.navigate('AlpinsAnalysis', { patientId: patient.id, eyeId: eye.id })}
+              >
+                <Text style={styles.actionBtnText}>Alpins</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
                 style={styles.actionBtn}
                 onPress={() => nav.navigate('Camera', { patientId: patient.id, eyeId: eye.id })}
               >
                 <Text style={styles.actionBtnText}>Camera</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={[styles.eyeActions, { marginTop: 6 }]}>
+              <TouchableOpacity
+                style={[styles.actionBtn, styles.annotateBtn]}
+                onPress={() => nav.navigate('LandmarkAnnotation', { patientId: patient.id, eyeId: eye.id })}
+              >
+                <Text style={styles.actionBtnText}>
+                  Annotate{eye.landmarks && eye.landmarks.length > 0 ? ` (${eye.landmarks.length})` : ''}
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.actionBtn, styles.editActionBtn]}
@@ -185,6 +201,8 @@ const styles = StyleSheet.create({
   },
   editActionBtn: { backgroundColor: '#2a2a4e' },
   calcBtn: { backgroundColor: '#886622' },
+  alpinsBtn: { backgroundColor: '#225566' },
+  annotateBtn: { backgroundColor: '#3a2a4e' },
   deleteBtn: { backgroundColor: '#882222' },
   actionBtnText: { color: '#ffffff', fontSize: 13, fontWeight: '600' },
   fab: {

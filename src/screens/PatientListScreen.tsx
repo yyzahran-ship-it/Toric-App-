@@ -47,9 +47,14 @@ export default function PatientListScreen() {
           <Text style={styles.title}>Toric IOL</Text>
           <Text style={styles.subtitle}>Alignment Tool</Text>
         </View>
-        <TouchableOpacity style={styles.settingsBtn} onPress={() => nav.navigate('Settings')}>
-          <Text style={styles.settingsIcon}>⚙</Text>
-        </TouchableOpacity>
+        <View style={styles.headerRight}>
+          <TouchableOpacity style={styles.headerBtn} onPress={() => nav.navigate('SiaNomogram')}>
+            <Text style={styles.headerBtnText}>SIA</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.settingsBtn} onPress={() => nav.navigate('Settings')}>
+            <Text style={styles.settingsIcon}>⚙</Text>
+          </TouchableOpacity>
+        </View>
       </View>
       <View style={styles.searchRow}>
         <TextInput
@@ -107,6 +112,12 @@ const styles = StyleSheet.create({
   },
   title: { color: '#ffffff', fontSize: 28, fontWeight: 'bold' },
   subtitle: { color: '#6666aa', fontSize: 14, marginTop: 2 },
+  headerRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  headerBtn: {
+    borderWidth: 1, borderColor: '#C8A84B44', borderRadius: 8,
+    paddingHorizontal: 10, paddingVertical: 5,
+  },
+  headerBtnText: { color: '#C8A84B', fontSize: 12, fontWeight: '700' },
   settingsBtn: { paddingBottom: 4, paddingLeft: 8 },
   settingsIcon: { color: '#8888aa', fontSize: 24 },
   searchRow: { paddingHorizontal: 16, paddingBottom: 12 },

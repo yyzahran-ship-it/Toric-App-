@@ -8,6 +8,9 @@ import PatientDetailScreen from '../screens/PatientDetailScreen';
 import CameraScreen from '../screens/CameraScreen';
 import AlignmentScreen from '../screens/AlignmentScreen';
 import ToricCalculatorScreen from '../screens/ToricCalculatorScreen';
+import AlpinsAnalysisScreen from '../screens/AlpinsAnalysisScreen';
+import LandmarkAnnotationScreen from '../screens/LandmarkAnnotationScreen';
+import SiaNomogramScreen from '../screens/SiaNomogramScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -54,6 +57,21 @@ export default function AppNavigator() {
           name="ToricCalculator"
           component={ToricCalculatorScreen}
           options={{ title: 'Toric Calculator' }}
+        />
+        <Stack.Screen
+          name="AlpinsAnalysis"
+          component={AlpinsAnalysisScreen}
+          options={{ title: 'Alpins Analysis' }}
+        />
+        <Stack.Screen
+          name="LandmarkAnnotation"
+          component={LandmarkAnnotationScreen}
+          options={{ title: 'Landmark Annotation' }}
+        />
+        <Stack.Screen
+          name="SiaNomogram"
+          component={SiaNomogramScreen}
+          options={{ title: 'SIA Nomogram' }}
         />
         <Stack.Screen
           name="Settings"

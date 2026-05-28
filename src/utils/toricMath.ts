@@ -115,6 +115,71 @@ export function calcResidualAtAxis(
   return Math.round(Math.sqrt(Rx * Rx + Ry * Ry) * 100) / 100;
 }
 
+// Barrett-style posterior corneal astigmatism correction.
+// Posterior cornea contributes ~0.3 D ATR (steep horizontal, double-angle = (0.3, 0)).
+// WTR anterior → total is less than anterior K; ATR anterior → total is more.
+export function applyPCA(
+  k1Power: number,
+  k1Axis: number,
+  k2Power: number,
+): { adjustedMag: number; adjustedAxis: number } {
+  const cornealMag = Math.abs(k2Power - k1Power);
+  const steepAxis = (k1Axis + 90) % 180;
+  const Ax = cornealMag * Math.cos(2 * toRad(steepAxis));
+  const Ay = cornealMag * Math.sin(2 * toRad(steepAxis));
+  // ATR posterior component: steep at 0° → double-angle = (0.3, 0)
+  const PCA = 0.3;
+  const Tx = Ax + PCA;
+  const Ty = Ay;
+  const adjustedMag = Math.sqrt(Tx * Tx + Ty * Ty);
+  let adjustedAxis = toDeg(Math.atan2(Ty, Tx)) / 2;
+  if (adjustedAxis < 0) adjustedAxis += 180;
+  return { adjustedMag: Math.round(adjustedMag * 100) / 100, adjustedAxis: Math.round(adjustedAxis) % 180 };
+}
+
+export interface AlpinsVectors {
+  tia: { mag: number; axis: number };
+  sia: { mag: number; axis: number };
+  dv: { mag: number; axis: number };
+  ci: number;    // correction index (SIA/TIA), ideal = 1.0
+  me: number;    // magnitude of error = |SIA| - |TIA|, ideal = 0
+  ae: number;    // angle of error (degrees), ideal = 0
+  is: number;    // index of success = |DV|/|TIA|, ideal = 0
+}
+
+// Alpins vector analysis. Both tia and sia specified as {mag (D), axis (°)}.
+export function calcAlpins(
+  tia: { mag: number; axis: number },
+  sia: { mag: number; axis: number },
+): AlpinsVectors {
+  const TIAx = tia.mag * Math.cos(2 * toRad(tia.axis));
+  const TIAy = tia.mag * Math.sin(2 * toRad(tia.axis));
+  const SIAx = sia.mag * Math.cos(2 * toRad(sia.axis));
+  const SIAy = sia.mag * Math.sin(2 * toRad(sia.axis));
+  const DVx = TIAx - SIAx;
+  const DVy = TIAy - SIAy;
+  const dvMag = Math.sqrt(DVx * DVx + DVy * DVy);
+  let dvAxis = toDeg(Math.atan2(DVy, DVx)) / 2;
+  if (dvAxis < 0) dvAxis += 180;
+  const ci = tia.mag > 0 ? sia.mag / tia.mag : 0;
+  const me = sia.mag - tia.mag;
+  // Angle of error in double-angle space / 2
+  const tiaAngle = toDeg(Math.atan2(TIAy, TIAx));
+  const siaAngle = toDeg(Math.atan2(SIAy, SIAx));
+  let ae = (siaAngle - tiaAngle) / 2;
+  while (ae > 90) ae -= 180;
+  while (ae < -90) ae += 180;
+  return {
+    tia,
+    sia,
+    dv: { mag: Math.round(dvMag * 100) / 100, axis: Math.round(dvAxis) % 180 },
+    ci: Math.round(ci * 100) / 100,
+    me: Math.round(me * 100) / 100,
+    ae: Math.round(ae * 10) / 10,
+    is: tia.mag > 0 ? Math.round((dvMag / tia.mag) * 100) / 100 : 0,
+  };
+}
+
 // How residual changes every 5° of rotation from placed axis (for the rotation-effect chart)
 export function rotationEffect(
   effectiveMag: number,

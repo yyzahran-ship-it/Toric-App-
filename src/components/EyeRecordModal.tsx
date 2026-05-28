@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   Modal, View, Text, TextInput, TouchableOpacity, StyleSheet,
-  ScrollView, KeyboardAvoidingView, Platform,
+  ScrollView, KeyboardAvoidingView, Platform, Switch,
 } from 'react-native';
 import { EyeRecord } from '../types';
 import { createEyeRecord } from '../storage/patients';
@@ -27,6 +27,8 @@ export default function EyeRecordModal({ visible, existing, onSave, onClose }: P
   const [iolModel, setIolModel] = useState('');
   const [iolSphere, setIolSphere] = useState('');
   const [iolCylinder, setIolCylinder] = useState('');
+  const [postRefractive, setPostRefractive] = useState(false);
+  const [postRefractiveType, setPostRefractiveType] = useState<'LASIK' | 'PRK' | 'RK' | ''>('');
 
   useEffect(() => {
     if (existing) {
@@ -42,11 +44,14 @@ export default function EyeRecordModal({ visible, existing, onSave, onClose }: P
       setIolModel(existing.iolModel ?? '');
       setIolSphere(existing.iolSphere !== undefined ? String(existing.iolSphere) : '');
       setIolCylinder(existing.iolCylinder !== undefined ? String(existing.iolCylinder) : '');
+      setPostRefractive(existing.postRefractive ?? false);
+      setPostRefractiveType(existing.postRefractiveType ?? '');
     } else {
       setSide('OD'); setRefAxis(''); setTargetAxis(''); setNotes('');
       setK1Power(''); setK1Axis(''); setK2Power('');
       setSia(''); setSiaAxis('');
       setIolModel(''); setIolSphere(''); setIolCylinder('');
+      setPostRefractive(false); setPostRefractiveType('');
     }
   }, [existing, visible]);
 
@@ -71,6 +76,8 @@ export default function EyeRecordModal({ visible, existing, onSave, onClose }: P
       iolModel: iolModel.trim() || undefined,
       iolSphere: iolSphere ? parseFloat(iolSphere) : undefined,
       iolCylinder: iolCylinder ? parseFloat(iolCylinder) : undefined,
+      postRefractive: postRefractive || undefined,
+      postRefractiveType: (postRefractive && postRefractiveType) ? postRefractiveType as 'LASIK' | 'PRK' | 'RK' : undefined,
     });
   }
 
@@ -153,6 +160,30 @@ export default function EyeRecordModal({ visible, existing, onSave, onClose }: P
               </View>
             </View>
 
+            <Text style={styles.sectionTitle}>Post-Refractive Surgery</Text>
+            <View style={styles.switchRow}>
+              <Text style={styles.label}>Prior refractive surgery</Text>
+              <Switch
+                value={postRefractive}
+                onValueChange={setPostRefractive}
+                trackColor={{ false: '#2a2a4e', true: '#FF880044' }}
+                thumbColor={postRefractive ? '#FF8800' : '#666688'}
+              />
+            </View>
+            {postRefractive && (
+              <View style={styles.sideRow}>
+                {(['LASIK', 'PRK', 'RK'] as const).map(t => (
+                  <TouchableOpacity
+                    key={t}
+                    style={[styles.sideBtn, postRefractiveType === t && styles.sideBtnWarn]}
+                    onPress={() => setPostRefractiveType(t)}
+                  >
+                    <Text style={[styles.sideBtnText, postRefractiveType === t && styles.sideBtnWarnText]}>{t}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+
             <Text style={styles.label}>Notes (optional)</Text>
             <TextInput style={[styles.input, styles.textArea]} value={notes} onChangeText={setNotes}
               placeholder="Surgical notes..." placeholderTextColor="#555" multiline numberOfLines={3} />
@@ -203,6 +234,9 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: 10 },
   half: { flex: 1 },
   siaRow: { flexDirection: 'row', gap: 6 },
+  switchRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 },
+  sideBtnWarn: { borderColor: '#FF8800', backgroundColor: '#FF880022' },
+  sideBtnWarnText: { color: '#FF8800' },
   btnRow: { flexDirection: 'row', gap: 12, marginTop: 8 },
   cancelBtn: {
     flex: 1, borderRadius: 10, borderWidth: 1, borderColor: '#2a2a4e',

@@ -81,6 +81,7 @@ export default function AlignmentScreen() {
               referenceAxis={eye.referenceAxis}
               targetAxis={eye.targetAxis}
               currentAxis={hasCurrentAxis ? currentAxisNum : undefined}
+              landmarks={eye.landmarks}
             />
           </>
         ) : (
@@ -90,6 +91,7 @@ export default function AlignmentScreen() {
               referenceAxis={eye.referenceAxis}
               targetAxis={eye.targetAxis}
               currentAxis={hasCurrentAxis ? currentAxisNum : undefined}
+              landmarks={eye.landmarks}
             />
             <TouchableOpacity
               style={styles.cameraBtn}
@@ -101,14 +103,25 @@ export default function AlignmentScreen() {
         )}
       </View>
 
-      {eye.imageUri && (
+      {/* Quick actions bar */}
+      <View style={styles.quickActions}>
+        {eye.imageUri && (
+          <TouchableOpacity
+            style={styles.quickBtn}
+            onPress={() => nav.navigate('Camera', { patientId: params.patientId, eyeId: params.eyeId })}
+          >
+            <Text style={styles.quickBtnText}>Recapture</Text>
+          </TouchableOpacity>
+        )}
         <TouchableOpacity
-          style={styles.recaptureBtn}
-          onPress={() => nav.navigate('Camera', { patientId: params.patientId, eyeId: params.eyeId })}
+          style={[styles.quickBtn, styles.quickBtnGold]}
+          onPress={() => nav.navigate('LandmarkAnnotation', { patientId: params.patientId, eyeId: params.eyeId })}
         >
-          <Text style={styles.recaptureBtnText}>Recapture</Text>
+          <Text style={[styles.quickBtnText, styles.quickBtnTextGold]}>
+            Annotate {eye.landmarks && eye.landmarks.length > 0 ? `(${eye.landmarks.length})` : ''}
+          </Text>
         </TouchableOpacity>
-      )}
+      </View>
 
       {/* Current IOL axis input */}
       <View style={styles.currentAxisCard}>
@@ -318,8 +331,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20, paddingVertical: 10,
   },
   cameraBtnText: { color: '#fff', fontSize: 15, fontWeight: '600' },
-  recaptureBtn: { alignSelf: 'flex-end', marginBottom: 16 },
-  recaptureBtnText: { color: '#4466FF', fontSize: 14 },
+  quickActions: { flexDirection: 'row', gap: 10, marginBottom: 16 },
+  quickBtn: {
+    flex: 1, borderWidth: 1, borderColor: '#4466FF44',
+    borderRadius: 10, paddingVertical: 8, alignItems: 'center',
+  },
+  quickBtnGold: { borderColor: '#C8A84B44' },
+  quickBtnText: { color: '#4466FF', fontSize: 13 },
+  quickBtnTextGold: { color: '#C8A84B' },
   currentAxisCard: {
     backgroundColor: '#1a1a2e', borderRadius: 12, padding: 14,
     borderWidth: 1, borderColor: '#2a2a4e', marginBottom: 16,

@@ -7,7 +7,7 @@ import { useFocusEffect, useNavigation, useRoute, RouteProp } from '@react-navig
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 import { getPatient, updateEyeRecord } from '../storage/patients';
-import { calcToric, IOL_PLATFORMS, ToricResult } from '../utils/toricMath';
+import { calcToric, applyPCA, IOL_PLATFORMS, ToricResult } from '../utils/toricMath';
 import { getSettings } from '../storage/settings';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'ToricCalculator'>;
@@ -28,6 +28,9 @@ export default function ToricCalculatorScreen() {
   const [result, setResult] = useState<ToricResult | null>(null);
   const [saving, setSaving] = useState(false);
   const [eyeSide, setEyeSide] = useState('');
+  const [pcaEnabled, setPcaEnabled] = useState(false);
+  const [postRefractive, setPostRefractive] = useState(false);
+  const [postRefractiveType, setPostRefractiveType] = useState<string>('');
 
   useFocusEffect(
     useCallback(() => {
@@ -38,10 +41,11 @@ export default function ToricCalculatorScreen() {
         if (eye.k1Power !== undefined) setK1Power(String(eye.k1Power));
         if (eye.k1Axis !== undefined) setK1Axis(String(eye.k1Axis));
         if (eye.k2Power !== undefined) setK2Power(String(eye.k2Power));
-        // Use eye-specific SIA if set, otherwise fall back to user default
         setSia(String(eye.sia !== undefined ? eye.sia : settings.defaultSia));
         setSiaAxis(String(eye.siaAxis !== undefined ? eye.siaAxis : settings.defaultSiaAxis));
         setPlatform(settings.defaultPlatform);
+        setPostRefractive(eye.postRefractive ?? false);
+        setPostRefractiveType(eye.postRefractiveType ?? '');
       });
     }, [params.patientId, params.eyeId])
   );
@@ -60,8 +64,34 @@ export default function ToricCalculatorScreen() {
       Alert.alert('Invalid', 'Axis values must be between 0 and 180°.');
       return;
     }
+
+    let effectiveK1Power = k1p;
+    let effectiveK1Axis = k1a;
+    let effectiveK2Power = k2p;
+
+    // PCA correction: adjust k values to total corneal astigmatism
+    if (pcaEnabled) {
+      const pca = applyPCA(k1p, k1a, k2p);
+      // Reconstruct synthetic K values from adjusted parameters
+      effectiveK1Axis = (pca.adjustedAxis + 90) % 180; // flat axis = steep − 90
+      const halfMag = pca.adjustedMag / 2;
+      effectiveK1Power = k1p - halfMag + (Math.abs(k2p - k1p) / 2 - halfMag);
+      effectiveK2Power = k2p + pca.adjustedMag - Math.abs(k2p - k1p);
+      // Simpler: pass adjusted magnitude directly by overriding k2 to set correct difference
+      const midK = (k1p + k2p) / 2;
+      effectiveK1Power = midK - pca.adjustedMag / 2;
+      effectiveK2Power = midK + pca.adjustedMag / 2;
+      effectiveK1Axis = pca.adjustedAxis >= 90
+        ? (pca.adjustedAxis - 90 + 180) % 180
+        : pca.adjustedAxis + 90 % 180;
+      // Flat axis = steep − 90
+      effectiveK1Axis = ((pca.adjustedAxis - 90) + 180) % 180;
+    }
+
     const r = calcToric({
-      k1Power: k1p, k1Axis: k1a, k2Power: k2p,
+      k1Power: effectiveK1Power,
+      k1Axis: effectiveK1Axis,
+      k2Power: effectiveK2Power,
       sia: isNaN(s) ? 0 : s,
       siaAxis: isNaN(sa) ? 0 : sa,
       platform,
@@ -98,6 +128,20 @@ export default function ToricCalculatorScreen() {
 
   return (
     <ScrollView style={s.container} contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
+
+      {/* Post-refractive warning */}
+      {postRefractive && (
+        <View style={s.warningBanner}>
+          <Text style={s.warningIcon}>⚠</Text>
+          <View style={s.warningBody}>
+            <Text style={s.warningTitle}>Post-Refractive Eye{postRefractiveType ? ` (${postRefractiveType})` : ''}</Text>
+            <Text style={s.warningText}>
+              Keratometry may underestimate corneal power. Use total corneal astigmatism from Scheimpflug/OCT. PCA correction is less predictable.
+            </Text>
+          </View>
+        </View>
+      )}
+
       <Text style={s.sectionHeader}>Corneal Measurements</Text>
       <View style={s.card}>
         <View style={s.row}>
@@ -129,6 +173,24 @@ export default function ToricCalculatorScreen() {
             </View>
           </View>
         </View>
+
+        {/* PCA correction toggle */}
+        <TouchableOpacity
+          style={[s.toggleRow, pcaEnabled && s.toggleRowActive]}
+          onPress={() => { setPcaEnabled(!pcaEnabled); setResult(null); }}
+        >
+          <View style={[s.checkbox, pcaEnabled && s.checkboxActive]}>
+            {pcaEnabled && <Text style={s.checkmark}>✓</Text>}
+          </View>
+          <View style={s.toggleBody}>
+            <Text style={[s.toggleLabel, pcaEnabled && s.toggleLabelActive]}>
+              PCA Correction (Barrett)
+            </Text>
+            <Text style={s.toggleSub}>
+              Adds ~0.3 D ATR posterior corneal contribution
+            </Text>
+          </View>
+        </TouchableOpacity>
       </View>
 
       <Text style={s.sectionHeader}>Surgical Parameters</Text>
@@ -173,7 +235,7 @@ export default function ToricCalculatorScreen() {
 
       {result && (
         <>
-          <Text style={s.sectionHeader}>Results</Text>
+          <Text style={s.sectionHeader}>Results {pcaEnabled ? '(PCA corrected)' : ''}</Text>
           <View style={s.card}>
             <View style={s.resultRow}>
               <View style={s.resultBlock}>
@@ -182,7 +244,7 @@ export default function ToricCalculatorScreen() {
               </View>
               <View style={s.resultBlock}>
                 <Text style={s.resultLabel}>Placement Axis</Text>
-                <Text style={[s.resultBig, { color: '#44FF88' }]}>{result.effectiveAxis}°</Text>
+                <Text style={[s.resultBig, { color: '#C8A84B' }]}>{result.effectiveAxis}°</Text>
               </View>
             </View>
             <View style={[s.resultRow, { marginTop: 12 }]}>
@@ -239,6 +301,15 @@ const s = StyleSheet.create({
     color: '#8888aa', fontSize: 11, textTransform: 'uppercase',
     letterSpacing: 1, marginBottom: 8, marginTop: 16,
   },
+  warningBanner: {
+    backgroundColor: '#FF880022', borderRadius: 10, padding: 12,
+    borderWidth: 1, borderColor: '#FF880044', flexDirection: 'row',
+    alignItems: 'flex-start', gap: 10, marginBottom: 8,
+  },
+  warningIcon: { fontSize: 20, color: '#FF8800' },
+  warningBody: { flex: 1 },
+  warningTitle: { color: '#FF8800', fontSize: 14, fontWeight: '700' },
+  warningText: { color: '#CC7700', fontSize: 12, marginTop: 4, lineHeight: 17 },
   card: {
     backgroundColor: '#1a1a2e', borderRadius: 12, padding: 14,
     borderWidth: 1, borderColor: '#2a2a4e',
@@ -257,6 +328,22 @@ const s = StyleSheet.create({
     alignItems: 'center',
   },
   derivedValue: { color: '#8888aa', fontSize: 16 },
+  toggleRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    paddingVertical: 10, paddingHorizontal: 4,
+    borderTopWidth: 1, borderTopColor: '#2a2a4e', marginTop: 4,
+  },
+  toggleRowActive: { borderTopColor: '#C8A84B44' },
+  checkbox: {
+    width: 22, height: 22, borderRadius: 6, borderWidth: 2,
+    borderColor: '#4a4a6e', alignItems: 'center', justifyContent: 'center',
+  },
+  checkboxActive: { borderColor: '#C8A84B', backgroundColor: '#C8A84B22' },
+  checkmark: { color: '#C8A84B', fontSize: 13, fontWeight: 'bold' },
+  toggleBody: { flex: 1 },
+  toggleLabel: { color: '#8888aa', fontSize: 13, fontWeight: '600' },
+  toggleLabelActive: { color: '#C8A84B' },
+  toggleSub: { color: '#555577', fontSize: 11, marginTop: 2 },
   chipBtn: {
     paddingHorizontal: 12, paddingVertical: 7, borderRadius: 20,
     borderWidth: 1, borderColor: '#2a2a4e',
@@ -278,15 +365,15 @@ const s = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', gap: 8,
     paddingVertical: 7, borderBottomWidth: 1, borderBottomColor: '#0d0d1a',
   },
-  optRowBest: { backgroundColor: '#FFD70011', borderRadius: 8, borderBottomWidth: 0, marginVertical: 2 },
+  optRowBest: { backgroundColor: '#C8A84B11', borderRadius: 8, borderBottomWidth: 0, marginVertical: 2 },
   optCyl: { color: '#8888aa', fontSize: 13, width: 52, textAlign: 'right' },
-  optBestText: { color: '#FFD700' },
+  optBestText: { color: '#C8A84B' },
   optBar: { flex: 1, height: 6, backgroundColor: '#0d0d1a', borderRadius: 3, overflow: 'hidden' },
   optBarFill: { height: '100%', borderRadius: 3 },
   optBarNorm: { backgroundColor: '#2a2a6e' },
-  optBarBest: { backgroundColor: '#FFD700' },
+  optBarBest: { backgroundColor: '#C8A84B' },
   optResidual: { color: '#8888aa', fontSize: 13, width: 48, textAlign: 'right' },
-  bestTag: { color: '#FFD700', fontSize: 10, fontWeight: 'bold', width: 32 },
+  bestTag: { color: '#C8A84B', fontSize: 10, fontWeight: 'bold', width: 32 },
   applyBtn: {
     backgroundColor: '#44AA66', borderRadius: 12, paddingVertical: 15,
     alignItems: 'center', marginTop: 16,

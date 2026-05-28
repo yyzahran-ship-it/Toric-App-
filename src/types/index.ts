@@ -1,5 +1,12 @@
 export type EyeSide = 'OD' | 'OS'; // OD = right, OS = left
 
+export interface Landmark {
+  x: number;      // 0–1 relative to image width
+  y: number;      // 0–1 relative to image height
+  color: string;
+  label?: string;
+}
+
 export interface EyeRecord {
   id: string;
   side: EyeSide;
@@ -20,6 +27,11 @@ export interface EyeRecord {
   iolModel?: string;
   iolSphere?: number;     // sphere power (D)
   iolCylinder?: number;   // cylinder power (D)
+  // Post-refractive surgery
+  postRefractive?: boolean;
+  postRefractiveType?: 'LASIK' | 'PRK' | 'RK';
+  // Landmark annotations (vessel reference marks)
+  landmarks?: Landmark[];
 }
 
 export interface Patient {
@@ -39,5 +51,8 @@ export type RootStackParamList = {
   Camera: { patientId: string; eyeId: string };
   Alignment: { patientId: string; eyeId: string };
   ToricCalculator: { patientId: string; eyeId: string };
+  AlpinsAnalysis: { patientId: string; eyeId: string };
+  LandmarkAnnotation: { patientId: string; eyeId: string };
+  SiaNomogram: undefined;
   Settings: undefined;
 };
