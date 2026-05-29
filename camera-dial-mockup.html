@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Camera Screen – Dial Mockups</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #111; font-family: -apple-system, sans-serif; padding: 24px; }
+  h2 { color: #C8A84B; text-align: center; margin-bottom: 6px; font-size: 20px; letter-spacing: 1px; }
+  .legend { color: #888; text-align: center; font-size: 13px; margin-bottom: 28px; }
+  .screens { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; }
+  .col { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .option-label {
+    color: #C8A84B; font-size: 13px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; border: 1px solid #C8A84B44; border-radius: 6px;
+    padding: 4px 12px;
+  }
+  .phone {
+    width: 320px; height: 620px;
+    background: #000; border-radius: 36px;
+    border: 5px solid #333; position: relative; overflow: hidden;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.6);
+  }
+  .camera-bg {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 50%, #1a1a10 0%, #0a0a08 100%);
+  }
+  /* hint bar */
+  .hint {
+    position: absolute; top: 20px; left: 0; right: 0;
+    display: flex; justify-content: center;
+  }
+  .hint-pill {
+    background: rgba(0,0,0,0.65); border: 1px solid rgba(200,168,75,0.3);
+    color: rgba(255,255,255,0.9); font-size: 13px;
+    padding: 5px 14px; border-radius: 20px;
+  }
+  /* level bar */
+  .level-wrap {
+    position: absolute; top: 60px; left: 30px; right: 30px;
+  }
+  .level-bar {
+    height: 4px; background: rgba(255,255,255,0.15); border-radius: 2px;
+    position: relative;
+  }
+  .level-dot {
+    position: absolute; top: -5px; left: 47%;
+    width: 14px; height: 14px; border-radius: 7px;
+    background: #FFD700;
+  }
+  .level-center {
+    position: absolute; top: -5px; left: calc(50% - 7px);
+    width: 14px; height: 14px; border-radius: 7px;
+    border: 2px solid rgba(255,255,255,0.5);
+  }
+  .level-text {
+    text-align: center; margin-top: 8px;
+    color: #FFD700; font-size: 12px;
+  }
+  /* SVG dial container */
+  .dial-wrap {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) translateY(-20px);
+  }
+  /* gallery toggle */
+  .gallery {
+    position: absolute; bottom: 130px; left: 0; right: 0;
+    display: flex; justify-content: center;
+  }
+  .gallery-pill {
+    background: rgba(0,0,0,0.6); border: 1px solid rgba(200,168,75,0.3);
+    border-radius: 20px; padding: 7px 16px;
+    display: flex; align-items: center; gap: 8px;
+    color: rgba(255,255,255,0.85); font-size: 13px;
+  }
+  .toggle-dot { width: 16px; height: 16px; border-radius: 8px; background: #C8A84B; }
+  /* shutter */
+  .shutter-wrap {
+    position: absolute; bottom: 40px; left: 0; right: 0;
+    display: flex; justify-content: center;
+  }
+  .shutter {
+    width: 70px; height: 70px; border-radius: 35px;
+    border: 4px solid #C8A84B;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .shutter-inner {
+    width: 54px; height: 54px; border-radius: 27px;
+    background: #C8A84B;
+  }
+  /* description box */
+  .desc {
+    background: #1a1500; border: 1px solid #C8A84B44;
+    border-radius: 10px; padding: 12px 14px; width: 320px;
+    color: #C8A84B88; font-size: 12px; line-height: 1.6;
+  }
+  .desc strong { color: #C8A84B; }
+</style>
+</head>
+<body>
+
+<h2>Camera Screen — Dial Mockups</h2>
+<p class="legend">Both options keep the live camera background · Numbers around the circle in gold · Premium instrument feel</p>
+
+<div class="screens">
+
+  <!-- ===== OPTION A: Clean Medical Dial ===== -->
+  <div class="col">
+    <div class="option-label">Option A — Clean Medical Dial</div>
+    <div class="phone">
+      <div class="camera-bg"></div>
+
+      <div class="hint">
+        <div class="hint-pill">Center the eye within the circle</div>
+      </div>
+
+      <div class="level-wrap">
+        <div class="level-bar">
+          <div class="level-dot"></div>
+          <div class="level-center"></div>
+        </div>
+        <div class="level-text">Tilt right 8°</div>
+      </div>
+
+      <div class="dial-wrap">
+        <svg width="290" height="290" viewBox="0 0 290 290">
+          <defs>
+            <radialGradient id="glowA" cx="50%" cy="50%" r="50%">
+              <stop offset="70%" stop-color="#C8A84B" stop-opacity="0"/>
+              <stop offset="100%" stop-color="#C8A84B" stop-opacity="0.06"/>
+            </radialGradient>
+          </defs>
+
+          <!-- Outer glow fill -->
+          <circle cx="145" cy="145" r="132" fill="url(#glowA)"/>
+
+          <!-- Outer gold accent ring -->
+          <circle cx="145" cy="145" r="136" stroke="#C8A84B" stroke-width="1" fill="none" opacity="0.25"/>
+
+          <!-- Main dial ring -->
+          <circle cx="145" cy="145" r="130" stroke="#C8A84B" stroke-width="2" fill="none" opacity="0.8"/>
+
+          <!-- Inner crosshair circle -->
+          <circle cx="145" cy="145" r="45" stroke="rgba(200,168,75,0.4)" stroke-width="1" fill="none"/>
+
+          <!-- Crosshairs -->
+          <line x1="15" y1="145" x2="275" y2="145" stroke="rgba(200,168,75,0.35)" stroke-width="1"/>
+          <line x1="145" y1="15" x2="145" y2="275" stroke="rgba(200,168,75,0.35)" stroke-width="1"/>
+
+          <!-- Tick marks every 10° (major every 30°) -->
+          <!-- We go 0–360° around the circle, but label using ophthalmic axis 0–180 -->
+
+          <script type="text/javascript">/* Generated inline below */</script>
+
+          <!-- 0° ticks around full circle (every 10°) -->
+          <!-- Major ticks at 0,30,60,90,120,150,180,210,240,270,300,330 -->
+          <!-- Rendered as SVG paths below -->
+
+          <!-- 0° = right -->
+          <line x1="275" y1="145" x2="263" y2="145" stroke="#C8A84B" stroke-width="2.5" opacity="0.9"/>
+          <text x="283" y="149" fill="#C8A84B" font-size="11" font-weight="700" text-anchor="middle" opacity="0.95">0°</text>
+
+          <!-- 10° -->
+          <line x1="273.0" y1="122.4" x2="262.0" y2="124.6" stroke="#C8A84B" stroke-width="1" opacity="0.5"/>
+          <!-- 20° -->
+          <line x1="267.2" y1="100.6" x2="257.1" y2="105.1" stroke="#C8A84B" stroke-width="1" opacity="0.5"/>
+
+          <!-- 30° = upper-right -->
+          <line x1="257.5" y1="80" x2="247" y2="86.6" stroke="#C8A84B" stroke-width="2" opacity="0.85"/>
+          <text x="270" y="77" fill="#C8A84B" font-size="10" font-weight="600" text-anchor="middle" opacity="0.9">30°</text>
+
+          <!-- 40° -->
+          <line x1="244.5" y1="61.5" x2="235.5" y2="69.6" stroke="#C8A84B" stroke-width="1" opacity="0.5"/>
+          <!-- 50° -->
+          <line x1="228.5" y1="46.3" x2="221" y2="56" stroke="#C8A84B" stroke-width="1" opacity="0.5"/>
+
+          <!-- 60° -->
+          <line x1="210" y1="32.5" x2="204" y2="43.4" stroke="#C8A84B" stroke-width="2" opacity="0.85"/>
+          <text x="211" y="23" fill="#C8A84B" font-size="10" font-weight="600" text-anchor="middle" opacity="0.9">60°</text>
+
+          <!-- 70° -->
+          <line x1="189.7" y1="22.6" x2="185.5" y2="34.6" stroke="#C8A84B" stroke-width="1" opacity="0.5"/>
+          <!-- 80° -->
+          <line x1="167.6" y1="16.3" x2="165.5" y2="28.5" stroke="#C8A84B" stroke-width="1" opacity="0.5"/>
+
+          <!-- 90° = top -->
+          <line x1="145" y1="15" x2="145" y2="27" stroke="#C8A84B" stroke-width="2.5" opacity="0.9"/>
+          <text x="145" y="10" fill="#C8A84B" font-size="11" font-weight="700" text-anchor="middle" opacity="0.95">90°</text>
+
+          <!-- 100° -->
+          <line x1="122.4" y1="16.3" x2="124.5" y2="28.5" stroke="#C8A84B" stroke-width="1" opacity="0.5"/>
+          <!-- 110° -->
+          <line x1="100.3" y1="22.6" x2="104.5" y2="34.6" stroke="#C8A84B" stroke-width="1" opacity="0.5"/>
+
+          <!-- 120° -->
+          <line x1="80" y1="32.5" x2="86" y2="43.4" stroke="#C8A84B" stroke-width="2" opacity="0.85"/>
+          <text x="79" y="23" fill="#C8A84B" font-size="10" font-weight="600" text-anchor="middle" opacity="0.9">120°</text>
+
+          <!-- 130° -->
+          <line x1="61.5" y1="46.3" x2="69" y2="56" stroke="#C8A84B" stroke-width="1" opacity="0.5"/>
+          <!-- 140° -->
+          <line x1="45.5" y1="61.5" x2="54.5" y2="69.6" stroke="#C8A84B" stroke-width="1" opacity="0.5"/>
+
+          <!-- 150° -->
+          <line x1="32.5" y1="80" x2="43" y2="86.6" stroke="#C8A84B" stroke-width="2" opacity="0.85"/>
+          <text x="20" y="77" fill="#C8A84B" font-size="10" font-weight="600" text-anchor="middle" opacity="0.9">150°</text>
+
+          <!-- 160° -->
+          <line x1="22.8" y1="100.6" x2="32.9" y2="105.1" stroke="#C8A84B" stroke-width="1" opacity="0.5"/>
+          <!-- 170° -->
+          <line x1="17.0" y1="122.4" x2="28.0" y2="124.6" stroke="#C8A84B" stroke-width="1" opacity="0.5"/>
+
+          <!-- 180° = left -->
+          <line x1="15" y1="145" x2="27" y2="145" stroke="#C8A84B" stroke-width="2.5" opacity="0.9"/>
+          <text x="7" y="149" fill="#C8A84B" font-size="11" font-weight="700" text-anchor="middle" opacity="0.95">180°</text>
+
+          <!-- Lower half mirror ticks (190–350°, no labels) -->
+          <line x1="17.0" y1="167.6" x2="28.0" y2="165.4" stroke="#C8A84B" stroke-width="1" opacity="0.35"/>
+          <line x1="22.8" y1="189.4" x2="32.9" y2="184.9" stroke="#C8A84B" stroke-width="1" opacity="0.35"/>
+          <line x1="32.5" y1="210" x2="43" y2="203.4" stroke="#C8A84B" stroke-width="1.5" opacity="0.5"/>
+          <line x1="45.5" y1="228.5" x2="54.5" y2="220.4" stroke="#C8A84B" stroke-width="1" opacity="0.35"/>
+          <line x1="61.5" y1="243.7" x2="69" y2="234" stroke="#C8A84B" stroke-width="1" opacity="0.35"/>
+          <line x1="80" y1="257.5" x2="86" y2="246.6" stroke="#C8A84B" stroke-width="1.5" opacity="0.5"/>
+          <line x1="100.3" y1="267.4" x2="104.5" y2="255.4" stroke="#C8A84B" stroke-width="1" opacity="0.35"/>
+          <line x1="122.4" y1="273.7" x2="124.5" y2="261.5" stroke="#C8A84B" stroke-width="1" opacity="0.35"/>
+          <line x1="145" y1="275" x2="145" y2="263" stroke="#C8A84B" stroke-width="1.5" opacity="0.5"/>
+          <line x1="167.6" y1="273.7" x2="165.5" y2="261.5" stroke="#C8A84B" stroke-width="1" opacity="0.35"/>
+          <line x1="189.7" y1="267.4" x2="185.5" y2="255.4" stroke="#C8A84B" stroke-width="1" opacity="0.35"/>
+          <line x1="210" y1="257.5" x2="204" y2="246.6" stroke="#C8A84B" stroke-width="1.5" opacity="0.5"/>
+          <line x1="228.5" y1="243.7" x2="221" y2="234" stroke="#C8A84B" stroke-width="1" opacity="0.35"/>
+          <line x1="244.5" y1="228.5" x2="235.5" y2="220.4" stroke="#C8A84B" stroke-width="1" opacity="0.35"/>
+          <line x1="257.5" y1="210" x2="247" y2="203.4" stroke="#C8A84B" stroke-width="1.5" opacity="0.5"/>
+          <line x1="267.2" y1="189.4" x2="257.1" y2="184.9" stroke="#C8A84B" stroke-width="1" opacity="0.35"/>
+          <line x1="273.0" y1="167.6" x2="262.0" y2="165.4" stroke="#C8A84B" stroke-width="1" opacity="0.35"/>
+
+          <!-- Target axis indicator (green line) at 105° -->
+          <line x1="145" y1="145"
+                x2="145" y2="15"
+                stroke="#44FF88" stroke-width="2" opacity="0.7" stroke-dasharray="6,4"/>
+          <text x="145" y="12" fill="#44FF88" font-size="9" text-anchor="middle" opacity="0.8">Target 90°</text>
+
+          <!-- Center dot -->
+          <circle cx="145" cy="145" r="3" fill="#C8A84B" opacity="0.8"/>
+        </svg>
+      </div>
+
+      <div class="gallery">
+        <div class="gallery-pill">
+          <div class="toggle-dot"></div>
+          Save to gallery
+        </div>
+      </div>
+
+      <div class="shutter-wrap">
+        <div class="shutter"><div class="shutter-inner" style="background:#C8A84B"></div></div>
+      </div>
+    </div>
+
+    <div class="desc">
+      <strong>Option A – Clean Medical Dial</strong><br>
+      • Gold ring with tick marks at every 10° (major at 30°)<br>
+      • Labels: 0°, 30°, 60°, 90°, 120°, 150°, 180° outside ring<br>
+      • Green dashed line shows target axis<br>
+      • Inner crosshair circle for pupil centering<br>
+      • Minimal, legible, clinical feel
+    </div>
+  </div>
+
+  <!-- ===== OPTION B: Full Premium Instrument Gauge ===== -->
+  <div class="col">
+    <div class="option-label">Option B — Full Instrument Gauge</div>
+    <div class="phone">
+      <div class="camera-bg"></div>
+
+      <div class="hint">
+        <div class="hint-pill">Center the eye within the circle</div>
+      </div>
+
+      <div class="level-wrap">
+        <div class="level-bar">
+          <div class="level-dot" style="left:50%;background:#44FF88"></div>
+          <div class="level-center"></div>
+        </div>
+        <div class="level-text" style="color:#44FF88">Level ✓</div>
+      </div>
+
+      <div class="dial-wrap">
+        <svg width="300" height="300" viewBox="0 0 300 300">
+          <defs>
+            <radialGradient id="outerGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="75%" stop-color="#C8A84B" stop-opacity="0"/>
+              <stop offset="100%" stop-color="#C8A84B" stop-opacity="0.12"/>
+            </radialGradient>
+            <radialGradient id="innerFill" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#C8A84B" stop-opacity="0.03"/>
+              <stop offset="100%" stop-color="#C8A84B" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+
+          <!-- Outer glow -->
+          <circle cx="150" cy="150" r="148" fill="url(#outerGlow)"/>
+
+          <!-- Multi-ring gauge -->
+          <!-- Outermost thin ring -->
+          <circle cx="150" cy="150" r="148" stroke="#C8A84B" stroke-width="0.5" fill="none" opacity="0.2"/>
+          <!-- Number ring -->
+          <circle cx="150" cy="150" r="138" stroke="#C8A84B" stroke-width="0.5" fill="none" opacity="0.15"/>
+          <!-- Main limbal ring (double) -->
+          <circle cx="150" cy="150" r="128" stroke="#C8A84B" stroke-width="3" fill="none" opacity="0.85"/>
+          <circle cx="150" cy="150" r="122" stroke="#C8A84B" stroke-width="0.5" fill="none" opacity="0.3"/>
+          <!-- Inner fill glow -->
+          <circle cx="150" cy="150" r="122" fill="url(#innerFill)"/>
+
+          <!-- Fine ticks every 5° (small) -->
+          <!-- Major ticks every 30° (tall, labelled) -->
+          <!-- Generated positions (upper half 0-180°, lower half mirrored) -->
+
+          <!-- === Upper half major ticks + labels === -->
+          <!-- 0° right -->
+          <line x1="278" y1="150" x2="256" y2="150" stroke="#C8A84B" stroke-width="2.5" opacity="1"/>
+          <text x="290" y="154" fill="#C8A84B" font-size="11" font-weight="800" text-anchor="middle">0°</text>
+
+          <!-- 30° -->
+          <line x1="260.8" y1="85" x2="241.8" y2="96" stroke="#C8A84B" stroke-width="2" opacity="0.9"/>
+          <text x="274" y="78" fill="#C8A84B" font-size="10" font-weight="700" text-anchor="middle">30°</text>
+
+          <!-- 60° -->
+          <line x1="214" y1="38.8" x2="203" y2="57.8" stroke="#C8A84B" stroke-width="2" opacity="0.9"/>
+          <text x="217" y="26" fill="#C8A84B" font-size="10" font-weight="700" text-anchor="middle">60°</text>
+
+          <!-- 90° top -->
+          <line x1="150" y1="22" x2="150" y2="44" stroke="#C8A84B" stroke-width="2.5" opacity="1"/>
+          <text x="150" y="14" fill="#C8A84B" font-size="11" font-weight="800" text-anchor="middle">90°</text>
+
+          <!-- 120° -->
+          <line x1="86" y1="38.8" x2="97" y2="57.8" stroke="#C8A84B" stroke-width="2" opacity="0.9"/>
+          <text x="83" y="26" fill="#C8A84B" font-size="10" font-weight="700" text-anchor="middle">120°</text>
+
+          <!-- 150° -->
+          <line x1="39.2" y1="85" x2="58.2" y2="96" stroke="#C8A84B" stroke-width="2" opacity="0.9"/>
+          <text x="26" y="78" fill="#C8A84B" font-size="10" font-weight="700" text-anchor="middle">150°</text>
+
+          <!-- 180° left -->
+          <line x1="22" y1="150" x2="44" y2="150" stroke="#C8A84B" stroke-width="2.5" opacity="1"/>
+          <text x="10" y="154" fill="#C8A84B" font-size="11" font-weight="800" text-anchor="middle">180°</text>
+
+          <!-- === Fine ticks upper half (10°, 20°, 40°, 50°, ...) === -->
+          <!-- 10° -->
+          <line x1="276.1" y1="127.5" x2="263.5" y2="129.5" stroke="#C8A84B" stroke-width="1" opacity="0.55"/>
+          <!-- 20° -->
+          <line x1="270.1" y1="105.8" x2="257.5" y2="111.5" stroke="#C8A84B" stroke-width="1" opacity="0.55"/>
+          <!-- 40° -->
+          <line x1="248.0" y1="67.2" x2="238.0" y2="75.5" stroke="#C8A84B" stroke-width="1" opacity="0.55"/>
+          <!-- 50° -->
+          <line x1="232.2" y1="50.2" x2="224.0" y2="60.0" stroke="#C8A84B" stroke-width="1" opacity="0.55"/>
+          <!-- 70° -->
+          <line x1="194.5" y1="28.8" x2="190.5" y2="41.5" stroke="#C8A84B" stroke-width="1" opacity="0.55"/>
+          <!-- 80° -->
+          <line x1="172.5" y1="22.8" x2="170.5" y2="35.8" stroke="#C8A84B" stroke-width="1" opacity="0.55"/>
+          <!-- 100° -->
+          <line x1="127.5" y1="22.8" x2="129.5" y2="35.8" stroke="#C8A84B" stroke-width="1" opacity="0.55"/>
+          <!-- 110° -->
+          <line x1="105.5" y1="28.8" x2="109.5" y2="41.5" stroke="#C8A84B" stroke-width="1" opacity="0.55"/>
+          <!-- 130° -->
+          <line x1="67.8" y1="50.2" x2="76.0" y2="60.0" stroke="#C8A84B" stroke-width="1" opacity="0.55"/>
+          <!-- 140° -->
+          <line x1="52.0" y1="67.2" x2="62.0" y2="75.5" stroke="#C8A84B" stroke-width="1" opacity="0.55"/>
+          <!-- 160° -->
+          <line x1="29.9" y1="105.8" x2="42.5" y2="111.5" stroke="#C8A84B" stroke-width="1" opacity="0.55"/>
+          <!-- 170° -->
+          <line x1="23.9" y1="127.5" x2="36.5" y2="129.5" stroke="#C8A84B" stroke-width="1" opacity="0.55"/>
+
+          <!-- === Lower half (mirrored, dimmer) === -->
+          <line x1="276.1" y1="172.5" x2="263.5" y2="170.5" stroke="#C8A84B" stroke-width="1" opacity="0.3"/>
+          <line x1="270.1" y1="194.2" x2="257.5" y2="188.5" stroke="#C8A84B" stroke-width="1" opacity="0.3"/>
+          <line x1="260.8" y1="215" x2="241.8" y2="204" stroke="#C8A84B" stroke-width="1.5" opacity="0.4"/>
+          <line x1="248.0" y1="232.8" x2="238.0" y2="224.5" stroke="#C8A84B" stroke-width="1" opacity="0.3"/>
+          <line x1="232.2" y1="249.8" x2="224.0" y2="240.0" stroke="#C8A84B" stroke-width="1" opacity="0.3"/>
+          <line x1="214" y1="261.2" x2="203" y2="242.2" stroke="#C8A84B" stroke-width="1.5" opacity="0.4"/>
+          <line x1="194.5" y1="271.2" x2="190.5" y2="258.5" stroke="#C8A84B" stroke-width="1" opacity="0.3"/>
+          <line x1="172.5" y1="277.2" x2="170.5" y2="264.2" stroke="#C8A84B" stroke-width="1" opacity="0.3"/>
+          <line x1="150" y1="278" x2="150" y2="256" stroke="#C8A84B" stroke-width="1.5" opacity="0.4"/>
+          <line x1="127.5" y1="277.2" x2="129.5" y2="264.2" stroke="#C8A84B" stroke-width="1" opacity="0.3"/>
+          <line x1="105.5" y1="271.2" x2="109.5" y2="258.5" stroke="#C8A84B" stroke-width="1" opacity="0.3"/>
+          <line x1="86" y1="261.2" x2="97" y2="242.2" stroke="#C8A84B" stroke-width="1.5" opacity="0.4"/>
+          <line x1="67.8" y1="249.8" x2="76.0" y2="240.0" stroke="#C8A84B" stroke-width="1" opacity="0.3"/>
+          <line x1="52.0" y1="232.8" x2="62.0" y2="224.5" stroke="#C8A84B" stroke-width="1" opacity="0.3"/>
+          <line x1="39.2" y1="215" x2="58.2" y2="204" stroke="#C8A84B" stroke-width="1.5" opacity="0.4"/>
+          <line x1="29.9" y1="194.2" x2="42.5" y2="188.5" stroke="#C8A84B" stroke-width="1" opacity="0.3"/>
+          <line x1="23.9" y1="172.5" x2="36.5" y2="170.5" stroke="#C8A84B" stroke-width="1" opacity="0.3"/>
+
+          <!-- Crosshairs -->
+          <line x1="22" y1="150" x2="278" y2="150" stroke="rgba(200,168,75,0.3)" stroke-width="1"/>
+          <line x1="150" y1="22" x2="150" y2="278" stroke="rgba(200,168,75,0.3)" stroke-width="1"/>
+
+          <!-- Pupil guide (inner) -->
+          <circle cx="150" cy="150" r="50" stroke="rgba(200,168,75,0.45)" stroke-width="1.5" fill="none" stroke-dasharray="4,4"/>
+
+          <!-- Target axis – bright green highlight at 90° (vertical) -->
+          <line x1="150" y1="150" x2="150" y2="44"
+                stroke="#44FF88" stroke-width="2.5" opacity="0.85" stroke-dasharray="6,4"/>
+          <line x1="150" y1="150" x2="150" y2="256"
+                stroke="#44FF88" stroke-width="2.5" opacity="0.35" stroke-dasharray="6,4"/>
+          <!-- Target dot on ring -->
+          <circle cx="150" cy="44" r="5" fill="#44FF88" opacity="0.9"/>
+
+          <!-- Level indicator: small arc showing 0° horizontal reference -->
+          <path d="M 22 150 A 128 128 0 0 1 44 150" stroke="#44FF88" stroke-width="3" fill="none" opacity="0.5"/>
+
+          <!-- Center reticle -->
+          <circle cx="150" cy="150" r="8" stroke="#C8A84B" stroke-width="1.5" fill="none" opacity="0.7"/>
+          <circle cx="150" cy="150" r="2" fill="#C8A84B" opacity="0.9"/>
+
+          <!-- Current axis readout inside -->
+          <text x="150" y="185" fill="#C8A84B" font-size="12" font-weight="700" text-anchor="middle" opacity="0.7">90°</text>
+        </svg>
+      </div>
+
+      <div class="gallery">
+        <div class="gallery-pill">
+          <div class="toggle-dot" style="background:#44FF88"></div>
+          Save to gallery
+        </div>
+      </div>
+
+      <div class="shutter-wrap">
+        <div class="shutter" style="border-color:#44FF88">
+          <div class="shutter-inner" style="background:#44FF88"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="desc">
+      <strong>Option B – Full Instrument Gauge</strong><br>
+      • Triple-ring border (outer accent + main limbal + inner guard)<br>
+      • Dense ticks every 10° labelled at 0°,30°,60°,90°,120°,150°,180°<br>
+      • Dashed inner pupil guide circle<br>
+      • Target axis as bright green line with dot on ring<br>
+      • Current axis readout in centre<br>
+      • Shutter turns green when level ✓
+    </div>
+  </div>
+
+</div>
+
+<div style="text-align:center;margin-top:28px;color:#555;font-size:13px">
+  Reply <strong style="color:#C8A84B">A</strong> or <strong style="color:#C8A84B">B</strong> to apply — or request changes to either option
+</div>
+
+</body>
+</html>
