@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import {
   View, Text, Image, ScrollView, StyleSheet, TouchableOpacity,
-  Dimensions, TextInput, Alert,
+  Dimensions, TextInput, Alert, ImageBackground,
 } from 'react-native';
 import Svg, { Path, Line, Circle, Text as SvgText } from 'react-native-svg';
 import * as Print from 'expo-print';
@@ -85,7 +85,12 @@ export default function AlignmentScreen() {
             />
           </>
         ) : (
-          <View style={[styles.noImage, { width: IMG_SIZE, height: IMG_SIZE }]}>
+          <ImageBackground
+            source={require('../../assets/gauge-bg.png')}
+            style={[styles.noImage, { width: IMG_SIZE, height: IMG_SIZE }]}
+            imageStyle={{ borderRadius: 12, opacity: 0.55 }}
+            resizeMode="cover"
+          >
             <AlignmentOverlay
               size={IMG_SIZE}
               referenceAxis={eye.referenceAxis}
@@ -99,7 +104,7 @@ export default function AlignmentScreen() {
             >
               <Text style={styles.cameraBtnText}>Capture Eye Image</Text>
             </TouchableOpacity>
-          </View>
+          </ImageBackground>
         )}
       </View>
 

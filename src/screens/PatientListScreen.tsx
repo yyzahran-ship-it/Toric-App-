@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import {
   View, Text, FlatList, TouchableOpacity, StyleSheet,
-  TextInput, Alert, StatusBar,
+  TextInput, Alert, StatusBar, Image,
 } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -43,9 +43,12 @@ export default function PatientListScreen() {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
       <View style={styles.header}>
-        <View>
-          <Text style={styles.title}>Toric IOL</Text>
-          <Text style={styles.subtitle}>Alignment Tool</Text>
+        <View style={styles.headerLeft}>
+          <Image source={require('../../assets/icon.png')} style={styles.logo} resizeMode="contain" />
+          <View>
+            <Text style={styles.title}>Toric IOL</Text>
+            <Text style={styles.subtitle}>Alignment Tool</Text>
+          </View>
         </View>
         <View style={styles.headerRight}>
           <TouchableOpacity style={styles.headerBtn} onPress={() => nav.navigate('SiaNomogram')}>
@@ -106,12 +109,14 @@ export default function PatientListScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#0d0d1a' },
   header: {
-    paddingTop: 60, paddingBottom: 16, paddingHorizontal: 20,
+    paddingTop: 56, paddingBottom: 16, paddingHorizontal: 20,
     backgroundColor: '#0d0d1a', flexDirection: 'row',
-    justifyContent: 'space-between', alignItems: 'flex-end',
+    justifyContent: 'space-between', alignItems: 'center',
   },
-  title: { color: '#ffffff', fontSize: 28, fontWeight: 'bold' },
-  subtitle: { color: '#6666aa', fontSize: 14, marginTop: 2 },
+  headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  logo: { width: 48, height: 48 },
+  title: { color: '#ffffff', fontSize: 26, fontWeight: 'bold' },
+  subtitle: { color: '#C8A84B', fontSize: 13, marginTop: 1 },
   headerRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   headerBtn: {
     borderWidth: 1, borderColor: '#C8A84B44', borderRadius: 8,
