@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Toric IOL – New Color Scheme Preview</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #e8e8e8; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 24px; }
+
+  h2 { text-align: center; color: #333; margin-bottom: 6px; font-size: 18px; }
+  .legend { text-align: center; color: #666; font-size: 13px; margin-bottom: 24px; }
+
+  .screens { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+
+  /* ---- Phone frame ---- */
+  .phone {
+    width: 340px;
+    border-radius: 40px;
+    background: #fff;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.22);
+    overflow: hidden;
+    border: 6px solid #ccc;
+    display: flex; flex-direction: column;
+  }
+  .screen-label {
+    text-align: center; font-size: 12px; font-weight: 700;
+    color: #555; margin-top: 8px; margin-bottom: 6px; letter-spacing: 0.5px;
+  }
+
+  /* ---- Colour tokens ---- */
+  :root {
+    --bg:         #FFFFFF;
+    --bg-card:    #F8F6EF;
+    --bg-input:   #F0EDE4;
+    --border:     #DDD5BB;
+    --gold:       #C8A84B;
+    --gold-dark:  #A88930;
+    --silver:     #A8A8A8;
+    --silver-lt:  #D0D0D0;
+    --text-hd:    #1A1200;
+    --text-body:  #3A3520;
+    --text-muted: #888060;
+    --text-tab:   #C8C8C8;   /* silver on tabs */
+    --danger:     #CC3333;
+    --success:    #2A8A44;
+    --blue:       #3355CC;
+  }
+
+  /* ============================================================
+     SCREEN 1 – Patient List
+  ============================================================ */
+  .s1 { background: var(--bg); flex: 1; overflow: hidden; }
+
+  .s1-header {
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 16px 12px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .s1-logo-row { display: flex; align-items: center; gap: 10px; }
+  .s1-logo {
+    width: 42px; height: 42px; border-radius: 21px;
+    background: radial-gradient(circle at 38% 35%, #E8C96A, #B8922A);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 900; color: #5A3A00; font-style: italic;
+    box-shadow: 0 2px 6px rgba(200,168,75,0.4);
+  }
+  .s1-title { font-size: 20px; font-weight: 800; color: var(--text-hd); }
+  .s1-sub   { font-size: 12px; color: var(--gold); margin-top: 1px; }
+  .s1-hbtns { display: flex; align-items: center; gap: 8px; }
+
+  /* GOLD TAB / BUTTON */
+  .tab {
+    background: var(--gold);
+    color: var(--text-tab);       /* silver text */
+    border: none; border-radius: 8px;
+    padding: 6px 12px; font-size: 12px; font-weight: 700;
+    letter-spacing: 0.4px; cursor: pointer;
+    box-shadow: 0 1px 4px rgba(200,168,75,0.35);
+  }
+  .tab.icon { width: 32px; height: 32px; font-size: 16px; padding: 0;
+    display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+  .tab.sm { padding: 4px 9px; font-size: 11px; border-radius: 6px; }
+
+  .s1-search {
+    margin: 10px 16px 0;
+    background: var(--bg-input); border: 1px solid var(--border);
+    border-radius: 10px; padding: 9px 12px; font-size: 14px;
+    color: var(--text-muted);
+  }
+
+  .s1-card {
+    margin: 10px 16px 0;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px; display: flex; align-items: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .s1-card-left { flex: 1; }
+  .s1-name { font-size: 16px; font-weight: 700; color: var(--text-hd); }
+  .s1-mrn  { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .s1-eyes { font-size: 12px; color: var(--gold-dark); margin-top: 4px; font-weight: 600; }
+  .s1-chev { font-size: 20px; color: var(--text-muted); }
+
+  .fab {
+    margin: 14px auto 0; width: 52px; height: 52px; border-radius: 26px;
+    background: var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; color: #fff; font-weight: 700;
+    box-shadow: 0 4px 12px rgba(200,168,75,0.5);
+  }
+
+  /* ============================================================
+     SCREEN 2 – Patient Detail (eye card with tabs)
+  ============================================================ */
+  .s2 { background: var(--bg); flex: 1; }
+
+  .nav-bar {
+    background: var(--bg); border-bottom: 1px solid var(--border);
+    padding: 14px 16px 10px; display: flex; align-items: center; gap: 10px;
+  }
+  .nav-back { color: var(--gold); font-size: 16px; font-weight: 700; }
+  .nav-title { font-size: 16px; font-weight: 700; color: var(--text-hd); }
+
+  .patient-banner {
+    margin: 12px 14px 0;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .banner-name { font-size: 18px; font-weight: 800; color: var(--text-hd); }
+  .banner-mrn  { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .banner-edit { font-size: 13px; color: var(--gold-dark); margin-top: 8px; font-weight: 600; }
+
+  .section-hd {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--text-muted);
+    margin: 14px 14px 8px;
+  }
+
+  .eye-card {
+    margin: 0 14px 10px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .eye-badge {
+    display: inline-flex; align-items: center; padding: 3px 10px;
+    border-radius: 6px; font-weight: 800; font-size: 14px;
+    border: 1.5px solid;
+  }
+  .od { background: rgba(51,85,204,0.1); border-color: #3355CC; color: #3355CC; }
+  .os { background: rgba(42,138,68,0.1); border-color: #2A8A44; color: #2A8A44; }
+
+  .axis-row { display: flex; gap: 20px; margin: 10px 0; }
+  .axis-item { text-align: center; }
+  .axis-lbl { font-size: 10px; text-transform: uppercase; color: var(--text-muted); }
+  .axis-val { font-size: 20px; font-weight: 700; color: var(--text-hd); }
+
+  /* Action tab row */
+  .tab-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .tab-act {
+    flex: 1; min-width: 60px;
+    background: var(--gold);
+    color: var(--text-tab);  /* SILVER text */
+    border: none; border-radius: 8px;
+    padding: 8px 4px; font-size: 12px; font-weight: 700;
+    text-align: center; letter-spacing: 0.3px;
+    box-shadow: 0 1px 4px rgba(200,168,75,0.3);
+  }
+  .tab-act.secondary {
+    background: #F0EDE4; color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+  .tab-act.danger {
+    background: #CC3333; color: #fff;
+  }
+
+  /* ============================================================
+     SCREEN 3 – Toric Calculator
+  ============================================================ */
+  .s3 { background: var(--bg); flex: 1; }
+
+  .calc-card {
+    margin: 10px 14px 0;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .form-row { display: flex; gap: 10px; margin-bottom: 10px; }
+  .form-field { flex: 1; }
+  .form-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px;
+    color: var(--text-muted); margin-bottom: 4px; }
+  .form-input {
+    background: var(--bg-input); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 10px; font-size: 14px;
+    color: var(--text-hd); width: 100%;
+  }
+
+  /* Platform chip tabs */
+  .chip-row { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0 4px; }
+  .chip {
+    background: var(--bg-input); border: 1px solid var(--border);
+    border-radius: 20px; padding: 5px 12px; font-size: 11px;
+    color: var(--text-muted); cursor: pointer;
+  }
+  .chip.active {
+    background: var(--gold); border-color: var(--gold);
+    color: var(--text-tab);  /* silver */
+    box-shadow: 0 1px 4px rgba(200,168,75,0.35);
+  }
+
+  /* PCA toggle */
+  .toggle-row {
+    display: flex; align-items: center; gap: 10px;
+    border-top: 1px solid var(--border); padding-top: 10px; margin-top: 6px;
+  }
+  .checkbox {
+    width: 20px; height: 20px; border-radius: 5px;
+    background: var(--gold); display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: var(--text-tab); font-weight: 800;
+    box-shadow: 0 1px 3px rgba(200,168,75,0.4);
+  }
+  .toggle-lbl { font-size: 12px; font-weight: 700; color: var(--gold-dark); }
+  .toggle-sub { font-size: 10px; color: var(--text-muted); }
+
+  .calc-btn {
+    margin: 12px 14px 0;
+    background: var(--gold); border: none; border-radius: 12px;
+    padding: 14px; font-size: 16px; font-weight: 800;
+    color: var(--text-tab);  /* silver */
+    width: calc(100% - 28px);
+    box-shadow: 0 3px 10px rgba(200,168,75,0.4);
+    letter-spacing: 0.5px;
+  }
+
+  /* Results card */
+  .result-card {
+    margin: 10px 14px 0;
+    background: var(--bg-card); border: 1px solid var(--gold);
+    border-radius: 12px; padding: 14px;
+    box-shadow: 0 2px 8px rgba(200,168,75,0.15);
+  }
+  .result-row { display: flex; gap: 8px; }
+  .result-block { flex: 1; text-align: center; }
+  .result-lbl { font-size: 10px; text-transform: uppercase; color: var(--text-muted); }
+  .result-big { font-size: 26px; font-weight: 800; color: var(--text-hd); margin-top: 2px; }
+  .result-gold { color: var(--gold-dark); }
+  .result-green { color: var(--success); }
+
+  /* Colour palette chips */
+  .palette { display: flex; gap: 8px; flex-wrap: wrap; padding: 16px; }
+  .swatch { border-radius: 8px; padding: 10px 14px; text-align: center; font-size: 11px; font-weight: 600; }
+
+</style>
+</head>
+<body>
+
+<h2>Toric IOL – Proposed White + Gold/Silver Theme</h2>
+<p class="legend">White backgrounds · Gold tabs (#C8A84B) · Silver text on buttons (#C8C8C8) · Dark text on white cards</p>
+
+<div class="screens">
+
+  <!-- ===== SCREEN 1: Patient List ===== -->
+  <div>
+    <div class="screen-label">PATIENT LIST</div>
+    <div class="phone">
+      <div class="s1">
+        <div class="s1-header">
+          <div class="s1-logo-row">
+            <div class="s1-logo">Z</div>
+            <div>
+              <div class="s1-title">Toric IOL</div>
+              <div class="s1-sub">Alignment Tool</div>
+            </div>
+          </div>
+          <div class="s1-hbtns">
+            <button class="tab sm">SIA</button>
+            <button class="tab icon">⚙</button>
+          </div>
+        </div>
+
+        <div class="s1-search">🔍  Search patients or MRN...</div>
+
+        <div class="s1-card">
+          <div class="s1-card-left">
+            <div class="s1-name">Jane Smith</div>
+            <div class="s1-mrn">MRN: 10042</div>
+            <div class="s1-eyes">2 eye records</div>
+          </div>
+          <div class="s1-chev">›</div>
+        </div>
+
+        <div class="s1-card">
+          <div class="s1-card-left">
+            <div class="s1-name">Robert Chen</div>
+            <div class="s1-mrn">MRN: 10087</div>
+            <div class="s1-eyes">1 eye record</div>
+          </div>
+          <div class="s1-chev">›</div>
+        </div>
+
+        <div class="s1-card" style="opacity:0.5">
+          <div class="s1-card-left">
+            <div class="s1-name">Maria Torres</div>
+            <div class="s1-eyes">No eye records</div>
+          </div>
+          <div class="s1-chev">›</div>
+        </div>
+
+        <div class="fab">+</div>
+        <div style="height:16px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SCREEN 2: Patient Detail ===== -->
+  <div>
+    <div class="screen-label">PATIENT DETAIL</div>
+    <div class="phone">
+      <div class="s2">
+        <div class="nav-bar">
+          <span class="nav-back">‹</span>
+          <span class="nav-title">Patient</span>
+        </div>
+
+        <div class="patient-banner">
+          <div class="banner-name">Jane Smith</div>
+          <div class="banner-mrn">MRN: 10042 · DOB: 1965-03-14</div>
+          <div class="banner-edit">Edit</div>
+        </div>
+
+        <div class="section-hd">Eye Records</div>
+
+        <!-- OD card -->
+        <div class="eye-card">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <span class="eye-badge od">OD</span>
+            <span style="font-size:12px;color:#999">May 29, 2026</span>
+          </div>
+          <div class="axis-row">
+            <div class="axis-item"><div class="axis-lbl">Reference</div><div class="axis-val">15°</div></div>
+            <div class="axis-item"><div class="axis-lbl">Target</div><div class="axis-val" style="color:#A88930">105°</div></div>
+            <div class="axis-item"><div class="axis-lbl">Current</div><div class="axis-val" style="color:#888">—</div></div>
+          </div>
+          <div class="tab-row">
+            <div class="tab-act">Align</div>
+            <div class="tab-act">Calc</div>
+            <div class="tab-act">Alpins</div>
+            <div class="tab-act">Camera</div>
+          </div>
+          <div class="tab-row" style="margin-top:6px">
+            <div class="tab-act">Annotate</div>
+            <div class="tab-act secondary">Edit</div>
+            <div class="tab-act danger">Delete</div>
+          </div>
+        </div>
+
+        <!-- OS card -->
+        <div class="eye-card">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+            <span class="eye-badge os">OS</span>
+            <span style="font-size:12px;color:#999">May 29, 2026</span>
+          </div>
+          <div class="axis-row">
+            <div class="axis-item"><div class="axis-lbl">Reference</div><div class="axis-val">20°</div></div>
+            <div class="axis-item"><div class="axis-lbl">Target</div><div class="axis-val" style="color:#A88930">110°</div></div>
+          </div>
+          <div class="tab-row">
+            <div class="tab-act">Align</div>
+            <div class="tab-act">Calc</div>
+            <div class="tab-act">Alpins</div>
+            <div class="tab-act">Camera</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SCREEN 3: Toric Calculator ===== -->
+  <div>
+    <div class="screen-label">TORIC CALCULATOR</div>
+    <div class="phone">
+      <div class="s3">
+        <div class="nav-bar">
+          <span class="nav-back">‹</span>
+          <span class="nav-title">Toric Calculator</span>
+        </div>
+
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#888;margin:12px 14px 6px">Corneal Measurements</div>
+        <div class="calc-card">
+          <div class="form-row">
+            <div class="form-field">
+              <div class="form-label">K1 Flat (D)</div>
+              <input class="form-input" value="43.50" readonly>
+            </div>
+            <div class="form-field">
+              <div class="form-label">K1 Flat Axis</div>
+              <input class="form-input" value="15°" readonly>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-field">
+              <div class="form-label">K2 Steep (D)</div>
+              <input class="form-input" value="45.25" readonly>
+            </div>
+            <div class="form-field">
+              <div class="form-label">Astigmatism</div>
+              <input class="form-input" value="1.75 D" readonly style="color:#A88930;font-weight:700">
+            </div>
+          </div>
+          <div class="toggle-row">
+            <div class="checkbox">✓</div>
+            <div>
+              <div class="toggle-lbl">PCA Correction (Barrett)</div>
+              <div class="toggle-sub">Adds ~0.3 D ATR posterior corneal contribution</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#888;margin:12px 14px 6px">IOL Platform</div>
+        <div class="calc-card">
+          <div class="chip-row">
+            <div class="chip active">AcrySof</div>
+            <div class="chip">TECNIS</div>
+            <div class="chip">AT TORBI</div>
+            <div class="chip">enVista</div>
+          </div>
+          <div style="font-size:11px;color:#888;margin-top:6px">Alcon AcrySof / Clareon Toric</div>
+        </div>
+
+        <button class="calc-btn">Calculate</button>
+
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#888;margin:12px 14px 6px">Results</div>
+        <div class="result-card">
+          <div class="result-row">
+            <div class="result-block">
+              <div class="result-lbl">Effective Corneal</div>
+              <div class="result-big">1.78 D</div>
+            </div>
+            <div class="result-block">
+              <div class="result-lbl">Placement Axis</div>
+              <div class="result-big result-gold">105°</div>
+            </div>
+          </div>
+          <div class="result-row" style="margin-top:12px">
+            <div class="result-block">
+              <div class="result-lbl">Best IOL Cylinder</div>
+              <div class="result-big result-gold">2.06 D</div>
+            </div>
+            <div class="result-block">
+              <div class="result-lbl">Predicted Residual</div>
+              <div class="result-big result-green">0.28 D</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="height:16px"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Colour Palette -->
+<div style="max-width:740px;margin:32px auto 0;background:#fff;border-radius:16px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,0.1)">
+  <h3 style="font-size:14px;font-weight:700;color:#333;margin-bottom:12px;text-transform:uppercase;letter-spacing:1px">Colour Palette</h3>
+  <div class="palette">
+    <div class="swatch" style="background:#FFFFFF;border:1px solid #ddd;color:#333">Background<br>#FFFFFF</div>
+    <div class="swatch" style="background:#F8F6EF;border:1px solid #ddd;color:#333">Card<br>#F8F6EF</div>
+    <div class="swatch" style="background:#F0EDE4;border:1px solid #ddd;color:#555">Input<br>#F0EDE4</div>
+    <div class="swatch" style="background:#DDD5BB;color:#555">Border<br>#DDD5BB</div>
+    <div class="swatch" style="background:#C8A84B;color:#C8C8C8">Gold Tab<br>#C8A84B</div>
+    <div class="swatch" style="background:#C8A84B;color:#C8C8C8;font-size:11px;font-weight:800">Silver Text<br>#C8C8C8</div>
+    <div class="swatch" style="background:#A88930;color:#fff">Gold Dark<br>#A88930</div>
+    <div class="swatch" style="background:#1A1200;color:#fff">Heading<br>#1A1200</div>
+    <div class="swatch" style="background:#3A3520;color:#fff">Body text<br>#3A3520</div>
+    <div class="swatch" style="background:#888060;color:#fff">Muted<br>#888060</div>
+    <div class="swatch" style="background:#CC3333;color:#fff">Danger<br>#CC3333</div>
+    <div class="swatch" style="background:#2A8A44;color:#fff">Success<br>#2A8A44</div>
+  </div>
+</div>
+
+</body>
+</html>
