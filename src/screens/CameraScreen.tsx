@@ -180,8 +180,8 @@ const styles = StyleSheet.create({
   },
   shutterInner: { width: 56, height: 56, borderRadius: 28, backgroundColor: '#ffffff' },
   shutterLevel: { backgroundColor: '#44FF88' },
-  permContainer: { flex: 1, backgroundColor: '#0d0d1a', alignItems: 'center', justifyContent: 'center', padding: 32 },
-  permText: { color: '#ffffff', fontSize: 16, textAlign: 'center', marginBottom: 20 },
-  permBtn: { backgroundColor: '#4466FF', borderRadius: 10, paddingHorizontal: 24, paddingVertical: 12 },
-  permBtnText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  permContainer: { flex: 1, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center', padding: 32 },
+  permText: { color: '#1A1200', fontSize: 16, textAlign: 'center', marginBottom: 20 },
+  permBtn: { backgroundColor: '#C8A84B', borderRadius: 10, paddingHorizontal: 24, paddingVertical: 12 },
+  permBtnText: { color: '#1A1200', fontSize: 16, fontWeight: '600' },
 });

@@ -93,12 +93,12 @@ export default function AlpinsAnalysisScreen() {
           <View style={s.half}>
             <Text style={s.label}>Magnitude (D)</Text>
             <TextInput style={s.input} value={tiaMag} onChangeText={setTiaMag}
-              keyboardType="decimal-pad" placeholder="e.g. 1.75" placeholderTextColor="#555" />
+              keyboardType="decimal-pad" placeholder="e.g. 1.75" placeholderTextColor="#AAAAAA" />
           </View>
           <View style={s.half}>
             <Text style={s.label}>Axis (°)</Text>
             <TextInput style={s.input} value={tiaAxis} onChangeText={setTiaAxis}
-              keyboardType="number-pad" placeholder="0–180" placeholderTextColor="#555" maxLength={3} />
+              keyboardType="number-pad" placeholder="0–180" placeholderTextColor="#AAAAAA" maxLength={3} />
           </View>
         </View>
       </View>
@@ -110,12 +110,12 @@ export default function AlpinsAnalysisScreen() {
           <View style={s.half}>
             <Text style={s.label}>Magnitude (D)</Text>
             <TextInput style={s.input} value={siaMag} onChangeText={setSiaMag}
-              keyboardType="decimal-pad" placeholder="e.g. 1.75" placeholderTextColor="#555" />
+              keyboardType="decimal-pad" placeholder="e.g. 1.75" placeholderTextColor="#AAAAAA" />
           </View>
           <View style={s.half}>
             <Text style={s.label}>Axis (°)</Text>
             <TextInput style={s.input} value={siaAxis} onChangeText={setSiaAxis}
-              keyboardType="number-pad" placeholder="0–180" placeholderTextColor="#555" maxLength={3} />
+              keyboardType="number-pad" placeholder="0–180" placeholderTextColor="#AAAAAA" maxLength={3} />
           </View>
         </View>
       </View>
@@ -238,45 +238,45 @@ function AlpinsPlot({ result, size, scale }: { result: AlpinsVectors; size: numb
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0d0d1a' },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
   content: { padding: 16 },
   infoBanner: {
-    backgroundColor: '#4466FF22', borderRadius: 10, padding: 12,
-    borderWidth: 1, borderColor: '#4466FF44', marginBottom: 8,
+    backgroundColor: '#C8A84B22', borderRadius: 10, padding: 12,
+    borderWidth: 1, borderColor: '#C8A84B66', marginBottom: 8,
   },
-  infoText: { color: '#4466FF', fontSize: 13 },
+  infoText: { color: '#C8A84B', fontSize: 13 },
   sectionHeader: {
-    color: '#8888aa', fontSize: 11, textTransform: 'uppercase',
+    color: '#888060', fontSize: 11, textTransform: 'uppercase',
     letterSpacing: 1, marginBottom: 8, marginTop: 16,
   },
-  hint: { color: '#555577', fontSize: 12, marginBottom: 8, fontStyle: 'italic' },
+  hint: { color: '#888060', fontSize: 12, marginBottom: 8, fontStyle: 'italic' },
   card: {
-    backgroundColor: '#1a1a2e', borderRadius: 12, padding: 14,
-    borderWidth: 1, borderColor: '#2a2a4e',
+    backgroundColor: '#F8F6EF', borderRadius: 12, padding: 14,
+    borderWidth: 1, borderColor: '#DDD5BB',
   },
   row: { flexDirection: 'row', gap: 12 },
   half: { flex: 1 },
-  label: { color: '#8888aa', fontSize: 11, textTransform: 'uppercase', marginBottom: 5 },
+  label: { color: '#888060', fontSize: 11, textTransform: 'uppercase', marginBottom: 5 },
   input: {
-    backgroundColor: '#0d0d1a', color: '#fff', borderRadius: 8,
+    backgroundColor: '#FFFFFF', color: '#1A1200', borderRadius: 8,
     paddingHorizontal: 12, paddingVertical: 10, fontSize: 16,
-    borderWidth: 1, borderColor: '#2a2a4e',
+    borderWidth: 1, borderColor: '#DDD5BB',
   },
   calcBtn: {
-    backgroundColor: '#4466FF', borderRadius: 12, paddingVertical: 15,
+    backgroundColor: '#C8A84B', borderRadius: 12, paddingVertical: 15,
     alignItems: 'center', marginTop: 20,
   },
-  calcBtnText: { color: '#fff', fontSize: 17, fontWeight: '700' },
+  calcBtnText: { color: '#C8C8C8', fontSize: 17, fontWeight: '700' },
   metricsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   metricBox: {
-    flex: 1, minWidth: '42%', backgroundColor: '#0d0d1a',
-    borderRadius: 10, padding: 12, borderWidth: 1, borderColor: '#2a2a4e',
+    flex: 1, minWidth: '42%', backgroundColor: '#FFFFFF',
+    borderRadius: 10, padding: 12, borderWidth: 1, borderColor: '#DDD5BB',
   },
-  metricLabel: { color: '#8888aa', fontSize: 10, textTransform: 'uppercase', marginBottom: 4 },
+  metricLabel: { color: '#888060', fontSize: 10, textTransform: 'uppercase', marginBottom: 4 },
   metricValue: { fontSize: 18, fontWeight: '700' },
-  metricSub: { color: '#8888aa', fontSize: 11, marginTop: 2 },
+  metricSub: { color: '#888060', fontSize: 11, marginTop: 2 },
   legend: { flexDirection: 'row', gap: 16, marginTop: 10 },
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   legendDot: { width: 10, height: 10, borderRadius: 5 },
-  legendLabel: { color: '#8888aa', fontSize: 12 },
+  legendLabel: { color: '#888060', fontSize: 12 },
 });

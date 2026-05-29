@@ -50,15 +50,15 @@ export default function RotationCalculator({ currentAxis, targetAxis }: Props) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#F8F6EF',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#2a2a4e',
+    borderColor: '#DDD5BB',
   },
   label: {
-    color: '#8888aa',
+    color: '#888060',
     fontSize: 13,
     marginBottom: 8,
     textTransform: 'uppercase',
@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   degrees: {
-    color: '#ffffff',
+    color: '#1A1200',
     fontSize: 48,
     fontWeight: 'bold',
     lineHeight: 52,
@@ -97,17 +97,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   axisLabel: {
-    color: '#8888aa',
+    color: '#888060',
     fontSize: 11,
     textTransform: 'uppercase',
   },
   axisValue: {
-    color: '#ffffff',
+    color: '#1A1200',
     fontSize: 20,
     fontWeight: '600',
   },
   arrow: {
-    color: '#8888aa',
+    color: '#888060',
     fontSize: 18,
   },
 });

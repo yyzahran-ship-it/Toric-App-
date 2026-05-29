@@ -139,29 +139,29 @@ export default function SiaNomogramScreen() {
             <View style={s.formHalf}>
               <Text style={s.formLabel}>Planned SIA (D)</Text>
               <TextInput style={s.input} value={plannedSia} onChangeText={setPlannedSia}
-                keyboardType="decimal-pad" placeholderTextColor="#555" placeholder="0.25" />
+                keyboardType="decimal-pad" placeholderTextColor="#AAAAAA" placeholder="0.25" />
             </View>
             <View style={s.formHalf}>
               <Text style={s.formLabel}>Planned Axis (°)</Text>
               <TextInput style={s.input} value={plannedAxis} onChangeText={setPlannedAxis}
-                keyboardType="number-pad" placeholderTextColor="#555" placeholder="0" maxLength={3} />
+                keyboardType="number-pad" placeholderTextColor="#AAAAAA" placeholder="0" maxLength={3} />
             </View>
           </View>
           <View style={s.formRow}>
             <View style={s.formHalf}>
               <Text style={s.formLabel}>Achieved SIA (D)</Text>
               <TextInput style={s.input} value={achievedSia} onChangeText={setAchievedSia}
-                keyboardType="decimal-pad" placeholderTextColor="#555" placeholder="0.25" />
+                keyboardType="decimal-pad" placeholderTextColor="#AAAAAA" placeholder="0.25" />
             </View>
             <View style={s.formHalf}>
               <Text style={s.formLabel}>Achieved Axis (°)</Text>
               <TextInput style={s.input} value={achievedAxis} onChangeText={setAchievedAxis}
-                keyboardType="number-pad" placeholderTextColor="#555" placeholder="0" maxLength={3} />
+                keyboardType="number-pad" placeholderTextColor="#AAAAAA" placeholder="0" maxLength={3} />
             </View>
           </View>
           <Text style={s.formLabel}>Notes (optional)</Text>
           <TextInput style={[s.input, { height: 60 }]} value={notes} onChangeText={setNotes}
-            placeholder="e.g. temporal incision 2.4mm" placeholderTextColor="#555" multiline />
+            placeholder="e.g. temporal incision 2.4mm" placeholderTextColor="#AAAAAA" multiline />
           <View style={s.formBtns}>
             <TouchableOpacity style={s.cancelBtn} onPress={() => setShowForm(false)}>
               <Text style={s.cancelText}>Cancel</Text>
@@ -183,62 +183,62 @@ export default function SiaNomogramScreen() {
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0d0d1a' },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
   content: { padding: 16 },
   sectionHeader: {
-    color: '#8888aa', fontSize: 11, textTransform: 'uppercase',
+    color: '#888060', fontSize: 11, textTransform: 'uppercase',
     letterSpacing: 1, marginBottom: 8, marginTop: 16,
   },
   summaryCard: {
-    backgroundColor: '#1a1a2e', borderRadius: 14, padding: 16,
-    borderWidth: 1, borderColor: '#C8A84B44',
+    backgroundColor: '#F8F6EF', borderRadius: 14, padding: 16,
+    borderWidth: 1, borderColor: '#C8A84B66',
     marginBottom: 4,
   },
   summaryTitle: { color: '#C8A84B', fontSize: 11, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 },
   summaryRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   summaryBlock: { alignItems: 'center' },
-  summaryBig: { color: '#fff', fontSize: 36, fontWeight: 'bold' },
-  summaryUnit: { color: '#8888aa', fontSize: 12 },
-  summaryAt: { color: '#8888aa', fontSize: 24, marginHorizontal: 4 },
-  summaryN: { color: '#555577', fontSize: 13, marginLeft: 16, alignSelf: 'flex-end', marginBottom: 8 },
+  summaryBig: { color: '#1A1200', fontSize: 36, fontWeight: 'bold' },
+  summaryUnit: { color: '#888060', fontSize: 12 },
+  summaryAt: { color: '#888060', fontSize: 24, marginHorizontal: 4 },
+  summaryN: { color: '#888060', fontSize: 13, marginLeft: 16, alignSelf: 'flex-end', marginBottom: 8 },
   recommendation: { color: '#C8A84B88', fontSize: 12, marginTop: 10, fontStyle: 'italic' },
-  emptyHint: { color: '#555577', fontSize: 14, fontStyle: 'italic' },
+  emptyHint: { color: '#888060', fontSize: 14, fontStyle: 'italic' },
   caseCard: {
-    backgroundColor: '#1a1a2e', borderRadius: 12, padding: 14,
-    borderWidth: 1, borderColor: '#2a2a4e', marginBottom: 10,
+    backgroundColor: '#F8F6EF', borderRadius: 12, padding: 14,
+    borderWidth: 1, borderColor: '#DDD5BB', marginBottom: 10,
   },
   caseHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
-  caseNum: { color: '#fff', fontWeight: '600', fontSize: 14, flex: 1 },
-  caseDate: { color: '#555577', fontSize: 12, marginRight: 12 },
+  caseNum: { color: '#1A1200', fontWeight: '600', fontSize: 14, flex: 1 },
+  caseDate: { color: '#888060', fontSize: 12, marginRight: 12 },
   deleteX: { color: '#882222', fontSize: 16, fontWeight: 'bold' },
   caseRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 },
   caseBlock: { flex: 1 },
-  caseLabel: { color: '#8888aa', fontSize: 10, textTransform: 'uppercase' },
-  caseVal: { color: '#fff', fontSize: 14, fontWeight: '500' },
-  caseArrow: { color: '#555577', fontSize: 18 },
+  caseLabel: { color: '#888060', fontSize: 10, textTransform: 'uppercase' },
+  caseVal: { color: '#1A1200', fontSize: 14, fontWeight: '500' },
+  caseArrow: { color: '#888060', fontSize: 18 },
   caseFooter: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   accuracy: { fontSize: 12, fontWeight: '700' },
-  diffLabel: { color: '#555577', fontSize: 12 },
+  diffLabel: { color: '#888060', fontSize: 12 },
   caseNotes: { color: '#666688', fontSize: 12, marginTop: 6, fontStyle: 'italic' },
   formCard: {
-    backgroundColor: '#1a1a2e', borderRadius: 12, padding: 16,
-    borderWidth: 1, borderColor: '#2a2a4e', marginTop: 12,
+    backgroundColor: '#F8F6EF', borderRadius: 12, padding: 16,
+    borderWidth: 1, borderColor: '#DDD5BB', marginTop: 12,
   },
-  formTitle: { color: '#fff', fontSize: 16, fontWeight: '600', marginBottom: 12 },
+  formTitle: { color: '#1A1200', fontSize: 16, fontWeight: '600', marginBottom: 12 },
   formRow: { flexDirection: 'row', gap: 10, marginBottom: 4 },
   formHalf: { flex: 1 },
-  formLabel: { color: '#8888aa', fontSize: 11, textTransform: 'uppercase', marginBottom: 5, marginTop: 8 },
+  formLabel: { color: '#888060', fontSize: 11, textTransform: 'uppercase', marginBottom: 5, marginTop: 8 },
   input: {
-    backgroundColor: '#0d0d1a', color: '#fff', borderRadius: 8,
+    backgroundColor: '#FFFFFF', color: '#1A1200', borderRadius: 8,
     paddingHorizontal: 12, paddingVertical: 10, fontSize: 15,
-    borderWidth: 1, borderColor: '#2a2a4e',
+    borderWidth: 1, borderColor: '#DDD5BB',
   },
   formBtns: { flexDirection: 'row', gap: 10, marginTop: 14 },
   cancelBtn: {
-    flex: 1, borderWidth: 1, borderColor: '#2a2a4e', borderRadius: 10,
+    flex: 1, borderWidth: 1, borderColor: '#DDD5BB', borderRadius: 10,
     paddingVertical: 12, alignItems: 'center',
   },
-  cancelText: { color: '#8888aa', fontSize: 14 },
+  cancelText: { color: '#888060', fontSize: 14 },
   saveBtn: {
     flex: 2, backgroundColor: '#C8A84B', borderRadius: 10,
     paddingVertical: 12, alignItems: 'center',

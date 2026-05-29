@@ -107,38 +107,38 @@ export default function EyeRecordModal({ visible, existing, onSave, onClose }: P
             <Text style={styles.sectionTitle}>Alignment Axes</Text>
             <Text style={styles.label}>Reference Axis (0–180°)</Text>
             <TextInput style={styles.input} value={refAxis} onChangeText={setRefAxis}
-              placeholder="e.g. 0" placeholderTextColor="#555" keyboardType="number-pad" />
+              placeholder="e.g. 0" placeholderTextColor="#AAAAAA" keyboardType="number-pad" />
 
             <Text style={styles.label}>Target Axis (0–180°)</Text>
             <TextInput style={styles.input} value={targetAxis} onChangeText={setTargetAxis}
-              placeholder="e.g. 90" placeholderTextColor="#555" keyboardType="number-pad" />
+              placeholder="e.g. 90" placeholderTextColor="#AAAAAA" keyboardType="number-pad" />
 
             <Text style={styles.sectionTitle}>Corneal Biometry (optional)</Text>
             <View style={styles.row}>
               <View style={styles.half}>
                 <Text style={styles.label}>K1 Flat (D)</Text>
                 <TextInput style={styles.input} value={k1Power} onChangeText={setK1Power}
-                  placeholder="43.50" placeholderTextColor="#555" keyboardType="decimal-pad" />
+                  placeholder="43.50" placeholderTextColor="#AAAAAA" keyboardType="decimal-pad" />
               </View>
               <View style={styles.half}>
                 <Text style={styles.label}>K1 Flat Axis (°)</Text>
                 <TextInput style={styles.input} value={k1Axis} onChangeText={setK1Axis}
-                  placeholder="0–180" placeholderTextColor="#555" keyboardType="number-pad" maxLength={3} />
+                  placeholder="0–180" placeholderTextColor="#AAAAAA" keyboardType="number-pad" maxLength={3} />
               </View>
             </View>
             <View style={styles.row}>
               <View style={styles.half}>
                 <Text style={styles.label}>K2 Steep (D){steepAxisLabel}</Text>
                 <TextInput style={styles.input} value={k2Power} onChangeText={setK2Power}
-                  placeholder="45.50" placeholderTextColor="#555" keyboardType="decimal-pad" />
+                  placeholder="45.50" placeholderTextColor="#AAAAAA" keyboardType="decimal-pad" />
               </View>
               <View style={styles.half}>
                 <Text style={styles.label}>SIA (D) @ Axis (°)</Text>
                 <View style={styles.siaRow}>
                   <TextInput style={[styles.input, { flex: 1 }]} value={sia} onChangeText={setSia}
-                    placeholder="0.25" placeholderTextColor="#555" keyboardType="decimal-pad" />
+                    placeholder="0.25" placeholderTextColor="#AAAAAA" keyboardType="decimal-pad" />
                   <TextInput style={[styles.input, { width: 56 }]} value={siaAxis} onChangeText={setSiaAxis}
-                    placeholder="0" placeholderTextColor="#555" keyboardType="number-pad" maxLength={3} />
+                    placeholder="0" placeholderTextColor="#AAAAAA" keyboardType="number-pad" maxLength={3} />
                 </View>
               </View>
             </View>
@@ -146,17 +146,17 @@ export default function EyeRecordModal({ visible, existing, onSave, onClose }: P
             <Text style={styles.sectionTitle}>IOL Data (optional)</Text>
             <Text style={styles.label}>IOL Model</Text>
             <TextInput style={styles.input} value={iolModel} onChangeText={setIolModel}
-              placeholder="e.g. AcrySof IQ Toric T4" placeholderTextColor="#555" />
+              placeholder="e.g. AcrySof IQ Toric T4" placeholderTextColor="#AAAAAA" />
             <View style={styles.row}>
               <View style={styles.half}>
                 <Text style={styles.label}>Sphere (D)</Text>
                 <TextInput style={styles.input} value={iolSphere} onChangeText={setIolSphere}
-                  placeholder="21.5" placeholderTextColor="#555" keyboardType="decimal-pad" />
+                  placeholder="21.5" placeholderTextColor="#AAAAAA" keyboardType="decimal-pad" />
               </View>
               <View style={styles.half}>
                 <Text style={styles.label}>Cylinder (D)</Text>
                 <TextInput style={styles.input} value={iolCylinder} onChangeText={setIolCylinder}
-                  placeholder="2.25" placeholderTextColor="#555" keyboardType="decimal-pad" />
+                  placeholder="2.25" placeholderTextColor="#AAAAAA" keyboardType="decimal-pad" />
               </View>
             </View>
 
@@ -186,7 +186,7 @@ export default function EyeRecordModal({ visible, existing, onSave, onClose }: P
 
             <Text style={styles.label}>Notes (optional)</Text>
             <TextInput style={[styles.input, styles.textArea]} value={notes} onChangeText={setNotes}
-              placeholder="Surgical notes..." placeholderTextColor="#555" multiline numberOfLines={3} />
+              placeholder="Surgical notes..." placeholderTextColor="#AAAAAA" multiline numberOfLines={3} />
 
             <View style={styles.btnRow}>
               <TouchableOpacity style={styles.cancelBtn} onPress={onClose}>
@@ -207,28 +207,28 @@ export default function EyeRecordModal({ visible, existing, onSave, onClose }: P
 const styles = StyleSheet.create({
   overlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.7)' },
   sheet: {
-    backgroundColor: '#1a1a2e', borderTopLeftRadius: 20, borderTopRightRadius: 20,
+    backgroundColor: '#F8F6EF', borderTopLeftRadius: 20, borderTopRightRadius: 20,
     padding: 20, maxHeight: '92%',
   },
-  heading: { color: '#ffffff', fontSize: 20, fontWeight: 'bold', marginBottom: 16 },
+  heading: { color: '#1A1200', fontSize: 20, fontWeight: 'bold', marginBottom: 16 },
   sectionTitle: {
-    color: '#4466FF', fontSize: 11, textTransform: 'uppercase',
+    color: '#C8A84B', fontSize: 11, textTransform: 'uppercase',
     letterSpacing: 1, marginBottom: 8, marginTop: 12,
   },
-  label: { color: '#8888aa', fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 5 },
+  label: { color: '#888060', fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 5 },
   sideRow: { flexDirection: 'row', gap: 12, marginBottom: 16 },
   sideBtn: {
-    flex: 1, borderRadius: 10, borderWidth: 1.5, borderColor: '#2a2a4e',
+    flex: 1, borderRadius: 10, borderWidth: 1.5, borderColor: '#DDD5BB',
     paddingVertical: 12, alignItems: 'center',
   },
-  sideBtnActive: { borderColor: '#4466FF', backgroundColor: '#4466FF22' },
-  sideBtnText: { color: '#8888aa', fontSize: 18, fontWeight: 'bold' },
-  sideBtnTextActive: { color: '#ffffff' },
-  sideSub: { color: '#8888aa', fontSize: 11, marginTop: 2 },
+  sideBtnActive: { borderColor: '#C8A84B', backgroundColor: '#C8A84B22' },
+  sideBtnText: { color: '#888060', fontSize: 18, fontWeight: 'bold' },
+  sideBtnTextActive: { color: '#1A1200' },
+  sideSub: { color: '#888060', fontSize: 11, marginTop: 2 },
   input: {
-    backgroundColor: '#0d0d1a', color: '#ffffff', borderRadius: 10,
+    backgroundColor: '#FFFFFF', color: '#1A1200', borderRadius: 10,
     paddingHorizontal: 12, paddingVertical: 10, fontSize: 15,
-    borderWidth: 1, borderColor: '#2a2a4e', marginBottom: 12,
+    borderWidth: 1, borderColor: '#DDD5BB', marginBottom: 12,
   },
   textArea: { height: 72, textAlignVertical: 'top' },
   row: { flexDirection: 'row', gap: 10 },
@@ -239,13 +239,13 @@ const styles = StyleSheet.create({
   sideBtnWarnText: { color: '#FF8800' },
   btnRow: { flexDirection: 'row', gap: 12, marginTop: 8 },
   cancelBtn: {
-    flex: 1, borderRadius: 10, borderWidth: 1, borderColor: '#2a2a4e',
+    flex: 1, borderRadius: 10, borderWidth: 1, borderColor: '#DDD5BB',
     paddingVertical: 13, alignItems: 'center',
   },
-  cancelBtnText: { color: '#8888aa', fontSize: 16 },
+  cancelBtnText: { color: '#888060', fontSize: 16 },
   saveBtn: {
-    flex: 2, backgroundColor: '#4466FF', borderRadius: 10,
+    flex: 2, backgroundColor: '#C8A84B', borderRadius: 10,
     paddingVertical: 13, alignItems: 'center',
   },
-  saveBtnText: { color: '#ffffff', fontSize: 16, fontWeight: '600' },
+  saveBtnText: { color: '#C8C8C8', fontSize: 16, fontWeight: '600' },
 });

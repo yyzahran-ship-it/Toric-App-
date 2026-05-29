@@ -148,19 +148,19 @@ export default function ToricCalculatorScreen() {
           <View style={s.halfField}>
             <Text style={s.label}>K1 Flat (D)</Text>
             <TextInput style={s.input} value={k1Power} onChangeText={setK1Power}
-              placeholder="43.50" placeholderTextColor="#555" keyboardType="decimal-pad" />
+              placeholder="43.50" placeholderTextColor="#AAAAAA" keyboardType="decimal-pad" />
           </View>
           <View style={s.halfField}>
             <Text style={s.label}>K1 Flat Axis (°)</Text>
             <TextInput style={s.input} value={k1Axis} onChangeText={setK1Axis}
-              placeholder="0–180" placeholderTextColor="#555" keyboardType="number-pad" maxLength={3} />
+              placeholder="0–180" placeholderTextColor="#AAAAAA" keyboardType="number-pad" maxLength={3} />
           </View>
         </View>
         <View style={s.row}>
           <View style={s.halfField}>
             <Text style={s.label}>K2 Steep (D){steepAxisLabel ? ' ' + steepAxisLabel : ''}</Text>
             <TextInput style={s.input} value={k2Power} onChangeText={setK2Power}
-              placeholder="45.50" placeholderTextColor="#555" keyboardType="decimal-pad" />
+              placeholder="45.50" placeholderTextColor="#AAAAAA" keyboardType="decimal-pad" />
           </View>
           <View style={s.halfField}>
             <Text style={s.label}>Astigmatism</Text>
@@ -199,12 +199,12 @@ export default function ToricCalculatorScreen() {
           <View style={s.halfField}>
             <Text style={s.label}>SIA (D)</Text>
             <TextInput style={s.input} value={sia} onChangeText={setSia}
-              placeholder="0.25" placeholderTextColor="#555" keyboardType="decimal-pad" />
+              placeholder="0.25" placeholderTextColor="#AAAAAA" keyboardType="decimal-pad" />
           </View>
           <View style={s.halfField}>
             <Text style={s.label}>Incision Axis (°)</Text>
             <TextInput style={s.input} value={siaAxis} onChangeText={setSiaAxis}
-              placeholder="0–180" placeholderTextColor="#555" keyboardType="number-pad" maxLength={3} />
+              placeholder="0–180" placeholderTextColor="#AAAAAA" keyboardType="number-pad" maxLength={3} />
           </View>
         </View>
       </View>
@@ -295,15 +295,15 @@ export default function ToricCalculatorScreen() {
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0d0d1a' },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
   content: { padding: 16 },
   sectionHeader: {
-    color: '#8888aa', fontSize: 11, textTransform: 'uppercase',
+    color: '#888060', fontSize: 11, textTransform: 'uppercase',
     letterSpacing: 1, marginBottom: 8, marginTop: 16,
   },
   warningBanner: {
     backgroundColor: '#FF880022', borderRadius: 10, padding: 12,
-    borderWidth: 1, borderColor: '#FF880044', flexDirection: 'row',
+    borderWidth: 1, borderColor: '#FF880066', flexDirection: 'row',
     alignItems: 'flex-start', gap: 10, marginBottom: 8,
   },
   warningIcon: { fontSize: 20, color: '#FF8800' },
@@ -311,23 +311,23 @@ const s = StyleSheet.create({
   warningTitle: { color: '#FF8800', fontSize: 14, fontWeight: '700' },
   warningText: { color: '#CC7700', fontSize: 12, marginTop: 4, lineHeight: 17 },
   card: {
-    backgroundColor: '#1a1a2e', borderRadius: 12, padding: 14,
-    borderWidth: 1, borderColor: '#2a2a4e',
+    backgroundColor: '#F8F6EF', borderRadius: 12, padding: 14,
+    borderWidth: 1, borderColor: '#DDD5BB',
   },
   row: { flexDirection: 'row', gap: 12, marginBottom: 0 },
   halfField: { flex: 1, marginBottom: 12 },
-  label: { color: '#8888aa', fontSize: 11, textTransform: 'uppercase', marginBottom: 5 },
+  label: { color: '#888060', fontSize: 11, textTransform: 'uppercase', marginBottom: 5 },
   input: {
-    backgroundColor: '#0d0d1a', color: '#fff', borderRadius: 8,
+    backgroundColor: '#FFFFFF', color: '#1A1200', borderRadius: 8,
     paddingHorizontal: 12, paddingVertical: 10, fontSize: 16,
-    borderWidth: 1, borderColor: '#2a2a4e',
+    borderWidth: 1, borderColor: '#DDD5BB',
   },
   derivedBox: {
-    backgroundColor: '#0d0d1a', borderRadius: 8, borderWidth: 1,
-    borderColor: '#2a2a4e', paddingHorizontal: 12, paddingVertical: 10,
+    backgroundColor: '#FFFFFF', borderRadius: 8, borderWidth: 1,
+    borderColor: '#DDD5BB', paddingHorizontal: 12, paddingVertical: 10,
     alignItems: 'center',
   },
-  derivedValue: { color: '#8888aa', fontSize: 16 },
+  derivedValue: { color: '#888060', fontSize: 16 },
   toggleRow: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
     paddingVertical: 10, paddingHorizontal: 4,
@@ -341,42 +341,42 @@ const s = StyleSheet.create({
   checkboxActive: { borderColor: '#C8A84B', backgroundColor: '#C8A84B22' },
   checkmark: { color: '#C8A84B', fontSize: 13, fontWeight: 'bold' },
   toggleBody: { flex: 1 },
-  toggleLabel: { color: '#8888aa', fontSize: 13, fontWeight: '600' },
+  toggleLabel: { color: '#888060', fontSize: 13, fontWeight: '600' },
   toggleLabelActive: { color: '#C8A84B' },
-  toggleSub: { color: '#555577', fontSize: 11, marginTop: 2 },
+  toggleSub: { color: '#888060', fontSize: 11, marginTop: 2 },
   chipBtn: {
     paddingHorizontal: 12, paddingVertical: 7, borderRadius: 20,
-    borderWidth: 1, borderColor: '#2a2a4e',
+    borderWidth: 1, borderColor: '#DDD5BB',
   },
-  chipBtnActive: { backgroundColor: '#4466FF22', borderColor: '#4466FF' },
-  chipText: { color: '#8888aa', fontSize: 12 },
-  chipTextActive: { color: '#fff' },
-  platformName: { color: '#8888aa', fontSize: 11, marginTop: 6 },
+  chipBtnActive: { backgroundColor: '#C8A84B22', borderColor: '#C8A84B' },
+  chipText: { color: '#888060', fontSize: 12 },
+  chipTextActive: { color: '#C8C8C8' },
+  platformName: { color: '#888060', fontSize: 11, marginTop: 6 },
   calcBtn: {
-    backgroundColor: '#4466FF', borderRadius: 12, paddingVertical: 15,
+    backgroundColor: '#C8A84B', borderRadius: 12, paddingVertical: 15,
     alignItems: 'center', marginTop: 20,
   },
-  calcBtnText: { color: '#fff', fontSize: 17, fontWeight: '700' },
+  calcBtnText: { color: '#C8C8C8', fontSize: 17, fontWeight: '700' },
   resultRow: { flexDirection: 'row', gap: 12 },
   resultBlock: { flex: 1, alignItems: 'center' },
-  resultLabel: { color: '#8888aa', fontSize: 11, textTransform: 'uppercase', marginBottom: 4 },
-  resultBig: { color: '#fff', fontSize: 28, fontWeight: 'bold' },
+  resultLabel: { color: '#888060', fontSize: 11, textTransform: 'uppercase', marginBottom: 4 },
+  resultBig: { color: '#1A1200', fontSize: 28, fontWeight: 'bold' },
   optRow: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
-    paddingVertical: 7, borderBottomWidth: 1, borderBottomColor: '#0d0d1a',
+    paddingVertical: 7, borderBottomWidth: 1, borderBottomColor: '#DDD5BB',
   },
   optRowBest: { backgroundColor: '#C8A84B11', borderRadius: 8, borderBottomWidth: 0, marginVertical: 2 },
-  optCyl: { color: '#8888aa', fontSize: 13, width: 52, textAlign: 'right' },
+  optCyl: { color: '#888060', fontSize: 13, width: 52, textAlign: 'right' },
   optBestText: { color: '#C8A84B' },
-  optBar: { flex: 1, height: 6, backgroundColor: '#0d0d1a', borderRadius: 3, overflow: 'hidden' },
+  optBar: { flex: 1, height: 6, backgroundColor: '#FFFFFF', borderRadius: 3, overflow: 'hidden' },
   optBarFill: { height: '100%', borderRadius: 3 },
-  optBarNorm: { backgroundColor: '#2a2a6e' },
+  optBarNorm: { backgroundColor: '#E0D8C0' },
   optBarBest: { backgroundColor: '#C8A84B' },
-  optResidual: { color: '#8888aa', fontSize: 13, width: 48, textAlign: 'right' },
+  optResidual: { color: '#888060', fontSize: 13, width: 48, textAlign: 'right' },
   bestTag: { color: '#C8A84B', fontSize: 10, fontWeight: 'bold', width: 32 },
   applyBtn: {
-    backgroundColor: '#44AA66', borderRadius: 12, paddingVertical: 15,
+    backgroundColor: '#2A8A44', borderRadius: 12, paddingVertical: 15,
     alignItems: 'center', marginTop: 16,
   },
-  applyBtnText: { color: '#fff', fontSize: 15, fontWeight: '700' },
+  applyBtnText: { color: '#C8C8C8', fontSize: 15, fontWeight: '700' },
 });

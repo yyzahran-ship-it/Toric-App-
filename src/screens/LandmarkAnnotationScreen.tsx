@@ -186,10 +186,10 @@ export default function LandmarkAnnotationScreen() {
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0d0d1a' },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
   content: { padding: 16 },
   instructions: {
-    color: '#8888aa', fontSize: 13, marginBottom: 12,
+    color: '#888060', fontSize: 13, marginBottom: 12,
     lineHeight: 18, fontStyle: 'italic',
   },
   canvasWrapper: {
@@ -197,21 +197,21 @@ const s = StyleSheet.create({
     shadowColor: '#C8A84B', shadowOpacity: 0.2, shadowRadius: 12,
   },
   noImage: {
-    backgroundColor: '#1a1a2e', borderRadius: 12,
+    backgroundColor: '#F8F6EF', borderRadius: 12,
     alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1, borderColor: '#2a2a4e',
+    borderWidth: 1, borderColor: '#DDD5BB',
   },
-  noImageText: { color: '#8888aa', fontSize: 16 },
-  noImageHint: { color: '#555577', fontSize: 13, marginTop: 4 },
+  noImageText: { color: '#888060', fontSize: 16 },
+  noImageHint: { color: '#888060', fontSize: 13, marginTop: 4 },
   listCard: {
-    backgroundColor: '#1a1a2e', borderRadius: 12, padding: 12,
-    borderWidth: 1, borderColor: '#2a2a4e', marginBottom: 12,
+    backgroundColor: '#F8F6EF', borderRadius: 12, padding: 12,
+    borderWidth: 1, borderColor: '#DDD5BB', marginBottom: 12,
   },
-  listTitle: { color: '#fff', fontSize: 14, fontWeight: '600', marginBottom: 8 },
+  listTitle: { color: '#1A1200', fontSize: 14, fontWeight: '600', marginBottom: 8 },
   listItem: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 4 },
   dot: { width: 10, height: 10, borderRadius: 5 },
-  listLabel: { color: '#fff', fontSize: 13, fontWeight: '600', width: 24 },
-  listPos: { color: '#8888aa', fontSize: 12 },
+  listLabel: { color: '#1A1200', fontSize: 13, fontWeight: '600', width: 24 },
+  listPos: { color: '#888060', fontSize: 12 },
   actionRow: { flexDirection: 'row', gap: 10, marginBottom: 12 },
   undoBtn: {
     flex: 1, borderWidth: 1, borderColor: '#C8A84B', borderRadius: 10,
@@ -224,13 +224,13 @@ const s = StyleSheet.create({
   },
   clearBtnText: { color: '#FF6644', fontSize: 14, fontWeight: '600' },
   cameraBtn: {
-    borderWidth: 1, borderColor: '#4466FF', borderRadius: 12,
+    borderWidth: 1, borderColor: '#C8A84B', borderRadius: 12,
     paddingVertical: 13, alignItems: 'center', marginBottom: 12,
   },
-  cameraBtnText: { color: '#4466FF', fontSize: 15, fontWeight: '600' },
+  cameraBtnText: { color: '#C8A84B', fontSize: 15, fontWeight: '600' },
   saveBtn: {
-    backgroundColor: '#44AA66', borderRadius: 12,
+    backgroundColor: '#2A8A44', borderRadius: 12,
     paddingVertical: 15, alignItems: 'center',
   },
-  saveBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
+  saveBtnText: { color: '#C8C8C8', fontSize: 16, fontWeight: '700' },
 });

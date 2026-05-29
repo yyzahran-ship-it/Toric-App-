@@ -137,7 +137,7 @@ export default function AlignmentScreen() {
             value={currentAxisInput}
             onChangeText={val => setCurrentAxisInput(val.replace(/[^0-9]/g, ''))}
             placeholder="0–180"
-            placeholderTextColor="#666"
+            placeholderTextColor="#AAAAAA"
             keyboardType="number-pad"
             maxLength={3}
           />
@@ -313,82 +313,82 @@ export default function AlignmentScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0d0d1a' },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
   content: { padding: 16, paddingBottom: 60 },
   header: { flexDirection: 'row', alignItems: 'center', marginBottom: 16, gap: 10 },
   sideBadge: { borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 },
-  od: { backgroundColor: '#4466FF33', borderWidth: 1, borderColor: '#4466FF' },
-  os: { backgroundColor: '#44AA6633', borderWidth: 1, borderColor: '#44AA66' },
-  sideText: { color: '#ffffff', fontWeight: 'bold', fontSize: 16 },
-  patientName: { color: '#ffffff', fontSize: 18, fontWeight: '600' },
+  od: { backgroundColor: '#3355CC22', borderWidth: 1, borderColor: '#C8A84B' },
+  os: { backgroundColor: '#2A8A4433', borderWidth: 1, borderColor: '#2A8A44' },
+  sideText: { color: '#1A1200', fontWeight: 'bold', fontSize: 16 },
+  patientName: { color: '#1A1200', fontSize: 18, fontWeight: '600' },
   imageContainer: {
     width: IMG_SIZE, height: IMG_SIZE, borderRadius: 12,
-    overflow: 'hidden', backgroundColor: '#111122', marginBottom: 8,
+    overflow: 'hidden', backgroundColor: '#F0EDE4', marginBottom: 8,
     position: 'relative',
   },
   noImage: {
-    backgroundColor: '#111122', alignItems: 'center', justifyContent: 'center',
+    backgroundColor: '#F0EDE4', alignItems: 'center', justifyContent: 'center',
     position: 'relative',
   },
   cameraBtn: {
     position: 'absolute', bottom: 20,
-    backgroundColor: '#4466FF', borderRadius: 10,
+    backgroundColor: '#C8A84B', borderRadius: 10,
     paddingHorizontal: 20, paddingVertical: 10,
   },
-  cameraBtnText: { color: '#fff', fontSize: 15, fontWeight: '600' },
+  cameraBtnText: { color: '#C8C8C8', fontSize: 15, fontWeight: '600' },
   quickActions: { flexDirection: 'row', gap: 10, marginBottom: 16 },
   quickBtn: {
-    flex: 1, borderWidth: 1, borderColor: '#4466FF44',
+    flex: 1, borderWidth: 1, borderColor: '#C8A84B66',
     borderRadius: 10, paddingVertical: 8, alignItems: 'center',
   },
-  quickBtnGold: { borderColor: '#C8A84B44' },
-  quickBtnText: { color: '#4466FF', fontSize: 13 },
+  quickBtnGold: { borderColor: '#C8A84B66' },
+  quickBtnText: { color: '#C8A84B', fontSize: 13 },
   quickBtnTextGold: { color: '#C8A84B' },
   currentAxisCard: {
-    backgroundColor: '#1a1a2e', borderRadius: 12, padding: 14,
-    borderWidth: 1, borderColor: '#2a2a4e', marginBottom: 16,
+    backgroundColor: '#F8F6EF', borderRadius: 12, padding: 14,
+    borderWidth: 1, borderColor: '#DDD5BB', marginBottom: 16,
   },
-  cardLabel: { color: '#8888aa', fontSize: 12, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10 },
+  cardLabel: { color: '#888060', fontSize: 12, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10 },
   currentRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   axisInput: {
-    backgroundColor: '#0d0d1a', color: '#ffffff', borderRadius: 8,
+    backgroundColor: '#FFFFFF', color: '#1A1200', borderRadius: 8,
     paddingHorizontal: 12, paddingVertical: 8, fontSize: 22, fontWeight: 'bold',
-    borderWidth: 1, borderColor: '#2a2a4e', width: 80, textAlign: 'center',
+    borderWidth: 1, borderColor: '#DDD5BB', width: 80, textAlign: 'center',
   },
-  degSymbol: { color: '#8888aa', fontSize: 22 },
+  degSymbol: { color: '#888060', fontSize: 22 },
   updateBtn: {
-    backgroundColor: '#4466FF', borderRadius: 8,
+    backgroundColor: '#C8A84B', borderRadius: 8,
     paddingHorizontal: 16, paddingVertical: 10, marginLeft: 8,
   },
-  updateBtnText: { color: '#fff', fontSize: 14, fontWeight: '600' },
+  updateBtnText: { color: '#C8C8C8', fontSize: 14, fontWeight: '600' },
   calcSection: { marginBottom: 16 },
-  sectionTitle: { color: '#8888aa', fontSize: 12, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10 },
+  sectionTitle: { color: '#888060', fontSize: 12, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10 },
   residualCard: {
-    backgroundColor: '#1a1a2e', borderRadius: 12, padding: 14,
-    borderWidth: 1, borderColor: '#2a2a4e', marginBottom: 16,
+    backgroundColor: '#F8F6EF', borderRadius: 12, padding: 14,
+    borderWidth: 1, borderColor: '#DDD5BB', marginBottom: 16,
   },
   residualRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   residualValue: { fontSize: 32, fontWeight: 'bold' },
-  residualLabel: { color: '#8888aa', fontSize: 14 },
+  residualLabel: { color: '#888060', fontSize: 14 },
   chartCard: {
-    backgroundColor: '#1a1a2e', borderRadius: 12, padding: 14,
-    borderWidth: 1, borderColor: '#2a2a4e', marginBottom: 16,
+    backgroundColor: '#F8F6EF', borderRadius: 12, padding: 14,
+    borderWidth: 1, borderColor: '#DDD5BB', marginBottom: 16,
   },
   chartLabels: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 },
-  chartLabel: { color: '#555577', fontSize: 10 },
-  chartHint: { color: '#444466', fontSize: 10, marginTop: 4 },
+  chartLabel: { color: '#888060', fontSize: 10 },
+  chartHint: { color: '#888060', fontSize: 10, marginTop: 4 },
   exportBtn: {
-    borderWidth: 1, borderColor: '#4466FF', borderRadius: 12,
+    borderWidth: 1, borderColor: '#C8A84B', borderRadius: 12,
     paddingVertical: 13, alignItems: 'center', marginBottom: 16,
   },
-  exportBtnText: { color: '#4466FF', fontSize: 14, fontWeight: '600' },
+  exportBtnText: { color: '#C8A84B', fontSize: 14, fontWeight: '600' },
   axisSummary: {
-    backgroundColor: '#1a1a2e', borderRadius: 12, padding: 14,
-    borderWidth: 1, borderColor: '#2a2a4e',
+    backgroundColor: '#F8F6EF', borderRadius: 12, padding: 14,
+    borderWidth: 1, borderColor: '#DDD5BB',
   },
   axisRow: { flexDirection: 'row', gap: 16 },
   axisBlock: { flex: 1, alignItems: 'center' },
   axisDot: { width: 12, height: 12, borderRadius: 6, marginBottom: 4 },
-  axisBlockLabel: { color: '#8888aa', fontSize: 11, textTransform: 'uppercase' },
-  axisBlockValue: { color: '#ffffff', fontSize: 24, fontWeight: 'bold' },
+  axisBlockLabel: { color: '#888060', fontSize: 11, textTransform: 'uppercase' },
+  axisBlockValue: { color: '#1A1200', fontSize: 24, fontWeight: 'bold' },
 });

@@ -41,7 +41,7 @@ export default function PatientListScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="dark-content" />
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <Image source={require('../../assets/icon.png')} style={styles.logo} resizeMode="contain" />
@@ -63,7 +63,7 @@ export default function PatientListScreen() {
         <TextInput
           style={styles.search}
           placeholder="Search patients or MRN..."
-          placeholderTextColor="#666"
+          placeholderTextColor="#AAAAAA"
           value={query}
           onChangeText={setQuery}
         />
@@ -107,50 +107,50 @@ export default function PatientListScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0d0d1a' },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
   header: {
     paddingTop: 56, paddingBottom: 16, paddingHorizontal: 20,
-    backgroundColor: '#0d0d1a', flexDirection: 'row',
+    backgroundColor: '#FFFFFF', flexDirection: 'row',
     justifyContent: 'space-between', alignItems: 'center',
   },
   headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   logo: { width: 48, height: 48 },
-  title: { color: '#ffffff', fontSize: 26, fontWeight: 'bold' },
+  title: { color: '#1A1200', fontSize: 26, fontWeight: 'bold' },
   subtitle: { color: '#C8A84B', fontSize: 13, marginTop: 1 },
   headerRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   headerBtn: {
-    borderWidth: 1, borderColor: '#C8A84B44', borderRadius: 8,
+    borderWidth: 1, borderColor: '#C8A84B66', borderRadius: 8,
     paddingHorizontal: 10, paddingVertical: 5,
   },
   headerBtnText: { color: '#C8A84B', fontSize: 12, fontWeight: '700' },
   settingsBtn: { paddingBottom: 4, paddingLeft: 8 },
-  settingsIcon: { color: '#8888aa', fontSize: 24 },
+  settingsIcon: { color: '#888060', fontSize: 24 },
   searchRow: { paddingHorizontal: 16, paddingBottom: 12 },
   search: {
-    backgroundColor: '#1a1a2e', color: '#fff', borderRadius: 10,
+    backgroundColor: '#F8F6EF', color: '#1A1200', borderRadius: 10,
     paddingHorizontal: 14, paddingVertical: 10, fontSize: 15,
-    borderWidth: 1, borderColor: '#2a2a4e',
+    borderWidth: 1, borderColor: '#DDD5BB',
   },
   list: { paddingHorizontal: 16, paddingBottom: 100 },
   card: {
-    backgroundColor: '#1a1a2e', borderRadius: 12, padding: 16,
+    backgroundColor: '#F8F6EF', borderRadius: 12, padding: 16,
     marginBottom: 10, flexDirection: 'row', alignItems: 'center',
-    borderWidth: 1, borderColor: '#2a2a4e',
+    borderWidth: 1, borderColor: '#DDD5BB',
   },
   cardLeft: { flex: 1 },
-  cardName: { color: '#ffffff', fontSize: 17, fontWeight: '600' },
-  cardMrn: { color: '#8888aa', fontSize: 13, marginTop: 2 },
+  cardName: { color: '#1A1200', fontSize: 17, fontWeight: '600' },
+  cardMrn: { color: '#888060', fontSize: 13, marginTop: 2 },
   cardEyes: { color: '#44AAFF', fontSize: 13, marginTop: 4 },
-  chevron: { color: '#8888aa', fontSize: 22 },
+  chevron: { color: '#888060', fontSize: 22 },
   empty: { alignItems: 'center', marginTop: 80 },
   emptyIcon: { fontSize: 48, marginBottom: 12 },
-  emptyText: { color: '#ffffff', fontSize: 18, fontWeight: '600' },
-  emptyHint: { color: '#8888aa', fontSize: 14, marginTop: 4 },
+  emptyText: { color: '#1A1200', fontSize: 18, fontWeight: '600' },
+  emptyHint: { color: '#888060', fontSize: 14, marginTop: 4 },
   fab: {
     position: 'absolute', bottom: 32, right: 24,
     width: 56, height: 56, borderRadius: 28,
-    backgroundColor: '#4466FF', alignItems: 'center', justifyContent: 'center',
-    shadowColor: '#4466FF', shadowOpacity: 0.5, shadowRadius: 12, elevation: 8,
+    backgroundColor: '#C8A84B', alignItems: 'center', justifyContent: 'center',
+    shadowColor: '#C8A84B', shadowOpacity: 0.5, shadowRadius: 12, elevation: 8,
   },
-  fabText: { color: '#fff', fontSize: 28, lineHeight: 30 },
+  fabText: { color: '#C8C8C8', fontSize: 28, lineHeight: 30 },
 });

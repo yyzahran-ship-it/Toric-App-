@@ -56,7 +56,7 @@ export default function PatientFormScreen() {
           value={name}
           onChangeText={setName}
           placeholder="Patient name"
-          placeholderTextColor="#666"
+          placeholderTextColor="#AAAAAA"
           autoCapitalize="words"
         />
 
@@ -66,7 +66,7 @@ export default function PatientFormScreen() {
           value={mrn}
           onChangeText={setMrn}
           placeholder="Medical record number"
-          placeholderTextColor="#666"
+          placeholderTextColor="#AAAAAA"
           keyboardType="default"
         />
 
@@ -76,7 +76,7 @@ export default function PatientFormScreen() {
           value={dob}
           onChangeText={setDob}
           placeholder="YYYY-MM-DD"
-          placeholderTextColor="#666"
+          placeholderTextColor="#AAAAAA"
           keyboardType="numbers-and-punctuation"
         />
 
@@ -89,18 +89,18 @@ export default function PatientFormScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0d0d1a' },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
   content: { padding: 20, paddingTop: 40 },
-  heading: { color: '#ffffff', fontSize: 24, fontWeight: 'bold', marginBottom: 28 },
-  label: { color: '#8888aa', fontSize: 13, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 6 },
+  heading: { color: '#1A1200', fontSize: 24, fontWeight: 'bold', marginBottom: 28 },
+  label: { color: '#888060', fontSize: 13, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 6 },
   input: {
-    backgroundColor: '#1a1a2e', color: '#ffffff', borderRadius: 10,
+    backgroundColor: '#F8F6EF', color: '#1A1200', borderRadius: 10,
     paddingHorizontal: 14, paddingVertical: 12, fontSize: 16,
-    borderWidth: 1, borderColor: '#2a2a4e', marginBottom: 20,
+    borderWidth: 1, borderColor: '#DDD5BB', marginBottom: 20,
   },
   button: {
-    backgroundColor: '#4466FF', borderRadius: 12, paddingVertical: 15,
+    backgroundColor: '#C8A84B', borderRadius: 12, paddingVertical: 15,
     alignItems: 'center', marginTop: 12,
   },
-  buttonText: { color: '#ffffff', fontSize: 17, fontWeight: '600' },
+  buttonText: { color: '#1A1200', fontSize: 17, fontWeight: '600' },
 });

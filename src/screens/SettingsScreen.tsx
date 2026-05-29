@@ -51,12 +51,12 @@ export default function SettingsScreen() {
           <View style={s.half}>
             <Text style={s.label}>Default SIA (D)</Text>
             <TextInput style={s.input} value={sia} onChangeText={setSia}
-              placeholder="0.25" placeholderTextColor="#555" keyboardType="decimal-pad" />
+              placeholder="0.25" placeholderTextColor="#AAAAAA" keyboardType="decimal-pad" />
           </View>
           <View style={s.half}>
             <Text style={s.label}>Incision Axis (°)</Text>
             <TextInput style={s.input} value={siaAxis} onChangeText={setSiaAxis}
-              placeholder="0–180" placeholderTextColor="#555" keyboardType="number-pad" maxLength={3} />
+              placeholder="0–180" placeholderTextColor="#AAAAAA" keyboardType="number-pad" maxLength={3} />
           </View>
         </View>
       </View>
@@ -71,7 +71,7 @@ export default function SettingsScreen() {
           >
             <View style={[s.radio, platform === key && s.radioActive]} />
             <View style={{ flex: 1 }}>
-              <Text style={[s.platformName, platform === key && { color: '#fff' }]}>
+              <Text style={[s.platformName, platform === key && { color: '#1A1200' }]}>
                 {IOL_PLATFORMS[key].name}
               </Text>
               <Text style={s.cylinders}>
@@ -82,7 +82,7 @@ export default function SettingsScreen() {
         ))}
       </View>
 
-      <TouchableOpacity style={[s.saveBtn, saved && { backgroundColor: '#44AA66' }]} onPress={handleSave}>
+      <TouchableOpacity style={[s.saveBtn, saved && { backgroundColor: '#2A8A44' }]} onPress={handleSave}>
         <Text style={s.saveBtnText}>{saved ? 'Saved ✓' : 'Save Settings'}</Text>
       </TouchableOpacity>
     </ScrollView>
@@ -90,41 +90,41 @@ export default function SettingsScreen() {
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0d0d1a' },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
   content: { padding: 16, paddingBottom: 60 },
   sectionHeader: {
-    color: '#8888aa', fontSize: 11, textTransform: 'uppercase',
+    color: '#888060', fontSize: 11, textTransform: 'uppercase',
     letterSpacing: 1, marginBottom: 8, marginTop: 16,
   },
   card: {
-    backgroundColor: '#1a1a2e', borderRadius: 12, padding: 14,
-    borderWidth: 1, borderColor: '#2a2a4e',
+    backgroundColor: '#F8F6EF', borderRadius: 12, padding: 14,
+    borderWidth: 1, borderColor: '#DDD5BB',
   },
   hint: { color: '#666688', fontSize: 13, marginBottom: 14 },
   row: { flexDirection: 'row', gap: 12 },
   half: { flex: 1 },
-  label: { color: '#8888aa', fontSize: 11, textTransform: 'uppercase', marginBottom: 5 },
+  label: { color: '#888060', fontSize: 11, textTransform: 'uppercase', marginBottom: 5 },
   input: {
-    backgroundColor: '#0d0d1a', color: '#fff', borderRadius: 8,
+    backgroundColor: '#FFFFFF', color: '#1A1200', borderRadius: 8,
     paddingHorizontal: 12, paddingVertical: 10, fontSize: 16,
-    borderWidth: 1, borderColor: '#2a2a4e',
+    borderWidth: 1, borderColor: '#DDD5BB',
   },
   platformRow: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
     paddingVertical: 10, borderRadius: 8, paddingHorizontal: 6,
     borderWidth: 1, borderColor: 'transparent', marginBottom: 4,
   },
-  platformRowActive: { backgroundColor: '#4466FF22', borderColor: '#4466FF44' },
+  platformRowActive: { backgroundColor: '#C8A84B22', borderColor: '#C8A84B66' },
   radio: {
     width: 18, height: 18, borderRadius: 9,
     borderWidth: 2, borderColor: '#444466',
   },
-  radioActive: { borderColor: '#4466FF', backgroundColor: '#4466FF' },
-  platformName: { color: '#8888aa', fontSize: 14, fontWeight: '500' },
-  cylinders: { color: '#555577', fontSize: 11, marginTop: 2 },
+  radioActive: { borderColor: '#C8A84B', backgroundColor: '#C8A84B' },
+  platformName: { color: '#888060', fontSize: 14, fontWeight: '500' },
+  cylinders: { color: '#888060', fontSize: 11, marginTop: 2 },
   saveBtn: {
-    backgroundColor: '#4466FF', borderRadius: 12, paddingVertical: 15,
+    backgroundColor: '#C8A84B', borderRadius: 12, paddingVertical: 15,
     alignItems: 'center', marginTop: 24,
   },
-  saveBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
+  saveBtnText: { color: '#C8C8C8', fontSize: 16, fontWeight: '700' },
 });
