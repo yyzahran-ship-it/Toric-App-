@@ -1,1547 +1,489 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8"/>
 <title>Zahran Toric Tool — User Manual</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
     --gold: #C8A84B;
-    --gold-light: #e8c96b;
-    --gold-faint: #F8F3E6;
     --dark: #1A1200;
-    --text: #2a2200;
-    --muted: #7a6840;
-    --border: #DDD5BB;
-    --bg: #FFFFFF;
-    --section-bg: #F8F6EF;
+    --muted: #6a5830;
+    --border: #D8CEAA;
+    --bg2: #F8F5EC;
   }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
-    color: var(--text);
-    background: var(--bg);
-    font-size: 10.5pt;
-    line-height: 1.65;
-  }
-
-  /* ── Cover page ── */
-  .cover {
-    page-break-after: always;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(160deg, #0d0d1a 0%, #1a1600 50%, #0d0d1a 100%);
-    color: #fff;
-    text-align: center;
-    padding: 60px 40px;
-  }
-
-  .cover-logo {
-    width: 110px; height: 110px;
-    border-radius: 28px;
-    background: linear-gradient(135deg, var(--gold) 0%, #8a6820 100%);
-    display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 32px;
-    box-shadow: 0 0 60px rgba(200,168,75,0.5);
-    font-size: 52px; font-weight: 800;
-    color: #fff;
-    letter-spacing: -2px;
-  }
-
-  .cover h1 {
-    font-size: 32pt;
-    font-weight: 800;
-    color: var(--gold-light);
-    letter-spacing: 1px;
-    margin-bottom: 10px;
-  }
-
-  .cover .subtitle {
-    font-size: 14pt;
-    color: rgba(255,255,255,0.7);
-    font-weight: 300;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    margin-bottom: 50px;
-  }
-
-  .cover .tagline {
-    font-size: 11pt;
-    color: rgba(255,255,255,0.55);
-    max-width: 440px;
-    line-height: 1.7;
-    border-top: 1px solid rgba(200,168,75,0.3);
-    padding-top: 28px;
-  }
-
-  .cover .meta-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 24px;
-    margin: 40px 0;
-    width: 100%;
-    max-width: 500px;
-  }
-
-  .cover .meta-item {
-    background: rgba(200,168,75,0.1);
-    border: 1px solid rgba(200,168,75,0.25);
-    border-radius: 10px;
-    padding: 14px 10px;
-  }
-
-  .cover .meta-label {
-    font-size: 7pt;
-    color: rgba(200,168,75,0.6);
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    margin-bottom: 4px;
-  }
-
-  .cover .meta-value {
-    font-size: 10pt;
-    color: var(--gold-light);
-    font-weight: 600;
-  }
-
-  /* ── Page layout ── */
   @page {
     size: A4;
-    margin: 22mm 18mm 20mm 18mm;
-    @bottom-center {
-      content: "Zahran Toric Tool  |  Page " counter(page);
-      font-size: 8pt;
-      color: #999;
-      font-family: 'Inter', sans-serif;
-    }
-    @top-right {
-      content: "User Manual";
-      font-size: 7pt;
-      color: #bbb;
-      font-family: 'Inter', sans-serif;
-    }
+    margin: 12mm 12mm 12mm 12mm;
   }
 
-  @page :first { @bottom-center { content: ""; } @top-right { content: ""; } }
-
-  /* ── TOC ── */
-  .toc-page {
-    page-break-after: always;
-    padding: 20px 0;
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 7.5pt;
+    line-height: 1.45;
+    color: #1A1200;
+    background: #fff;
   }
 
-  .toc-title {
-    font-size: 18pt;
-    font-weight: 700;
-    color: var(--dark);
-    margin-bottom: 28px;
-    padding-bottom: 12px;
-    border-bottom: 2px solid var(--gold);
-  }
-
-  .toc-section { margin-bottom: 6px; }
-
-  .toc-entry {
+  /* ── Header bar ── */
+  .header {
+    background: linear-gradient(135deg, #0d0d1a 0%, #1a1500 100%);
+    color: #fff;
+    padding: 8px 14px;
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    align-items: baseline;
-    padding: 5px 0;
-    border-bottom: 1px dotted var(--border);
-    font-size: 10pt;
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+  .header-left { display: flex; align-items: center; gap: 10px; }
+  .logo {
+    width: 32px; height: 32px; border-radius: 7px;
+    background: linear-gradient(135deg, var(--gold), #8a6010);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 16pt; color: #fff;
+  }
+  .app-name { font-size: 14pt; font-weight: 700; color: var(--gold); }
+  .app-sub  { font-size: 8pt; color: rgba(255,255,255,0.55); letter-spacing: 1.5px; text-transform: uppercase; }
+  .header-right { font-size: 7pt; color: rgba(255,255,255,0.4); text-align: right; }
+
+  /* ── 3-column grid ── */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 7px;
   }
 
-  .toc-entry.chapter {
-    font-weight: 600;
-    color: var(--dark);
-    font-size: 11pt;
-    margin-top: 10px;
-    border-bottom: 1px solid var(--border);
+  .col-span-2 { grid-column: span 2; }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 7px 9px;
   }
 
-  .toc-entry.sub { padding-left: 20px; color: var(--muted); }
-
-  .toc-num { color: var(--gold); font-weight: 600; min-width: 28px; }
-  .toc-dots { flex: 1; border-bottom: 1px dotted var(--border); margin: 0 6px; position: relative; top: -3px; }
-  .toc-page-num { color: var(--muted); font-size: 9pt; }
-
-  /* ── Sections ── */
-  .chapter {
-    page-break-before: always;
-    padding-top: 8px;
-  }
-
-  .chapter-header {
-    background: linear-gradient(135deg, #0d0d1a 0%, #1a1600 100%);
-    color: #fff;
-    border-radius: 12px;
-    padding: 24px 28px;
-    margin-bottom: 28px;
-  }
-
-  .chapter-num {
-    font-size: 9pt;
-    color: var(--gold);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-bottom: 6px;
-  }
-
-  .chapter-title {
-    font-size: 20pt;
-    font-weight: 700;
-    color: #fff;
-  }
-
-  .chapter-desc {
-    font-size: 10pt;
-    color: rgba(255,255,255,0.6);
-    margin-top: 8px;
-    font-weight: 300;
-  }
-
-  h2 {
-    font-size: 14pt;
+  .card-title {
+    font-size: 8pt;
     font-weight: 700;
     color: var(--dark);
-    margin: 28px 0 12px;
-    padding-bottom: 6px;
-    border-bottom: 2px solid var(--gold);
-  }
-
-  h3 {
-    font-size: 11pt;
-    font-weight: 600;
-    color: var(--dark);
-    margin: 20px 0 8px;
-  }
-
-  h3::before {
-    content: '';
-    display: inline-block;
-    width: 4px;
-    height: 14px;
-    background: var(--gold);
-    border-radius: 2px;
-    margin-right: 8px;
-    vertical-align: middle;
-  }
-
-  p { margin-bottom: 10px; }
-
-  /* ── Callout boxes ── */
-  .callout {
-    border-radius: 10px;
-    padding: 14px 16px;
-    margin: 16px 0;
-    font-size: 10pt;
-  }
-
-  .callout-tip {
-    background: #F0FFF4;
-    border-left: 4px solid #44AA66;
-    color: #1a4a2a;
-  }
-
-  .callout-warning {
-    background: #FFFBEB;
-    border-left: 4px solid var(--gold);
-    color: #5a4010;
-  }
-
-  .callout-info {
-    background: #EEF6FF;
-    border-left: 4px solid #4488DD;
-    color: #1a2a5a;
-  }
-
-  .callout-medical {
-    background: #FFF0EE;
-    border-left: 4px solid #DD4422;
-    color: #5a1a10;
-  }
-
-  .callout strong { display: block; margin-bottom: 4px; }
-
-  /* ── Tables ── */
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 16px 0;
-    font-size: 9.5pt;
-  }
-
-  th {
-    background: var(--dark);
-    color: var(--gold);
-    padding: 9px 12px;
-    text-align: left;
-    font-weight: 600;
-    font-size: 9pt;
+    border-bottom: 1.5px solid var(--gold);
+    padding-bottom: 3px;
+    margin-bottom: 5px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
   }
 
-  td {
-    padding: 8px 12px;
-    border-bottom: 1px solid var(--border);
-    vertical-align: top;
-  }
+  .card-title .icon { font-size: 10pt; }
 
-  tr:nth-child(even) td { background: var(--section-bg); }
-  tr:hover td { background: var(--gold-faint); }
-
-  /* ── Step lists ── */
-  .steps { list-style: none; margin: 12px 0; }
-
+  /* ── Workflow steps ── */
+  .steps { list-style: none; }
   .steps li {
     display: flex;
-    gap: 12px;
-    margin-bottom: 10px;
+    gap: 5px;
+    margin-bottom: 3.5px;
     align-items: flex-start;
   }
-
   .step-num {
-    min-width: 26px;
-    height: 26px;
+    min-width: 16px; height: 16px;
     background: var(--gold);
     color: #fff;
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 9pt;
+    font-size: 7pt;
     font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
     margin-top: 1px;
   }
 
-  .step-content { flex: 1; padding-top: 3px; }
-  .step-content strong { color: var(--dark); }
+  /* ── Tables ── */
+  table { width: 100%; border-collapse: collapse; margin-top: 4px; font-size: 7pt; }
+  th {
+    background: var(--dark); color: var(--gold);
+    padding: 3px 6px; text-align: left; font-size: 6.5pt;
+    text-transform: uppercase; letter-spacing: 0.3px;
+  }
+  td { padding: 2.5px 6px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:nth-child(even) td { background: #fff; }
 
-  /* ── Feature grid ── */
-  .feature-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    margin: 16px 0;
+  /* ── Metric rows ── */
+  .metric { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2.5px; }
+  .metric-name { font-weight: 600; font-size: 7.5pt; }
+  .metric-ideal { color: var(--muted); font-size: 6.5pt; }
+
+  /* ── Colour dots ── */
+  .dot {
+    display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+    vertical-align: middle; margin-right: 2px;
   }
 
-  .feature-card {
-    background: var(--section-bg);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px 16px;
-  }
+  /* ── Bullets ── */
+  ul.b { padding-left: 12px; margin-top: 3px; }
+  ul.b li { margin-bottom: 2.5px; }
 
-  .feature-card .icon { font-size: 20px; margin-bottom: 6px; }
-  .feature-card h4 { font-size: 10pt; font-weight: 600; color: var(--dark); margin-bottom: 4px; }
-  .feature-card p { font-size: 9pt; color: var(--muted); margin: 0; }
-
-  /* ── Metrics table ── */
-  .metric-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 14px;
-    background: var(--section-bg);
-    border-radius: 8px;
-    margin-bottom: 6px;
-    border: 1px solid var(--border);
-  }
-
-  .metric-name { font-weight: 600; color: var(--dark); font-size: 10pt; }
-  .metric-ideal { color: var(--muted); font-size: 9pt; }
-  .metric-desc { color: var(--muted); font-size: 9pt; margin-top: 2px; }
-
-  /* ── Screen diagram ── */
-  .screen-diagram {
-    background: var(--section-bg);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 18px;
-    margin: 16px 0;
-  }
-
-  .screen-diagram h4 {
-    font-size: 10pt;
-    font-weight: 700;
-    color: var(--gold);
-    margin-bottom: 12px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-
-  ul.bullets { margin: 8px 0 10px 20px; }
-  ul.bullets li { margin-bottom: 5px; color: var(--text); font-size: 10pt; }
-
-  code {
-    background: var(--section-bg);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 1px 6px;
-    font-family: 'Courier New', monospace;
-    font-size: 9pt;
-    color: var(--dark);
-  }
-
+  /* ── Tag ── */
   .tag {
-    display: inline-block;
-    background: var(--gold);
-    color: #fff;
-    border-radius: 4px;
-    padding: 2px 8px;
-    font-size: 8pt;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    display: inline-block; background: var(--gold); color: #fff;
+    border-radius: 3px; padding: 0px 5px; font-size: 6pt;
+    font-weight: 700; text-transform: uppercase; vertical-align: middle;
   }
+  .tag.g { background: #2A8A44; }
+  .tag.r { background: #BB3311; }
 
-  .tag.green { background: #2A8A44; }
-  .tag.blue { background: #3366CC; }
-  .tag.red { background: #CC3322; }
-
-  hr.section { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
-
-  .formula-box {
-    background: #0d0d1a;
-    color: var(--gold-light);
-    border-radius: 10px;
-    padding: 16px 20px;
+  /* ── Formula ── */
+  .formula {
+    background: #0d0d1a; color: #e8c96b;
+    border-radius: 5px; padding: 5px 8px;
     font-family: 'Courier New', monospace;
-    font-size: 9.5pt;
-    margin: 14px 0;
-    line-height: 1.8;
+    font-size: 6.5pt; line-height: 1.6;
+    margin-top: 4px;
+  }
+  .formula .c { color: rgba(200,168,75,0.35); }
+
+  /* ── Warning ── */
+  .warn {
+    background: #FFF8E8; border-left: 3px solid var(--gold);
+    border-radius: 4px; padding: 4px 7px; margin-top: 4px;
+    font-size: 6.5pt; color: #5a4010;
   }
 
-  .formula-box .comment { color: rgba(200,168,75,0.4); }
+  .sep { border: none; border-top: 1px solid var(--border); margin: 6px 0; }
 
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    background: var(--gold-faint);
-    border: 1px solid var(--gold);
-    color: var(--dark);
-    border-radius: 6px;
-    padding: 3px 10px;
-    font-size: 9pt;
-    font-weight: 600;
-    margin: 2px;
+  strong { color: var(--dark); }
+
+  /* ── Footer ── */
+  .footer {
+    text-align: center; font-size: 6.5pt; color: #aaa;
+    margin-top: 8px; padding-top: 6px;
+    border-top: 1px solid var(--border);
   }
 
-  .color-swatch {
-    display: inline-block;
-    width: 12px; height: 12px;
-    border-radius: 3px;
-    vertical-align: middle;
-    margin-right: 4px;
-  }
-
-  .disclaimer {
-    background: #FFF0EE;
-    border: 1px solid #FFCCBB;
-    border-radius: 10px;
-    padding: 16px 18px;
-    margin: 20px 0;
-    font-size: 9pt;
-    color: #5a2010;
-  }
-
-  .disclaimer h4 { font-size: 10pt; color: #CC3322; margin-bottom: 6px; }
+  /* Page break before second page */
+  .page2 { page-break-before: always; }
 </style>
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════ COVER ═══════════════════════ -->
-<div class="cover">
-  <div class="cover-logo">Z</div>
-  <h1>Zahran Toric Tool</h1>
-  <p class="subtitle">User Manual</p>
+<!-- ══════════════════════════ PAGE 1 ══════════════════════════ -->
 
-  <div class="meta-grid">
-    <div class="meta-item">
-      <div class="meta-label">Version</div>
-      <div class="meta-value">1.0.0</div>
-    </div>
-    <div class="meta-item">
-      <div class="meta-label">Platform</div>
-      <div class="meta-value">iOS / Android</div>
-    </div>
-    <div class="meta-item">
-      <div class="meta-label">Date</div>
-      <div class="meta-value">May 2026</div>
+<!-- Header -->
+<div class="header">
+  <div class="header-left">
+    <div class="logo">Z</div>
+    <div>
+      <div class="app-name">Zahran Toric Tool</div>
+      <div class="app-sub">User Manual  ·  v1.0.0  ·  iOS &amp; Android</div>
     </div>
   </div>
-
-  <p class="tagline">
-    A clinical-grade mobile application for toric intraocular lens planning,
-    IOL alignment, and astigmatism outcome analysis — designed for ophthalmic surgeons.
-  </p>
+  <div class="header-right">Clinical Decision Support Tool<br/>For ophthalmic surgeons</div>
 </div>
 
-<!-- ═══════════════════════════════════════════ TOC ════════════════════════ -->
-<div class="toc-page">
-  <div class="toc-title">Table of Contents</div>
+<div class="grid">
 
-  <div class="toc-section">
-    <div class="toc-entry chapter">
-      <span><span class="toc-num">1</span> Introduction &amp; Overview</span>
-      <span class="toc-page-num">3</span>
-    </div>
-    <div class="toc-entry sub">
-      <span>1.1 Purpose of the Application</span><span class="toc-dots"></span><span class="toc-page-num">3</span>
-    </div>
-    <div class="toc-entry sub">
-      <span>1.2 Key Features</span><span class="toc-dots"></span><span class="toc-page-num">3</span>
-    </div>
-    <div class="toc-entry sub">
-      <span>1.3 Medical Disclaimer</span><span class="toc-dots"></span><span class="toc-page-num">3</span>
+  <!-- ── WORKFLOW ── -->
+  <div class="card col-span-2">
+    <div class="card-title"><span class="icon">🔄</span> Complete Clinical Workflow</div>
+    <ol class="steps">
+      <li><div class="step-num">1</div><div><strong>Create Patient</strong> — Name, DOB, notes. Tap <em>+ New Patient</em> from Patient List.</div></li>
+      <li><div class="step-num">2</div><div><strong>Add Eye Record</strong> — Enter K1/K2 powers &amp; axes, IOL power, IOL cylinder, target axis, SIA.</div></li>
+      <li><div class="step-num">3</div><div><strong>Run Toric Calculator</strong> — Enable PCA toggle if no posterior corneal data. Review target axis &amp; residual astigmatism.</div></li>
+      <li><div class="step-num">4</div><div><strong>Capture Eye Photo</strong> — Align limbus to gold ring, pupil to cyan ring. Wait for <strong style="color:#2A8A44">LEVEL</strong> in centre, then tap shutter.</div></li>
+      <li><div class="step-num">5</div><div><strong>Annotate Landmarks</strong> — Tap vessels on photo to mark reference points. Tap Save. (Compensates for intraoperative cyclorotation.)</div></li>
+      <li><div class="step-num">6</div><div><strong>Align IOL</strong> — Use Alignment Screen overlay in OR. Match IOL marks to green target axis line.</div></li>
+      <li><div class="step-num">7</div><div><strong>Post-op Analysis</strong> — Enter post-op refraction in Alpins screen. Review CI, ME, AE, IS metrics.</div></li>
+      <li><div class="step-num">8</div><div><strong>Log SIA Case</strong> — Add case to SIA Nomogram to build personal surgeon profile over time.</div></li>
+    </ol>
+  </div>
+
+  <!-- ── NAVIGATION ── -->
+  <div class="card">
+    <div class="card-title"><span class="icon">🗂</span> Screen Navigation</div>
+    <table>
+      <thead><tr><th>Screen</th><th>Access From</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Patient List</strong></td><td>App home screen</td></tr>
+        <tr><td><strong>Patient Form</strong></td><td>+ New / Edit button</td></tr>
+        <tr><td><strong>Patient Detail</strong></td><td>Tap any patient</td></tr>
+        <tr><td><strong>Toric Calculator</strong></td><td>Patient Detail → Calc</td></tr>
+        <tr><td><strong>Camera</strong></td><td>Patient Detail → Camera</td></tr>
+        <tr><td><strong>Alignment</strong></td><td>After photo capture</td></tr>
+        <tr><td><strong>Alpins Analysis</strong></td><td>Patient Detail → Alpins</td></tr>
+        <tr><td><strong>Landmark Annotation</strong></td><td>Patient Detail → Annotate</td></tr>
+        <tr><td><strong>SIA Nomogram</strong></td><td>Patient List → SIA button</td></tr>
+        <tr><td><strong>Settings</strong></td><td>Patient List → ⚙ icon</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── EYE RECORD FIELDS ── -->
+  <div class="card">
+    <div class="card-title"><span class="icon">📋</span> Eye Record Fields</div>
+    <table>
+      <thead><tr><th>Field</th><th>Unit</th></tr></thead>
+      <tbody>
+        <tr><td>Eye side</td><td>OD / OS</td></tr>
+        <tr><td>K1 Power (flat)</td><td>Dioptres</td></tr>
+        <tr><td>K1 Axis</td><td>° TABO</td></tr>
+        <tr><td>K2 Power (steep)</td><td>Dioptres</td></tr>
+        <tr><td>IOL Power</td><td>Dioptres</td></tr>
+        <tr><td>IOL Cylinder</td><td>Dioptres</td></tr>
+        <tr><td>Target Axis</td><td>° TABO</td></tr>
+        <tr><td>SIA / SIA Axis</td><td>D / °</td></tr>
+        <tr><td>Post-Refractive</td><td>Toggle + LASIK/PRK/RK</td></tr>
+      </tbody>
+    </table>
+    <div class="warn">⚠ K1 = <em>flat</em> meridian (lower D). K2 = <em>steep</em> (higher D).</div>
+  </div>
+
+  <!-- ── TORIC CALCULATOR ── -->
+  <div class="card">
+    <div class="card-title"><span class="icon">🧮</span> Toric Calculator</div>
+    <ul class="b">
+      <li>Pre-populates from eye record automatically</li>
+      <li><strong>PCA Toggle</strong> — adds Barrett posterior corneal ATR contribution (≈+0.3 D) using double-angle vectors. Enable unless you have Pentacam TCRP data.</li>
+      <li><strong>Post-Refractive banner</strong> — shown when eye had prior LASIK/PRK/RK. Use Barrett True-K or Haigis-L instead.</li>
+      <li><strong>Rotation Effect Chart</strong> — residual vs. IOL rotation 0°–30°. Steep slope = sensitivity to rotation.</li>
+      <li><strong>Export Plan</strong> — generates PDF with biometry, axes, rotation chart. Share via email/AirDrop.</li>
+    </ul>
+    <div class="formula">
+      <span class="c">// PCA double-angle correction</span><br/>
+      Tx = Ax + 0.3  |  Ty = Ay<br/>
+      mag  = √(Tx²+Ty²)<br/>
+      axis = ½·atan2(Ty,Tx)·180/π [mod 180]
     </div>
   </div>
 
-  <div class="toc-section">
-    <div class="toc-entry chapter">
-      <span><span class="toc-num">2</span> Getting Started</span>
-      <span class="toc-page-num">4</span>
-    </div>
-    <div class="toc-entry sub">
-      <span>2.1 Installation &amp; Permissions</span><span class="toc-dots"></span><span class="toc-page-num">4</span>
-    </div>
-    <div class="toc-entry sub">
-      <span>2.2 Navigation Overview</span><span class="toc-dots"></span><span class="toc-page-num">4</span>
-    </div>
-    <div class="toc-entry sub">
-      <span>2.3 Workflow Summary</span><span class="toc-dots"></span><span class="toc-page-num">4</span>
-    </div>
+  <!-- ── CAMERA GAUGE ── -->
+  <div class="card">
+    <div class="card-title"><span class="icon">📷</span> Camera — Instrument Gauge</div>
+    <table>
+      <thead><tr><th>Element</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td><span class="dot" style="background:#C8A84B"></span>Gold triple rings</td><td>Decorative outer border</td></tr>
+        <tr><td><span class="dot" style="background:#C8A84B"></span>Main gold ring</td><td>Align limbus to this</td></tr>
+        <tr><td>Gold tick marks</td><td>Every 5° (major at 30°)</td></tr>
+        <tr><td>TABO labels</td><td>0°–180° around ring</td></tr>
+        <tr><td><span class="dot" style="background:#88CCFF"></span>Cyan dashed ring</td><td>Align pupil margin here</td></tr>
+        <tr><td>Centre readout</td><td>Live tilt °, turns green ≤±3°</td></tr>
+        <tr><td><span class="dot" style="background:#44FF88"></span>Green shutter</td><td>Device is level — capture now</td></tr>
+      </tbody>
+    </table>
   </div>
 
-  <div class="toc-section">
-    <div class="toc-entry chapter">
-      <span><span class="toc-num">3</span> Patient Management</span>
-      <span class="toc-page-num">5</span>
-    </div>
-    <div class="toc-entry sub">
-      <span>3.1 Patient List</span><span class="toc-dots"></span><span class="toc-page-num">5</span>
-    </div>
-    <div class="toc-entry sub">
-      <span>3.2 Adding / Editing a Patient</span><span class="toc-dots"></span><span class="toc-page-num">5</span>
-    </div>
-    <div class="toc-entry sub">
-      <span>3.3 Eye Records</span><span class="toc-dots"></span><span class="toc-page-num">5</span>
-    </div>
-  </div>
-
-  <div class="toc-section">
-    <div class="toc-entry chapter">
-      <span><span class="toc-num">4</span> Toric Calculator</span>
-      <span class="toc-page-num">6</span>
-    </div>
-    <div class="toc-entry sub">
-      <span>4.1 Entering Biometric Data</span><span class="toc-dots"></span><span class="toc-page-num">6</span>
-    </div>
-    <div class="toc-entry sub">
-      <span>4.2 PCA Correction (Barrett Method)</span><span class="toc-dots"></span><span class="toc-page-num">6</span>
-    </div>
-    <div class="toc-entry sub">
-      <span>4.3 Post-Refractive Surgery Mode</span><span class="toc-dots"></span><span class="toc-page-num">7</span>
-    </div>
-    <div class="toc-entry sub">
-      <span>4.4 Results &amp; Surgical Plan Export</span><span class="toc-dots"></span><span class="toc-page-num">7</span>
-    </div>
-  </div>
-
-  <div class="toc-section">
-    <div class="toc-entry chapter">
-      <span><span class="toc-num">5</span> Camera &amp; Eye Capture</span>
-      <span class="toc-page-num">8</span>
-    </div>
-    <div class="toc-entry sub">
-      <span>5.1 Instrument Gauge Overlay</span><span class="toc-dots"></span><span class="toc-page-num">8</span>
-    </div>
-    <div class="toc-entry sub">
-      <span>5.2 Leveling the Device</span><span class="toc-dots"></span><span class="toc-page-num">8</span>
-    </div>
-  </div>
-
-  <div class="toc-section">
-    <div class="toc-entry chapter">
-      <span><span class="toc-num">6</span> IOL Alignment Screen</span>
-      <span class="toc-page-num">9</span>
-    </div>
-    <div class="toc-entry sub">
-      <span>6.1 Overlay Elements</span><span class="toc-dots"></span><span class="toc-page-num">9</span>
-    </div>
-    <div class="toc-entry sub">
-      <span>6.2 Manual Axis Adjustment</span><span class="toc-dots"></span><span class="toc-page-num">9</span>
-    </div>
-    <div class="toc-entry sub">
-      <span>6.3 Landmark Annotations</span><span class="toc-dots"></span><span class="toc-page-num">9</span>
-    </div>
-  </div>
-
-  <div class="toc-section">
-    <div class="toc-entry chapter">
-      <span><span class="toc-num">7</span> Landmark Annotation Tool</span>
-      <span class="toc-page-num">10</span>
-    </div>
-  </div>
-
-  <div class="toc-section">
-    <div class="toc-entry chapter">
-      <span><span class="toc-num">8</span> Alpins Vector Analysis</span>
-      <span class="toc-page-num">11</span>
-    </div>
-    <div class="toc-entry sub">
-      <span>8.1 What is Alpins Analysis?</span><span class="toc-dots"></span><span class="toc-page-num">11</span>
-    </div>
-    <div class="toc-entry sub">
-      <span>8.2 Metrics Reference</span><span class="toc-dots"></span><span class="toc-page-num">11</span>
-    </div>
-    <div class="toc-entry sub">
-      <span>8.3 Double-Angle Plot</span><span class="toc-dots"></span><span class="toc-page-num">12</span>
-    </div>
-  </div>
-
-  <div class="toc-section">
-    <div class="toc-entry chapter">
-      <span><span class="toc-num">9</span> SIA Nomogram Tracker</span>
-      <span class="toc-page-num">12</span>
-    </div>
-  </div>
-
-  <div class="toc-section">
-    <div class="toc-entry chapter">
-      <span><span class="toc-num">10</span> Settings</span>
-      <span class="toc-page-num">13</span>
-    </div>
-  </div>
-
-  <div class="toc-section">
-    <div class="toc-entry chapter">
-      <span><span class="toc-num">11</span> Clinical Reference</span>
-      <span class="toc-page-num">13</span>
-    </div>
-  </div>
-
-  <div class="toc-section">
-    <div class="toc-entry chapter">
-      <span><span class="toc-num">12</span> Troubleshooting</span>
-      <span class="toc-page-num">14</span>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════ CH 1 ═══════════════════════ -->
-<div class="chapter">
-  <div class="chapter-header">
-    <div class="chapter-num">Chapter 1</div>
-    <div class="chapter-title">Introduction &amp; Overview</div>
-    <div class="chapter-desc">What the Zahran Toric Tool does and how to use it safely.</div>
-  </div>
-
-  <h2>1.1 Purpose of the Application</h2>
-  <p>
-    The <strong>Zahran Toric Tool</strong> is a mobile clinical decision-support tool designed to assist
-    ophthalmic surgeons in planning and executing toric intraocular lens (IOL) implantation. It combines
-    pre-operative biometric calculation, intraoperative axis alignment, and post-operative outcome analysis
-    in a single cohesive workflow.
-  </p>
-  <p>
-    The application follows established ophthalmic conventions including TABO axis notation (0°–180°)
-    and the double-angle vector method (DAVM) for all astigmatism calculations.
-  </p>
-
-  <h2>1.2 Key Features</h2>
-  <div class="feature-grid">
-    <div class="feature-card">
-      <div class="icon">🧮</div>
-      <h4>Toric IOL Calculator</h4>
-      <p>Calculates residual astigmatism, IOL cylinder power, and optimal target axis from corneal biometry.</p>
-    </div>
-    <div class="feature-card">
-      <div class="icon">📷</div>
-      <h4>Premium Camera Capture</h4>
-      <p>Instrument-gauge dial with 310° TABO markings, live tilt sensor, and center level readout.</p>
-    </div>
-    <div class="feature-card">
-      <div class="icon">🎯</div>
-      <h4>IOL Alignment Overlay</h4>
-      <p>Real-time reference and target axis lines overlaid on the captured eye photo.</p>
-    </div>
-    <div class="feature-card">
-      <div class="icon">📌</div>
-      <h4>Landmark Annotation</h4>
-      <p>Tap-to-place vessel reference markers on the eye photo for pre-operative marking.</p>
-    </div>
-    <div class="feature-card">
-      <div class="icon">📊</div>
-      <h4>Alpins Vector Analysis</h4>
-      <p>Full post-operative outcome analysis: TIA, SIA, DV, CI, ME, AE, and IS metrics with double-angle plot.</p>
-    </div>
-    <div class="feature-card">
-      <div class="icon">📈</div>
-      <h4>SIA Nomogram Tracker</h4>
-      <p>Builds a personal SIA nomogram from your cases to personalise future calculations.</p>
-    </div>
-    <div class="feature-card">
-      <div class="icon">🔬</div>
-      <h4>PCA Correction</h4>
-      <p>Barrett-style Posterior Corneal Astigmatism correction for more accurate toric planning.</p>
-    </div>
-    <div class="feature-card">
-      <div class="icon">🩺</div>
-      <h4>Post-Refractive Mode</h4>
-      <p>Adapted planning for eyes with prior LASIK, PRK, or RK surgery.</p>
-    </div>
-  </div>
-
-  <h2>1.3 Medical Disclaimer</h2>
-  <div class="disclaimer">
-    <h4>⚠ Important Medical Notice</h4>
-    This application is intended as a <strong>clinical decision-support tool only</strong>. It does not replace
-    the professional judgment of a qualified ophthalmic surgeon. All calculations must be reviewed and verified
-    by the treating surgeon before any clinical action is taken. The developer assumes no liability for outcomes
-    resulting from use of this application. Always cross-reference results with your IOL manufacturer's nomogram
-    and current clinical guidelines.
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════ CH 2 ═══════════════════════ -->
-<div class="chapter">
-  <div class="chapter-header">
-    <div class="chapter-num">Chapter 2</div>
-    <div class="chapter-title">Getting Started</div>
-    <div class="chapter-desc">Installation, permissions, and your first case.</div>
-  </div>
-
-  <h2>2.1 Installation &amp; Permissions</h2>
-  <p>The app requires the following device permissions:</p>
-  <table>
-    <thead><tr><th>Permission</th><th>Purpose</th><th>Required?</th></tr></thead>
-    <tbody>
-      <tr>
-        <td><strong>Camera</strong></td>
-        <td>Capture anterior segment eye photos for alignment</td>
-        <td><span class="tag">Required</span></td>
-      </tr>
-      <tr>
-        <td><strong>Photo Library</strong></td>
-        <td>Save captured eye images to device gallery (optional)</td>
-        <td><span class="tag blue">Optional</span></td>
-      </tr>
-      <tr>
-        <td><strong>Motion Sensors</strong></td>
-        <td>Device tilt detection for leveling the camera</td>
-        <td><span class="tag">Required</span></td>
-      </tr>
-    </tbody>
-  </table>
-  <p>You will be prompted to grant Camera access the first time you navigate to the Camera screen. Motion sensor access is granted automatically.</p>
-
-  <h2>2.2 Navigation Overview</h2>
-  <p>The app uses a stack-based navigation system. The main entry point is the <strong>Patient List</strong>. From there, all other screens are accessible:</p>
-  <div class="screen-diagram">
-    <h4>Screen Hierarchy</h4>
-    <ul class="bullets">
-      <li><strong>Patient List</strong> → Patient Detail → Toric Calculator → (Camera → Alignment)</li>
-      <li><strong>Patient Detail</strong> → Alpins Analysis</li>
-      <li><strong>Patient Detail</strong> → Landmark Annotation</li>
-      <li><strong>Patient List</strong> (header) → SIA Nomogram</li>
-      <li><strong>Patient List</strong> (header) → Settings</li>
+  <!-- ── ALIGNMENT OVERLAY ── -->
+  <div class="card">
+    <div class="card-title"><span class="icon">🎯</span> Alignment Screen Overlay</div>
+    <table>
+      <thead><tr><th>Colour</th><th>Line / Element</th></tr></thead>
+      <tbody>
+        <tr><td><span class="dot" style="background:#4466FF"></span>Blue</td><td>Reference (K1) axis</td></tr>
+        <tr><td><span class="dot" style="background:#44FF88"></span>Green</td><td>Target IOL axis — align IOL markings here</td></tr>
+        <tr><td><span class="dot" style="background:#FFD700"></span>Gold</td><td>Current adjusted axis</td></tr>
+        <tr><td><span class="dot" style="background:#88CCFF"></span>Cyan ring</td><td>Limbal registration guide</td></tr>
+        <tr><td>Coloured dots</td><td>Saved vessel landmarks</td></tr>
+      </tbody>
+    </table>
+    <hr class="sep"/>
+    <ul class="b">
+      <li>Use <strong>+/−</strong> buttons to rotate overlay in 1° steps</li>
+      <li><strong>Recapture</strong> — new photo without losing record</li>
+      <li><strong>Annotate</strong> — open landmark annotation</li>
     </ul>
   </div>
 
-  <h2>2.3 Workflow Summary</h2>
-  <ol class="steps">
-    <li>
-      <div class="step-num">1</div>
-      <div class="step-content"><strong>Create a patient record</strong> — enter name, DOB, and any notes.</div>
-    </li>
-    <li>
-      <div class="step-num">2</div>
-      <div class="step-content"><strong>Add an eye record</strong> — enter keratometry (K1/K2), IOL power, and cylinder data.</div>
-    </li>
-    <li>
-      <div class="step-num">3</div>
-      <div class="step-content"><strong>Run the Toric Calculator</strong> — review recommended IOL cylinder and axis.</div>
-    </li>
-    <li>
-      <div class="step-num">4</div>
-      <div class="step-content"><strong>Capture the eye photo</strong> — use the premium camera gauge to align and capture.</div>
-    </li>
-    <li>
-      <div class="step-num">5</div>
-      <div class="step-content"><strong>Align the IOL</strong> — use the alignment overlay in the operating room.</div>
-    </li>
-    <li>
-      <div class="step-num">6</div>
-      <div class="step-content"><strong>Post-operatively</strong> — enter actual refraction and run Alpins Analysis.</div>
-    </li>
-    <li>
-      <div class="step-num">7</div>
-      <div class="step-content"><strong>Log the case to your SIA Nomogram</strong> — build your personalised tracker over time.</div>
-    </li>
-  </ol>
-</div>
-
-<!-- ═══════════════════════════════════════════ CH 3 ═══════════════════════ -->
-<div class="chapter">
-  <div class="chapter-header">
-    <div class="chapter-num">Chapter 3</div>
-    <div class="chapter-title">Patient Management</div>
-    <div class="chapter-desc">Creating and organising your patient database.</div>
+  <!-- ── LANDMARK ANNOTATION ── -->
+  <div class="card">
+    <div class="card-title"><span class="icon">📌</span> Landmark Annotation</div>
+    <ul class="b">
+      <li>Tap on the eye photo to place a marker (ring + dot + number)</li>
+      <li>Colours cycle: red → gold → green → blue → pink → orange</li>
+      <li><strong>Undo Last</strong> — removes most recent marker</li>
+      <li><strong>Clear All</strong> — removes all markers</li>
+      <li>Tap <strong>Save</strong> — markers persist on alignment overlay</li>
+    </ul>
+    <div class="warn">Mark 3–4 distinct conjunctival vessels at different clock positions (e.g. 3h, 6h, 9h). Avoid marking the limbus itself.</div>
   </div>
 
-  <h2>3.1 Patient List Screen</h2>
-  <p>
-    The Patient List is the home screen of the app. All patients are stored locally on your device
-    using encrypted storage. The list shows name, date of birth, and the number of eye records.
-  </p>
-  <ul class="bullets">
-    <li>Tap <strong>+ New Patient</strong> to add a record.</li>
-    <li>Tap any patient row to open their detail page.</li>
-    <li>Tap the <strong>SIA</strong> button (top-right) to open the SIA Nomogram.</li>
-    <li>Tap the <strong>⚙</strong> gear icon to open Settings.</li>
-  </ul>
+</div><!-- /grid -->
 
-  <h2>3.2 Adding / Editing a Patient</h2>
-  <p>The Patient Form captures:</p>
-  <table>
-    <thead><tr><th>Field</th><th>Description</th></tr></thead>
-    <tbody>
-      <tr><td>Full Name</td><td>Patient's full legal name</td></tr>
-      <tr><td>Date of Birth</td><td>DD/MM/YYYY format</td></tr>
-      <tr><td>Notes</td><td>Free-text clinical notes (allergies, comorbidities, etc.)</td></tr>
-    </tbody>
-  </table>
-  <p>Tap <strong>Save</strong> to store the record. Tap <strong>Edit</strong> on the Patient Detail screen to modify an existing record.</p>
+<!-- ══════════════════════════ PAGE 2 ══════════════════════════ -->
+<div class="page2"></div>
 
-  <h2>3.3 Eye Records</h2>
-  <p>Each patient can have multiple eye records (typically OD and OS). Eye records are created from the Patient Detail screen by tapping <strong>+ Add Eye</strong>.</p>
-
-  <h3>Eye Record Fields</h3>
-  <table>
-    <thead><tr><th>Field</th><th>Unit</th><th>Description</th></tr></thead>
-    <tbody>
-      <tr><td>Eye</td><td>—</td><td>OD (Right) or OS (Left)</td></tr>
-      <tr><td>K1 Power</td><td>Dioptres (D)</td><td>Flat corneal meridian power</td></tr>
-      <tr><td>K1 Axis</td><td>Degrees (°)</td><td>TABO axis of flat meridian (0–180°)</td></tr>
-      <tr><td>K2 Power</td><td>D</td><td>Steep corneal meridian power</td></tr>
-      <tr><td>IOL Power</td><td>D</td><td>Spherical IOL power planned</td></tr>
-      <tr><td>IOL Cylinder</td><td>D</td><td>Toric IOL cylinder power at the IOL plane</td></tr>
-      <tr><td>Target Axis</td><td>°</td><td>Planned axis for IOL alignment (TABO)</td></tr>
-      <tr><td>SIA</td><td>D</td><td>Surgeon's expected surgically-induced astigmatism</td></tr>
-      <tr><td>SIA Axis</td><td>°</td><td>Axis of expected SIA</td></tr>
-      <tr><td>Post-Refractive</td><td>Toggle</td><td>Enable if eye had prior refractive surgery</td></tr>
-      <tr><td>Procedure Type</td><td>LASIK/PRK/RK</td><td>Type of prior refractive procedure</td></tr>
-    </tbody>
-  </table>
-
-  <div class="callout callout-tip">
-    <strong>Tip</strong>
-    Enter K1 as the <em>flattest</em> meridian (lower power) and K2 as the <em>steepest</em> (higher power)
-    in the standard convention. The calculator handles the vector arithmetic automatically.
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════ CH 4 ═══════════════════════ -->
-<div class="chapter">
-  <div class="chapter-header">
-    <div class="chapter-num">Chapter 4</div>
-    <div class="chapter-title">Toric Calculator</div>
-    <div class="chapter-desc">Computing optimal IOL cylinder power and alignment axis.</div>
-  </div>
-
-  <h2>4.1 Entering Biometric Data</h2>
-  <p>
-    Navigate to the Toric Calculator from the Patient Detail screen. Biometric data already saved
-    in the eye record is pre-populated automatically. You can adjust any value before calculating.
-  </p>
-  <p>The calculator requires:</p>
-  <ul class="bullets">
-    <li><strong>K1 Power &amp; Axis</strong> — flat keratometry value</li>
-    <li><strong>K2 Power</strong> — steep keratometry value</li>
-    <li><strong>IOL Cylinder</strong> — cylinder power of the chosen toric IOL</li>
-    <li><strong>SIA</strong> — your expected surgically-induced astigmatism magnitude</li>
-    <li><strong>SIA Axis</strong> — typical incision axis (e.g. 90° for superior incision)</li>
-    <li><strong>Target Residual</strong> — desired post-op residual astigmatism (usually 0.00 D)</li>
-  </ul>
-
-  <h2>4.2 PCA Correction (Barrett Posterior Corneal Astigmatism)</h2>
-  <p>
-    The <strong>PCA Correction toggle</strong> applies the Barrett method for posterior corneal astigmatism (PCA).
-    This accounts for the roughly 0.3 D against-the-rule (ATR) contribution of the posterior corneal surface
-    that is <em>not</em> captured by standard anterior keratometry.
-  </p>
-
-  <div class="callout callout-info">
-    <strong>When to enable PCA Correction</strong>
-    Enable PCA correction for all patients unless you have direct posterior corneal measurements from a
-    Scheimpflug topographer (e.g. Pentacam). If total corneal refractive power (TCRP) data is available,
-    enter it directly and disable the PCA toggle.
-  </div>
-
-  <h3>PCA Vector Calculation</h3>
-  <div class="formula-box">
-    <span class="comment">// Double-angle vector components of anterior astigmatism</span><br/>
-    Ax = (K1 − K2) · cos(2 × K1_axis_rad)<br/>
-    Ay = (K1 − K2) · sin(2 × K1_axis_rad)<br/><br/>
-    <span class="comment">// Add 0.3 D ATR posterior contribution (along 0°/180° axis)</span><br/>
-    Tx = Ax + 0.3<br/>
-    Ty = Ay<br/><br/>
-    <span class="comment">// Convert back to magnitude/axis</span><br/>
-    adjustedMag  = √(Tx² + Ty²)<br/>
-    adjustedAxis = ½ · atan2(Ty, Tx) × (180/π)  [mod 180°]
-  </div>
-
-  <p>
-    The adjusted astigmatism is then used in place of the raw anterior keratometry for IOL selection,
-    typically reducing the required cylinder power for with-the-rule (WTR) astigmatism cases.
-  </p>
-
-  <h2>4.3 Post-Refractive Surgery Mode</h2>
-  <p>
-    When the eye has had prior corneal refractive surgery (LASIK, PRK, or RK), standard keratometry
-    underestimates the true corneal power. Enable the <strong>Post-Refractive toggle</strong> in the
-    eye record and select the procedure type.
-  </p>
-
-  <table>
-    <thead><tr><th>Procedure</th><th>Consideration</th></tr></thead>
-    <tbody>
-      <tr>
-        <td>LASIK / PRK</td>
-        <td>Corneal power is reduced; use adjusted axial length and history-based formulas. A warning banner is shown in the calculator prompting the use of dedicated post-refractive formulas (e.g. Barrett True-K, Haigis-L).</td>
-      </tr>
-      <tr>
-        <td>Radial Keratotomy (RK)</td>
-        <td>Highly variable corneal shape and diurnal fluctuation. Treat results as estimates only.</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <div class="callout callout-warning">
-    <strong>Post-Refractive Cases</strong>
-    Standard toric formulas are less reliable after corneal refractive surgery. Always cross-reference
-    with a dedicated post-refractive IOL calculator and consider a conservative cylinder selection.
-  </div>
-
-  <h2>4.4 Results &amp; Surgical Plan Export</h2>
-  <p>After tapping <strong>Calculate</strong>, the results panel shows:</p>
-  <ul class="bullets">
-    <li><strong>Recommended target axis</strong> for IOL alignment</li>
-    <li><strong>Expected residual astigmatism</strong> at the corneal plane</li>
-    <li><strong>Correction index estimate</strong></li>
-    <li><strong>Rotation effect chart</strong> — showing residual astigmatism vs. IOL rotation (0°–30°)</li>
-  </ul>
-  <p>
-    Tap <strong>Export Plan</strong> to generate a PDF surgical plan containing patient details,
-    biometry, calculated axes, and the rotation effect chart. The PDF can be shared via any
-    installed share sheet (email, AirDrop, etc.).
-  </p>
-
-  <div class="callout callout-tip">
-    <strong>Rotation Effect Chart</strong>
-    The chart shows how much residual astigmatism will remain if the IOL is rotated off-axis.
-    A steep slope indicates the chosen IOL is sensitive to rotation — consider a lower cylinder
-    power if the patient has poor pupil dilation or a complex anatomy.
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════ CH 5 ═══════════════════════ -->
-<div class="chapter">
-  <div class="chapter-header">
-    <div class="chapter-num">Chapter 5</div>
-    <div class="chapter-title">Camera &amp; Eye Capture</div>
-    <div class="chapter-desc">Capturing a clinical-quality anterior segment image.</div>
-  </div>
-
-  <h2>5.1 Instrument Gauge Overlay</h2>
-  <p>
-    The Camera screen features a <strong>premium instrument gauge overlay</strong> modelled on
-    clinical slit-lamp graticules. The overlay renders entirely in the SVG layer on top of the
-    live camera feed.
-  </p>
-
-  <h3>Dial Components</h3>
-  <table>
-    <thead><tr><th>Element</th><th>Colour</th><th>Description</th></tr></thead>
-    <tbody>
-      <tr>
-        <td>Outer accent rings (×3)</td>
-        <td><span class="color-swatch" style="background:#C8A84B"></span>Gold</td>
-        <td>Decorative concentric rings at R=142, 134, and 127 px</td>
-      </tr>
-      <tr>
-        <td>Main guide ring</td>
-        <td><span class="color-swatch" style="background:#C8A84B"></span>Gold</td>
-        <td>Primary 120 px radius ring — align the limbus to this</td>
-      </tr>
-      <tr>
-        <td>Tick marks (major)</td>
-        <td><span class="color-swatch" style="background:#C8A84B"></span>Gold</td>
-        <td>At every 30°, longer and bolder. Labelled with degree value.</td>
-      </tr>
-      <tr>
-        <td>Tick marks (medium)</td>
-        <td>Semi-transparent gold</td>
-        <td>At every 10°, medium length</td>
-      </tr>
-      <tr>
-        <td>Tick marks (minor)</td>
-        <td>Faint gold</td>
-        <td>At every 5°, short</td>
-      </tr>
-      <tr>
-        <td>Axis labels</td>
-        <td>Gold</td>
-        <td>TABO degrees: 0°, 30°, 60°, 90°, 120°, 150°, 180°</td>
-      </tr>
-      <tr>
-        <td>Inner pupil guide</td>
-        <td><span class="color-swatch" style="background:#88CCFF"></span>Cyan dashed</td>
-        <td>54 px radius dashed ring — align the pupil margin to this</td>
-      </tr>
-      <tr>
-        <td>Crosshairs</td>
-        <td>White (30% opacity)</td>
-        <td>Horizontal and vertical centre guides</td>
-      </tr>
-      <tr>
-        <td>Centre readout</td>
-        <td>Gold / Green</td>
-        <td>Shows current tilt angle; turns green when within ±3°</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <h2>5.2 Leveling the Device</h2>
-  <p>
-    The app reads the device's <strong>roll angle</strong> from the built-in gyroscope (DeviceMotion sensor)
-    at 10 Hz. The centre readout displays the live tilt in degrees.
-  </p>
-
-  <div class="callout callout-tip">
-    <strong>Best Practice</strong>
-    Hold the device horizontally and steady. The centre circle turns <strong style="color:#2A8A44">green</strong>
-    and the shutter button glows green when the device tilt is ≤ ±3°. Capture the image only when level
-    to ensure the TABO axis markings in the photo correspond to actual anatomical axes.
-  </div>
-
-  <h3>Capture Steps</h3>
-  <ol class="steps">
-    <li>
-      <div class="step-num">1</div>
-      <div class="step-content">Open the Camera screen from the Patient Detail page.</div>
-    </li>
-    <li>
-      <div class="step-num">2</div>
-      <div class="step-content">Position the phone over the patient's eye. Align the limbus to the main gold ring and the pupil to the cyan inner ring.</div>
-    </li>
-    <li>
-      <div class="step-num">3</div>
-      <div class="step-content">Wait for the centre readout to show <strong style="color:#2A8A44">LEVEL</strong> (tilt ≤ ±3°).</div>
-    </li>
-    <li>
-      <div class="step-num">4</div>
-      <div class="step-content">Tap the shutter button (glows green when level). The app saves the image and proceeds to the Alignment screen.</div>
-    </li>
-  </ol>
-</div>
-
-<!-- ═══════════════════════════════════════════ CH 6 ═══════════════════════ -->
-<div class="chapter">
-  <div class="chapter-header">
-    <div class="chapter-num">Chapter 6</div>
-    <div class="chapter-title">IOL Alignment Screen</div>
-    <div class="chapter-desc">Using the alignment overlay in the operating room.</div>
-  </div>
-
-  <h2>6.1 Overlay Elements</h2>
-  <p>
-    After capturing the eye photo, the Alignment Screen superimposes a surgical overlay directly
-    on the image. This screen is designed to be used at the operating microscope — place the phone
-    where both the overlay and the patient's eye are visible simultaneously.
-  </p>
-
-  <table>
-    <thead><tr><th>Overlay Element</th><th>Colour</th><th>Meaning</th></tr></thead>
-    <tbody>
-      <tr>
-        <td>Reference axis line</td>
-        <td><span class="color-swatch" style="background:#4466FF"></span>Blue</td>
-        <td>The pre-operative corneal reference meridian (K1 axis)</td>
-      </tr>
-      <tr>
-        <td>Target axis line</td>
-        <td><span class="color-swatch" style="background:#44FF88"></span>Green</td>
-        <td>The desired final IOL axis — align the IOL markings to this</td>
-      </tr>
-      <tr>
-        <td>Current axis line</td>
-        <td><span class="color-swatch" style="background:#FFD700"></span>Gold</td>
-        <td>The current device/manual rotation angle as adjusted</td>
-      </tr>
-      <tr>
-        <td>Limbal ring</td>
-        <td><span class="color-swatch" style="background:#88CCFF"></span>Cyan</td>
-        <td>Guide circle for limbal registration</td>
-      </tr>
-      <tr>
-        <td>Gold tick marks</td>
-        <td><span class="color-swatch" style="background:#C8A84B"></span>Gold</td>
-        <td>Degree markers every 10° around the limbal ring</td>
-      </tr>
-      <tr>
-        <td>Landmark dots</td>
-        <td>Colour-coded</td>
-        <td>Pre-marked vessel reference points (if annotations saved)</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <h2>6.2 Manual Axis Adjustment</h2>
-  <p>
-    Use the <strong>+/−</strong> degree buttons to manually rotate the overlay axes in 1° increments.
-    This allows fine-tuning if the captured image is slightly rotated or if you need to adjust
-    for cyclorotation during surgery.
-  </p>
-
-  <h2>6.3 Landmark Annotations</h2>
-  <p>
-    If vessel landmarks were annotated before capture (see Chapter 7), they appear as coloured
-    ring-and-dot markers on the alignment overlay. These help confirm the correct rotational
-    orientation of the eye against the pre-operative baseline.
-  </p>
-
-  <h3>Quick Actions</h3>
-  <ul class="bullets">
-    <li><strong>Recapture</strong> — return to Camera to take a new photo without losing the patient record.</li>
-    <li><strong>Annotate</strong> — open the Landmark Annotation screen to add or edit vessel markers.</li>
-  </ul>
-</div>
-
-<!-- ═══════════════════════════════════════════ CH 7 ═══════════════════════ -->
-<div class="chapter">
-  <div class="chapter-header">
-    <div class="chapter-num">Chapter 7</div>
-    <div class="chapter-title">Landmark Annotation Tool</div>
-    <div class="chapter-desc">Marking vessel reference points for intraoperative orientation.</div>
-  </div>
-
-  <h2>7.1 Overview</h2>
-  <p>
-    Cyclorotation of the eye during surgery — typically 2°–5° — can shift the effective axis
-    placement of a toric IOL. Marking pre-operative conjunctival vessel landmarks provides a
-    reliable reference to compensate for this rotation intraoperatively.
-  </p>
-
-  <h2>7.2 Adding Landmarks</h2>
-  <ol class="steps">
-    <li>
-      <div class="step-num">1</div>
-      <div class="step-content">Navigate to <strong>Landmark Annotation</strong> from the Patient Detail screen (Annotate button) or from the Alignment Screen quick actions.</div>
-    </li>
-    <li>
-      <div class="step-num">2</div>
-      <div class="step-content">The captured eye photo is shown full-screen. <strong>Tap any vessel</strong> or anatomical landmark on the image to place a marker.</div>
-    </li>
-    <li>
-      <div class="step-num">3</div>
-      <div class="step-content">Each marker is assigned a sequential number and a unique colour. Up to 6 colours cycle automatically.</div>
-    </li>
-    <li>
-      <div class="step-num">4</div>
-      <div class="step-content">Use <strong>Undo Last</strong> to remove the most recent marker, or <strong>Clear All</strong> to start over.</div>
-    </li>
-    <li>
-      <div class="step-num">5</div>
-      <div class="step-content">Tap <strong>Save</strong> to store the landmarks. They will appear in all future Alignment overlays for this eye.</div>
-    </li>
-  </ol>
-
-  <div class="callout callout-tip">
-    <strong>Clinical Tip</strong>
-    Mark 3–4 distinct conjunctival vessels at different positions around the limbus (e.g. 3 o'clock, 6 o'clock, 9 o'clock). Avoid marking the limbus itself — vessels are more reliable as they are fixed relative to the underlying sclera.
-  </div>
-
-  <h2>7.3 Landmark List</h2>
-  <p>Below the image, a list shows all placed landmarks with their:</p>
-  <ul class="bullets">
-    <li>Sequential number and colour indicator</li>
-    <li>Normalised coordinates (x%, y%) as a percentage of the image width/height</li>
-  </ul>
-  <p>These coordinates are stored in the patient record and are resolution-independent.</p>
-</div>
-
-<!-- ═══════════════════════════════════════════ CH 8 ═══════════════════════ -->
-<div class="chapter">
-  <div class="chapter-header">
-    <div class="chapter-num">Chapter 8</div>
-    <div class="chapter-title">Alpins Vector Analysis</div>
-    <div class="chapter-desc">Quantifying post-operative astigmatism outcomes.</div>
-  </div>
-
-  <h2>8.1 What is Alpins Analysis?</h2>
-  <p>
-    The <strong>Alpins method</strong> (developed by Prof. Noel Alpins) is the internationally recognised
-    standard for reporting astigmatism surgery outcomes. It uses double-angle vector mathematics to quantify
-    the relationship between what was planned (TIA), what was achieved (SIA), and what remains (DV).
-  </p>
-  <p>
-    Access Alpins Analysis from the Patient Detail screen using the <strong>Alpins</strong> button.
-    The TIA fields are pre-filled from the eye's corneal data (with PCA correction if applicable).
-  </p>
-
-  <div class="callout callout-info">
-    <strong>Pre-operative vs Post-operative use</strong>
-    For real post-operative analysis, enter the patient's post-op refraction cylinder as the <strong>SIA</strong>
-    values. The pre-filled SIA (from IOL cylinder) gives a <em>theoretical</em> analysis assuming perfect
-    placement — useful for planning, but not for true outcome assessment.
-  </div>
-
-  <h2>8.2 Metrics Reference</h2>
-
-  <div class="metric-row">
+<!-- Second page header (compact) -->
+<div class="header" style="margin-bottom:8px;">
+  <div class="header-left">
+    <div class="logo">Z</div>
     <div>
-      <div class="metric-name">TIA — Target-Induced Astigmatism</div>
-      <div class="metric-desc">The astigmatic change the surgery was intended to induce. Derived from pre-op corneal astigmatism and IOL plan.</div>
+      <div class="app-name">Zahran Toric Tool</div>
+      <div class="app-sub">User Manual  ·  Page 2 of 2</div>
     </div>
   </div>
-  <div class="metric-row">
-    <div>
-      <div class="metric-name">SIA — Surgically-Induced Astigmatism</div>
-      <div class="metric-desc">The astigmatic change that was actually induced, measured from post-op refraction.</div>
-    </div>
-  </div>
-  <div class="metric-row">
-    <div>
-      <div class="metric-name">DV — Difference Vector</div>
-      <div class="metric-desc">The residual astigmatism error. Ideal value: 0.00 D. This is the vector from TIA endpoint to SIA endpoint.</div>
+  <div class="header-right">Clinical Decision Support Tool</div>
+</div>
+
+<div class="grid">
+
+  <!-- ── ALPINS ANALYSIS ── -->
+  <div class="card col-span-2">
+    <div class="card-title"><span class="icon">📊</span> Alpins Vector Analysis</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+      <div>
+        <table>
+          <thead><tr><th>Metric</th><th>Ideal</th><th>Green</th><th>Yellow</th><th>Red</th></tr></thead>
+          <tbody>
+            <tr><td><strong>TIA</strong> Target-Induced Astigmatism</td><td>—</td><td colspan="3">Planned correction (from K data)</td></tr>
+            <tr><td><strong>SIA</strong> Surgically-Induced Astigmatism</td><td>—</td><td colspan="3">Actual change (from post-op Rx)</td></tr>
+            <tr><td><strong>DV</strong> Difference Vector (residual)</td><td>0.00 D</td><td colspan="3">TIA tip → SIA tip distance</td></tr>
+            <tr><td><strong>CI</strong> Correction Index</td><td>1.00</td><td>0.9–1.1</td><td>0.75–1.25</td><td>&lt;0.75 or &gt;1.25</td></tr>
+            <tr><td><strong>ME</strong> Magnitude Error</td><td>0.00 D</td><td>≤±0.25 D</td><td>&gt;±0.25 D</td><td>—</td></tr>
+            <tr><td><strong>AE</strong> Angle Error</td><td>0.0°</td><td>≤±5°</td><td>&gt;±5°</td><td>—</td></tr>
+            <tr><td><strong>IS</strong> Index of Success</td><td>0.00</td><td>&lt;0.2</td><td>0.2–0.5</td><td>&gt;0.5</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <strong style="font-size:7.5pt;">CI Interpretation</strong>
+        <table style="margin-top:3px;">
+          <tbody>
+            <tr><td><span class="tag r">&gt;1.0</span> Overcorrected</td><td>IOL cylinder too strong or over-rotated</td></tr>
+            <tr><td><span class="tag g">= 1.0</span> Perfect</td><td>Exact target achieved</td></tr>
+            <tr><td><span class="tag">&#60;1.0</span> Undercorrected</td><td>Consider higher cylinder next case</td></tr>
+          </tbody>
+        </table>
+        <hr class="sep"/>
+        <strong style="font-size:7.5pt;">Double-Angle Plot</strong>
+        <ul class="b" style="margin-top:3px;">
+          <li><span class="dot" style="background:#4466FF"></span><strong>Blue dashed</strong> — TIA vector</li>
+          <li><span class="dot" style="background:#44AA66"></span><strong>Green dashed</strong> — SIA vector</li>
+          <li><span class="dot" style="background:#FF6644"></span><strong>Red solid</strong> — DV (residual error)</li>
+          <li>Short DV = good outcome. Long DV = residual error.</li>
+        </ul>
+        <div class="warn" style="margin-top:4px;">Enter post-op refraction cylinder as SIA for real analysis. Pre-filled IOL cylinder = theoretical only.</div>
+      </div>
     </div>
   </div>
 
-  <table style="margin-top: 16px;">
-    <thead>
-      <tr>
-        <th>Metric</th>
-        <th>Ideal Value</th>
-        <th>Green</th>
-        <th>Yellow</th>
-        <th>Red</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><strong>CI</strong> — Correction Index</td>
-        <td>1.00</td>
-        <td>0.9 – 1.1</td>
-        <td>0.75 – 1.25</td>
-        <td>&lt; 0.75 or &gt; 1.25</td>
-      </tr>
-      <tr>
-        <td><strong>ME</strong> — Magnitude Error</td>
-        <td>0.00 D</td>
-        <td>≤ ±0.25 D</td>
-        <td>&gt; ±0.25 D</td>
-        <td>—</td>
-      </tr>
-      <tr>
-        <td><strong>AE</strong> — Angle Error</td>
-        <td>0.0°</td>
-        <td>≤ ±5°</td>
-        <td>&gt; ±5°</td>
-        <td>—</td>
-      </tr>
-      <tr>
-        <td><strong>IS</strong> — Index of Success</td>
-        <td>0.00</td>
-        <td>&lt; 0.2</td>
-        <td>0.2 – 0.5</td>
-        <td>&gt; 0.5</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <h3>Interpretation Guide</h3>
-  <table>
-    <thead><tr><th>CI Value</th><th>Interpretation</th><th>Implication</th></tr></thead>
-    <tbody>
-      <tr>
-        <td><strong>&gt; 1.0</strong></td>
-        <td>Overcorrection</td>
-        <td>SIA exceeded TIA — IOL cylinder power was too strong or axis was over-rotated</td>
-      </tr>
-      <tr>
-        <td><strong>= 1.0</strong></td>
-        <td>Perfect correction</td>
-        <td>Exact target achieved</td>
-      </tr>
-      <tr>
-        <td><strong>&lt; 1.0</strong></td>
-        <td>Undercorrection</td>
-        <td>SIA less than TIA — consider higher cylinder next time or check for axis error</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <h2>8.3 Double-Angle Plot</h2>
-  <p>
-    The polar plot below the metrics shows all three vectors (TIA, SIA, DV) in double-angle space
-    (each axis is doubled to convert the 0°–180° TABO range to a full 0°–360° circle). Key features:
-  </p>
-  <ul class="bullets">
-    <li><span class="color-swatch" style="background:#4466FF"></span><strong>Blue dashed line</strong> — TIA vector</li>
-    <li><span class="color-swatch" style="background:#44AA66"></span><strong>Green dashed line</strong> — SIA vector</li>
-    <li><span class="color-swatch" style="background:#FF6644"></span><strong>Red solid line</strong> — DV (from TIA tip to SIA tip)</li>
-    <li>Concentric grid circles at 33%, 67%, and 100% of the maximum vector magnitude</li>
-    <li>A short DV indicates a good outcome; a long DV indicates a residual error.</li>
-  </ul>
-</div>
-
-<!-- ═══════════════════════════════════════════ CH 9 ═══════════════════════ -->
-<div class="chapter">
-  <div class="chapter-header">
-    <div class="chapter-num">Chapter 9</div>
-    <div class="chapter-title">SIA Nomogram Tracker</div>
-    <div class="chapter-desc">Building your personalised surgically-induced astigmatism profile.</div>
+  <!-- ── SIA NOMOGRAM ── -->
+  <div class="card">
+    <div class="card-title"><span class="icon">📈</span> SIA Nomogram Tracker</div>
+    <ul class="b">
+      <li>Access via Patient List → <strong>SIA</strong> button</li>
+      <li>Log each case: planned SIA magnitude/axis + achieved SIA magnitude/axis</li>
+      <li>App calculates <strong>vector mean</strong> across all cases</li>
+      <li>Case accuracy colour coding: <span class="dot" style="background:#44FF88"></span>≤0.25 D · <span class="dot" style="background:#FFD700"></span>≤0.50 D · <span class="dot" style="background:#FF6644"></span>&gt;0.50 D</li>
+    </ul>
+    <div class="warn">Build ≥20 cases before using mean SIA in routine calculations. Consider separate profiles for different incision sites.</div>
   </div>
 
-  <h2>9.1 Overview</h2>
-  <p>
-    Every surgeon induces a slightly different amount of astigmatism through their incision — influenced
-    by incision size, location, technique, and individual healing response. The <strong>SIA Nomogram</strong>
-    tracks your personal achieved SIA across cases and calculates your <strong>vector mean</strong>,
-    allowing you to personalise future calculations.
-  </p>
-  <p>Access the SIA Nomogram from the Patient List header (gold <strong>SIA</strong> button).</p>
-
-  <h2>9.2 Adding a Case</h2>
-  <ol class="steps">
-    <li>
-      <div class="step-num">1</div>
-      <div class="step-content">Tap <strong>+ Add Case</strong>.</div>
-    </li>
-    <li>
-      <div class="step-num">2</div>
-      <div class="step-content">Enter the <strong>Planned SIA</strong> (magnitude and axis) — what you expected to induce.</div>
-    </li>
-    <li>
-      <div class="step-num">3</div>
-      <div class="step-content">Enter the <strong>Achieved SIA</strong> (from post-op refraction) — what actually occurred.</div>
-    </li>
-    <li>
-      <div class="step-num">4</div>
-      <div class="step-content">Add optional notes (incision type, wound size, etc.).</div>
-    </li>
-    <li>
-      <div class="step-num">5</div>
-      <div class="step-content">Tap <strong>Save</strong>. The mean is recalculated instantly.</div>
-    </li>
-  </ol>
-
-  <h2>9.3 Mean SIA Display</h2>
-  <p>
-    The top of the screen shows your personal <strong>Vector Mean SIA</strong>:
-  </p>
-  <ul class="bullets">
-    <li><strong>Mean magnitude</strong> — average astigmatism induced (in Dioptres)</li>
-    <li><strong>Mean axis</strong> — predominant direction of your induced astigmatism</li>
-    <li><strong>Case count</strong> — number of cases contributing to the average</li>
-  </ul>
-  <p>
-    Each case in the list is colour-coded by the difference between planned and achieved SIA:
-    <span class="badge"><span class="color-swatch" style="background:#44FF88"></span>Green</span> = within 0.25 D,
-    <span class="badge"><span class="color-swatch" style="background:#FFD700"></span>Yellow</span> = within 0.50 D,
-    <span class="badge"><span class="color-swatch" style="background:#FF6644"></span>Red</span> = &gt; 0.50 D difference.
-  </p>
-
-  <div class="callout callout-tip">
-    <strong>Clinical Recommendation</strong>
-    Build your nomogram with at least <strong>20 cases</strong> before using the mean SIA value in routine
-    calculations. Early cases may show higher variance as your technique standardises. Review the tracker
-    periodically and consider separate profiles for different incision locations (e.g. temporal vs. superior).
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════ CH 10 ══════════════════════ -->
-<div class="chapter">
-  <div class="chapter-header">
-    <div class="chapter-num">Chapter 10</div>
-    <div class="chapter-title">Settings</div>
-    <div class="chapter-desc">Configuring the application to your preferences.</div>
+  <!-- ── SETTINGS ── -->
+  <div class="card">
+    <div class="card-title"><span class="icon">⚙</span> Settings</div>
+    <table>
+      <thead><tr><th>Setting</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>Default SIA</td><td>Pre-fills SIA field in new records</td></tr>
+        <tr><td>Default SIA Axis</td><td>Pre-fills SIA axis (your usual incision site)</td></tr>
+        <tr><td>PCA Correction</td><td>Global default for PCA toggle</td></tr>
+        <tr><td>Surgeon Name</td><td>Appears on exported PDF plans</td></tr>
+        <tr><td>Institution</td><td>Appears on exported PDF plans</td></tr>
+      </tbody>
+    </table>
   </div>
 
-  <h2>10.1 Accessing Settings</h2>
-  <p>Tap the <strong>⚙</strong> gear icon in the top-right of the Patient List screen.</p>
-
-  <h2>10.2 Available Settings</h2>
-  <table>
-    <thead><tr><th>Setting</th><th>Options</th><th>Description</th></tr></thead>
-    <tbody>
-      <tr>
-        <td>Default SIA</td>
-        <td>0.00 – 1.00 D</td>
-        <td>Pre-populates the SIA field in new eye records</td>
-      </tr>
-      <tr>
-        <td>Default SIA Axis</td>
-        <td>0° – 180°</td>
-        <td>Pre-populates the SIA axis for your typical incision location</td>
-      </tr>
-      <tr>
-        <td>PCA Correction</td>
-        <td>On / Off</td>
-        <td>Global default for the PCA toggle in the Toric Calculator</td>
-      </tr>
-      <tr>
-        <td>Surgeon Name</td>
-        <td>Free text</td>
-        <td>Appears on exported PDF surgical plans</td>
-      </tr>
-      <tr>
-        <td>Institution</td>
-        <td>Free text</td>
-        <td>Appears on exported PDF surgical plans</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- ═══════════════════════════════════════════ CH 11 ══════════════════════ -->
-<div class="chapter">
-  <div class="chapter-header">
-    <div class="chapter-num">Chapter 11</div>
-    <div class="chapter-title">Clinical Reference</div>
-    <div class="chapter-desc">Quick-reference formulae and axis conventions.</div>
+  <!-- ── TABO REFERENCE ── -->
+  <div class="card">
+    <div class="card-title"><span class="icon">🧭</span> TABO Axis Reference</div>
+    <table>
+      <thead><tr><th>Degrees</th><th>Clock</th><th>Direction</th></tr></thead>
+      <tbody>
+        <tr><td>0° / 180°</td><td>3h / 9h</td><td>Horizontal</td></tr>
+        <tr><td>45°</td><td>1:30h</td><td>Oblique up-right</td></tr>
+        <tr><td>90°</td><td>12h</td><td>Vertical (superior)</td></tr>
+        <tr><td>135°</td><td>10:30h</td><td>Oblique up-left</td></tr>
+      </tbody>
+    </table>
+    <hr class="sep"/>
+    <ul class="b">
+      <li><strong>WTR</strong> — steep meridian near 90° (vertical)</li>
+      <li><strong>ATR</strong> — steep meridian near 0°/180° (horizontal)</li>
+      <li>PCA adds ≈0.3 D ATR — reduces effective WTR, increases ATR</li>
+    </ul>
   </div>
 
-  <h2>11.1 TABO Axis Convention</h2>
-  <p>All axes in the Zahran Toric Tool follow the <strong>TABO convention</strong>:</p>
-  <table>
-    <thead><tr><th>Degrees</th><th>Position on Clock Face</th><th>Anatomical Direction</th></tr></thead>
-    <tbody>
-      <tr><td>0° / 180°</td><td>3 o'clock / 9 o'clock</td><td>Horizontal</td></tr>
-      <tr><td>45°</td><td>1:30 o'clock</td><td>Oblique (up-right)</td></tr>
-      <tr><td>90°</td><td>12 o'clock</td><td>Vertical (superior)</td></tr>
-      <tr><td>135°</td><td>10:30 o'clock</td><td>Oblique (up-left)</td></tr>
-    </tbody>
-  </table>
-  <p>
-    <strong>With-the-Rule (WTR)</strong> astigmatism has its steep meridian near 90° (vertical).<br/>
-    <strong>Against-the-Rule (ATR)</strong> astigmatism has its steep meridian near 180°/0° (horizontal).
-  </p>
-
-  <h2>11.2 Double-Angle Vector Method (DAVM)</h2>
-  <p>
-    All vector operations in the app use the DAVM to allow standard trigonometry on the 0°–180° TABO range:
-  </p>
-  <div class="formula-box">
-    J0 = −(C/2) · cos(2 × axis_rad)    <span class="comment">// WTR/ATR Jackson cross-cylinder</span><br/>
-    J45 = −(C/2) · sin(2 × axis_rad)   <span class="comment">// Oblique component</span><br/><br/>
-    <span class="comment">// Vector sum of two astigmatisms A and B:</span><br/>
-    Rx = A.C·cos(2·A.axis) + B.C·cos(2·B.axis)<br/>
-    Ry = A.C·sin(2·A.axis) + B.C·sin(2·B.axis)<br/>
-    Result.C    = √(Rx² + Ry²)<br/>
-    Result.axis = ½ · atan2(Ry, Rx) · (180/π)  [mod 180°]
+  <!-- ── TROUBLESHOOTING ── -->
+  <div class="card col-span-2">
+    <div class="card-title"><span class="icon">🛠</span> Troubleshooting</div>
+    <table>
+      <thead><tr><th>Problem</th><th>Cause</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Camera screen black</td>
+          <td>Camera permission denied</td>
+          <td>Settings → Privacy → Camera → enable for Zahran Toric Tool</td>
+        </tr>
+        <tr>
+          <td>Tilt not responding</td>
+          <td>Motion sensor unavailable</td>
+          <td>Restart app; ensure motion access is granted</td>
+        </tr>
+        <tr>
+          <td>Calculator result incorrect</td>
+          <td>K1 entered as steeper meridian</td>
+          <td>K1 = flat (lower D); K2 = steep (higher D). Swap if needed.</td>
+        </tr>
+        <tr>
+          <td>Alpins CI very high (&gt;2)</td>
+          <td>SIA uses IOL cylinder default</td>
+          <td>Enter actual post-op refraction cylinder for real analysis</td>
+        </tr>
+        <tr>
+          <td>Landmarks missing on alignment</td>
+          <td>Not saved before exiting</td>
+          <td>Re-open Landmark Annotation and tap Save</td>
+        </tr>
+        <tr>
+          <td>PCA toggle not visible</td>
+          <td>K values missing from eye record</td>
+          <td>Fill K1 Power, K1 Axis, and K2 Power in the eye record first</td>
+        </tr>
+        <tr>
+          <td>PDF export fails</td>
+          <td>No share target installed</td>
+          <td>Restart app; ensure Files or email app is available</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
-  <h2>11.3 Recommended Data Entry Ranges</h2>
-  <table>
-    <thead><tr><th>Parameter</th><th>Typical Range</th><th>Alert Range</th></tr></thead>
-    <tbody>
-      <tr><td>Corneal astigmatism (K1−K2)</td><td>0.25 – 3.00 D</td><td>&gt; 5.00 D — check for keratoconus</td></tr>
-      <tr><td>IOL cylinder power</td><td>1.00 – 6.00 D</td><td>&gt; 6.00 D — rarely available</td></tr>
-      <tr><td>SIA</td><td>0.10 – 0.80 D</td><td>&gt; 1.00 D — verify incision size/type</td></tr>
-      <tr><td>Target axis</td><td>0° – 180°</td><td>—</td></tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- ═══════════════════════════════════════════ CH 12 ══════════════════════ -->
-<div class="chapter">
-  <div class="chapter-header">
-    <div class="chapter-num">Chapter 12</div>
-    <div class="chapter-title">Troubleshooting</div>
-    <div class="chapter-desc">Common issues and their solutions.</div>
+  <!-- ── PERMISSIONS ── -->
+  <div class="card">
+    <div class="card-title"><span class="icon">🔐</span> Permissions &amp; Data</div>
+    <table>
+      <thead><tr><th>Permission</th><th>Use</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>Camera</td><td>Capture eye photos</td><td><span class="tag">Required</span></td></tr>
+        <tr><td>Photo Library</td><td>Save to gallery (optional)</td><td><span class="tag g">Optional</span></td></tr>
+        <tr><td>Motion Sensors</td><td>Level indicator</td><td><span class="tag">Required</span></td></tr>
+      </tbody>
+    </table>
+    <hr class="sep"/>
+    <ul class="b">
+      <li>All data stored <strong>locally on device only</strong></li>
+      <li>No internet connection required</li>
+      <li>Export PDFs before uninstalling — uninstall deletes all data</li>
+    </ul>
   </div>
 
-  <h2>12.1 Common Issues</h2>
+</div><!-- /grid -->
 
-  <table>
-    <thead><tr><th>Problem</th><th>Cause</th><th>Solution</th></tr></thead>
-    <tbody>
-      <tr>
-        <td>Camera screen is black</td>
-        <td>Camera permission not granted</td>
-        <td>Go to device Settings → Privacy → Camera → enable for Zahran Toric Tool</td>
-      </tr>
-      <tr>
-        <td>Tilt indicator not responding</td>
-        <td>Motion sensor unavailable</td>
-        <td>Ensure the app has motion access. Restart the app if needed.</td>
-      </tr>
-      <tr>
-        <td>Calculator result seems incorrect</td>
-        <td>K1 entered as steeper than K2</td>
-        <td>K1 must be the <em>flat</em> meridian (lower dioptres). Swap K1/K2 values.</td>
-      </tr>
-      <tr>
-        <td>Alpins CI shows extreme value (&gt;2.0)</td>
-        <td>SIA fields left as IOL defaults</td>
-        <td>Enter actual post-operative refraction cylinder for a valid analysis.</td>
-      </tr>
-      <tr>
-        <td>Landmark markers missing on alignment screen</td>
-        <td>Landmarks not saved</td>
-        <td>In Landmark Annotation, verify you tapped Save before closing the screen.</td>
-      </tr>
-      <tr>
-        <td>PDF export fails</td>
-        <td>No share sheet available</td>
-        <td>Ensure Files or another share target is installed. Try again after restarting the app.</td>
-      </tr>
-      <tr>
-        <td>PCA toggle not visible</td>
-        <td>K values not entered in eye record</td>
-        <td>PCA correction requires K1 Power, K1 Axis, and K2 Power to be filled in the eye record.</td>
-      </tr>
-      <tr>
-        <td>Patient data not persisting</td>
-        <td>Storage permission issue</td>
-        <td>All data is stored on-device. If data is missing after app restart, check available storage space.</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <h2>12.2 Data &amp; Privacy</h2>
-  <p>
-    All patient data is stored <strong>locally on your device only</strong>. No data is transmitted to
-    any server or third party. The app does not require an internet connection to function. Uninstalling
-    the app will permanently delete all stored patient data — ensure records are exported before uninstalling.
-  </p>
-
-  <div class="callout callout-warning">
-    <strong>Data Backup</strong>
-    The Zahran Toric Tool does not currently include a cloud backup feature. Export surgical plans as PDFs
-    for important cases to maintain a record outside the app.
-  </div>
-
-  <h2>12.3 Contact &amp; Support</h2>
-  <p>For questions, feature requests, or bug reports, contact the development team through the app store listing or your institution's IT support channel.</p>
-
-  <hr class="section" />
-
-  <p style="text-align: center; color: var(--muted); font-size: 9pt; margin-top: 20px;">
-    <strong>Zahran Toric Tool</strong> — Version 1.0.0<br/>
-    © 2026 Zahran. All rights reserved.<br/>
-    For clinical decision support only. Not a substitute for professional medical judgment.
-  </p>
+<div class="footer">
+  Zahran Toric Tool v1.0.0  ·  © 2026 Zahran  ·  Clinical decision support only — not a substitute for professional medical judgment
 </div>
 
 </body>
