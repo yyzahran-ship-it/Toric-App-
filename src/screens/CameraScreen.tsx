@@ -7,12 +7,91 @@ import * as MediaLibrary from 'expo-media-library';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DeviceMotion } from 'expo-sensors';
+import Svg, { Circle, Line, Text as SvgText } from 'react-native-svg';
 import { RootStackParamList } from '../types';
 import { getPatient, updateEyeRecord } from '../storage/patients';
 
 type Nav = NativeStackNavigationProp<RootStackParamList, 'Camera'>;
 type Route = RouteProp<RootStackParamList, 'Camera'>;
 
+// ── Static dial geometry (computed once at module load) ───────────────────────
+const DIAL = 310;
+const dcx = DIAL / 2;
+const dcy = DIAL / 2;
+const R_MAIN = 120;
+const R_OUTER1 = 127;
+const R_OUTER2 = 134;
+const R_OUTER3 = 142;
+const R_LABEL = 151;
+const R_INNER = 54;
+
+// TABO axis → SVG: x = cx + r·cos(a), y = cy − r·sin(a)  (y-flipped for SVG)
+const TICKS = Array.from({ length: 72 }, (_, i) => {
+  const a = i * 5;
+  const isMajor = a % 30 === 0;
+  const isMedium = a % 10 === 0;
+  const rOut = isMajor ? R_OUTER2 : isMedium ? R_OUTER1 : R_MAIN + 5;
+  const rad = (a * Math.PI) / 180;
+  const c = Math.cos(rad);
+  const s = Math.sin(rad);
+  return {
+    x1: dcx + R_MAIN * c, y1: dcy - R_MAIN * s,
+    x2: dcx + rOut * c,   y2: dcy - rOut * s,
+    sw: isMajor ? 2.5 : isMedium ? 1.5 : 0.8,
+    color: isMajor ? '#C8A84B' : isMedium ? 'rgba(200,168,75,0.65)' : 'rgba(200,168,75,0.3)',
+  };
+});
+
+const LABELS = [0, 30, 60, 90, 120, 150, 180].map(a => {
+  const rad = (a * Math.PI) / 180;
+  return { a, x: dcx + R_LABEL * Math.cos(rad), y: dcy - R_LABEL * Math.sin(rad) };
+});
+
+// ── Premium dial component ────────────────────────────────────────────────────
+function PremiumDial({ roll }: { roll: number }) {
+  const isLevel = Math.abs(roll) <= 3;
+  return (
+    <Svg width={DIAL} height={DIAL}>
+      {/* Triple accent rings */}
+      <Circle cx={dcx} cy={dcy} r={R_OUTER3} stroke="rgba(200,168,75,0.2)" strokeWidth={1} fill="none" />
+      <Circle cx={dcx} cy={dcy} r={R_OUTER2} stroke="rgba(200,168,75,0.45)" strokeWidth={1.5} fill="none" />
+      <Circle cx={dcx} cy={dcy} r={R_OUTER1} stroke="rgba(200,168,75,0.75)" strokeWidth={2} fill="none" />
+
+      {/* Main guide ring */}
+      <Circle cx={dcx} cy={dcy} r={R_MAIN} stroke="#C8A84B" strokeWidth={2.5} fill="rgba(0,0,0,0.12)" />
+
+      {/* Tick marks at every 5° */}
+      {TICKS.map((t, i) => (
+        <Line key={i} x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2} stroke={t.color} strokeWidth={t.sw} />
+      ))}
+
+      {/* Degree labels at TABO 0°–180° */}
+      {LABELS.map(({ a, x, y }) => (
+        <SvgText key={a} x={x} y={y + 4} textAnchor="middle" fill="#C8A84B" fontSize={10} fontWeight="600">
+          {a}°
+        </SvgText>
+      ))}
+
+      {/* Inner pupil guide (dashed cyan) */}
+      <Circle cx={dcx} cy={dcy} r={R_INNER} stroke="rgba(136,204,255,0.55)" strokeWidth={1.5} fill="none" strokeDasharray="6,4" />
+
+      {/* Crosshairs */}
+      <Line x1={dcx - R_MAIN} y1={dcy} x2={dcx + R_MAIN} y2={dcy} stroke="rgba(255,255,255,0.3)" strokeWidth={1} />
+      <Line x1={dcx} y1={dcy - R_MAIN} x2={dcx} y2={dcy + R_MAIN} stroke="rgba(255,255,255,0.3)" strokeWidth={1} />
+
+      {/* Center readout circle */}
+      <Circle cx={dcx} cy={dcy} r={32} fill="rgba(0,0,0,0.65)" stroke={isLevel ? '#44FF88' : '#C8A84B'} strokeWidth={1.5} />
+      <SvgText x={dcx} y={dcy - 3} textAnchor="middle" fill={isLevel ? '#44FF88' : '#FFD700'} fontSize={15} fontWeight="700">
+        {roll > 0 ? '+' : ''}{roll}°
+      </SvgText>
+      <SvgText x={dcx} y={dcy + 13} textAnchor="middle" fill="rgba(255,255,255,0.55)" fontSize={8}>
+        {isLevel ? 'LEVEL' : 'TILT'}
+      </SvgText>
+    </Svg>
+  );
+}
+
+// ── Screen ────────────────────────────────────────────────────────────────────
 export default function CameraScreen() {
   const nav = useNavigation<Nav>();
   const { params } = useRoute<Route>();
@@ -21,7 +100,6 @@ export default function CameraScreen() {
   const [mediaPermission, requestMediaPermission] = MediaLibrary.usePermissions();
   const [capturing, setCapturing] = useState(false);
   const [saveToGallery, setSaveToGallery] = useState(false);
-  // Roll angle in degrees (tilt left/right) from gyroscope — for leveling guide
   const [roll, setRoll] = useState(0);
 
   useEffect(() => {
@@ -45,18 +123,13 @@ export default function CameraScreen() {
     try {
       const photo = await cameraRef.current.takePictureAsync({ quality: 0.9 });
       if (!photo) throw new Error('No photo captured');
-
       if (saveToGallery) {
         if (!mediaPermission?.granted) await requestMediaPermission();
-        if (mediaPermission?.granted) {
-          await MediaLibrary.saveToLibraryAsync(photo.uri);
-        }
+        if (mediaPermission?.granted) await MediaLibrary.saveToLibraryAsync(photo.uri);
       }
-
       const patient = await getPatient(params.patientId);
       const eye = patient?.eyes.find(e => e.id === params.eyeId);
       if (!eye) throw new Error('Eye record not found');
-
       await updateEyeRecord(params.patientId, { ...eye, imageUri: photo.uri });
       nav.navigate('Alignment', { patientId: params.patientId, eyeId: params.eyeId });
     } catch (e: any) {
@@ -84,24 +157,15 @@ export default function CameraScreen() {
   return (
     <View style={styles.container}>
       <CameraView ref={cameraRef} style={styles.camera} facing="back">
-        {/* Alignment guide */}
+
+        {/* Premium instrument gauge overlay */}
         <View style={styles.guide}>
-          <View style={styles.circle} />
-          <View style={styles.hLine} />
-          <View style={styles.vLine} />
+          <PremiumDial roll={roll} />
         </View>
 
-        {/* Level indicator */}
-        <View style={styles.levelBar}>
-          <View style={[styles.levelDot, { left: `${50 + Math.max(-45, Math.min(45, roll))}%` as any }]} />
-          <View style={styles.levelCenter} />
-        </View>
-        <Text style={[styles.levelText, isLevel ? styles.levelOk : styles.levelOff]}>
-          {isLevel ? 'Level ✓' : `${roll > 0 ? 'Tilt left' : 'Tilt right'} ${Math.abs(roll)}°`}
-        </Text>
-
+        {/* Hint */}
         <View style={styles.hint}>
-          <Text style={styles.hintText}>Center the eye within the circle</Text>
+          <Text style={styles.hintText}>Center the eye within the ring</Text>
         </View>
 
         {/* Save to gallery toggle */}
@@ -110,8 +174,13 @@ export default function CameraScreen() {
           <Text style={styles.galleryText}>Save to gallery</Text>
         </TouchableOpacity>
 
+        {/* Shutter */}
         <View style={styles.controls}>
-          <TouchableOpacity style={styles.shutterBtn} onPress={capture} disabled={capturing}>
+          <TouchableOpacity
+            style={[styles.shutterBtn, isLevel && styles.shutterBtnLevel]}
+            onPress={capture}
+            disabled={capturing}
+          >
             {capturing ? (
               <ActivityIndicator color="#fff" />
             ) : (
@@ -119,6 +188,7 @@ export default function CameraScreen() {
             )}
           </TouchableOpacity>
         </View>
+
       </CameraView>
     </View>
   );
@@ -131,36 +201,10 @@ const styles = StyleSheet.create({
     position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
     alignItems: 'center', justifyContent: 'center',
   },
-  circle: {
-    width: 260, height: 260, borderRadius: 130,
-    borderWidth: 2, borderColor: 'rgba(255,255,255,0.6)', position: 'absolute',
-  },
-  hLine: { position: 'absolute', width: 260, height: 1, backgroundColor: 'rgba(255,255,255,0.3)' },
-  vLine: { position: 'absolute', width: 1, height: 260, backgroundColor: 'rgba(255,255,255,0.3)' },
-  levelBar: {
-    position: 'absolute', top: 140, left: 40, right: 40, height: 4,
-    backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 2,
-  },
-  levelDot: {
-    position: 'absolute', top: -5, width: 14, height: 14, borderRadius: 7,
-    backgroundColor: '#FFD700', marginLeft: -7,
-  },
-  levelCenter: {
-    position: 'absolute', top: -4, left: '50%', marginLeft: -6,
-    width: 12, height: 12, borderRadius: 6,
-    borderWidth: 2, borderColor: 'rgba(255,255,255,0.5)',
-  },
-  levelText: {
-    position: 'absolute', top: 160, alignSelf: 'center',
-    fontSize: 12, paddingHorizontal: 10, paddingVertical: 3,
-    borderRadius: 6, backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  levelOk: { color: '#44FF88' },
-  levelOff: { color: '#FFD700' },
   hint: { position: 'absolute', top: 80, left: 0, right: 0, alignItems: 'center' },
   hintText: {
-    color: 'rgba(255,255,255,0.8)', fontSize: 14,
-    backgroundColor: 'rgba(0,0,0,0.4)', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 6,
+    color: 'rgba(255,255,255,0.85)', fontSize: 13,
+    backgroundColor: 'rgba(0,0,0,0.5)', paddingHorizontal: 14, paddingVertical: 6, borderRadius: 8,
   },
   galleryToggle: {
     position: 'absolute', bottom: 140, alignSelf: 'center',
@@ -176,9 +220,11 @@ const styles = StyleSheet.create({
   controls: { position: 'absolute', bottom: 50, left: 0, right: 0, alignItems: 'center' },
   shutterBtn: {
     width: 72, height: 72, borderRadius: 36,
-    borderWidth: 4, borderColor: '#ffffff', alignItems: 'center', justifyContent: 'center',
+    borderWidth: 3, borderColor: 'rgba(255,255,255,0.7)',
+    alignItems: 'center', justifyContent: 'center',
   },
-  shutterInner: { width: 56, height: 56, borderRadius: 28, backgroundColor: '#ffffff' },
+  shutterBtnLevel: { borderColor: '#44FF88' },
+  shutterInner: { width: 58, height: 58, borderRadius: 29, backgroundColor: 'rgba(200,168,75,0.85)' },
   shutterLevel: { backgroundColor: '#44FF88' },
   permContainer: { flex: 1, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center', padding: 32 },
   permText: { color: '#1A1200', fontSize: 16, textAlign: 'center', marginBottom: 20 },

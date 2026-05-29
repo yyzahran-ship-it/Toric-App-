@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Toric IOL",
-    "slug": "toric-iol",
+    "name": "Zahran Toric Tool",
+    "slug": "zahran-toric-tool",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
