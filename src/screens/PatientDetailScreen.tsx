@@ -125,6 +125,14 @@ export default function PatientDetailScreen() {
               </TouchableOpacity>
             </View>
             <View style={[styles.eyeActions, { marginTop: 6 }]}>
+              {eye.postRefractive && (
+                <TouchableOpacity
+                  style={[styles.actionBtn, styles.postRxBtn]}
+                  onPress={() => nav.navigate('PostRefractive', { patientId: patient.id, eyeId: eye.id })}
+                >
+                  <Text style={styles.actionBtnText}>Post-Rx IOL</Text>
+                </TouchableOpacity>
+              )}
               <TouchableOpacity
                 style={[styles.actionBtn, styles.annotateBtn]}
                 onPress={() => nav.navigate('LandmarkAnnotation', { patientId: patient.id, eyeId: eye.id })}
@@ -203,6 +211,7 @@ const styles = StyleSheet.create({
   calcBtn: { backgroundColor: '#C8A84B' },
   alpinsBtn: { backgroundColor: '#C8A84B' },
   annotateBtn: { backgroundColor: '#C8A84B' },
+  postRxBtn: { backgroundColor: '#336699' },
   deleteBtn: { backgroundColor: '#CC3333' },
   actionBtnText: { color: '#C8C8C8', fontSize: 13, fontWeight: '600' },
   fab: {

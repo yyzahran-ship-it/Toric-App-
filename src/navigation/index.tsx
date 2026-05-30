@@ -11,6 +11,7 @@ import ToricCalculatorScreen from '../screens/ToricCalculatorScreen';
 import AlpinsAnalysisScreen from '../screens/AlpinsAnalysisScreen';
 import LandmarkAnnotationScreen from '../screens/LandmarkAnnotationScreen';
 import SiaNomogramScreen from '../screens/SiaNomogramScreen';
+import PostRefractiveScreen from '../screens/PostRefractiveScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -67,6 +68,11 @@ export default function AppNavigator() {
           name="LandmarkAnnotation"
           component={LandmarkAnnotationScreen}
           options={{ title: 'Landmark Annotation' }}
+        />
+        <Stack.Screen
+          name="PostRefractive"
+          component={PostRefractiveScreen}
+          options={{ title: 'Post-Refractive IOL' }}
         />
         <Stack.Screen
           name="SiaNomogram"

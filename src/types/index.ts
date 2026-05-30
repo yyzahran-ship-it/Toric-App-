@@ -53,6 +53,7 @@ export type RootStackParamList = {
   ToricCalculator: { patientId: string; eyeId: string };
   AlpinsAnalysis: { patientId: string; eyeId: string };
   LandmarkAnnotation: { patientId: string; eyeId: string };
+  PostRefractive: { patientId: string; eyeId: string };
   SiaNomogram: undefined;
   Settings: undefined;
 };
