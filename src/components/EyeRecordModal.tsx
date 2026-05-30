@@ -19,6 +19,7 @@ export default function EyeRecordModal({ visible, existing, onSave, onClose }: P
   const [targetAxis, setTargetAxis] = useState('');
   const [notes, setNotes] = useState('');
   // Corneal / IOL data
+  const [axialLength, setAxialLength] = useState('');
   const [k1Power, setK1Power] = useState('');
   const [k1Axis, setK1Axis] = useState('');
   const [k2Power, setK2Power] = useState('');
@@ -36,6 +37,7 @@ export default function EyeRecordModal({ visible, existing, onSave, onClose }: P
       setRefAxis(String(existing.referenceAxis));
       setTargetAxis(String(existing.targetAxis));
       setNotes(existing.notes ?? '');
+      setAxialLength(existing.axialLength !== undefined ? String(existing.axialLength) : '');
       setK1Power(existing.k1Power !== undefined ? String(existing.k1Power) : '');
       setK1Axis(existing.k1Axis !== undefined ? String(existing.k1Axis) : '');
       setK2Power(existing.k2Power !== undefined ? String(existing.k2Power) : '');
@@ -48,6 +50,7 @@ export default function EyeRecordModal({ visible, existing, onSave, onClose }: P
       setPostRefractiveType(existing.postRefractiveType ?? '');
     } else {
       setSide('OD'); setRefAxis(''); setTargetAxis(''); setNotes('');
+      setAxialLength('');
       setK1Power(''); setK1Axis(''); setK2Power('');
       setSia(''); setSiaAxis('');
       setIolModel(''); setIolSphere(''); setIolCylinder('');
@@ -68,6 +71,7 @@ export default function EyeRecordModal({ visible, existing, onSave, onClose }: P
       referenceAxis: ref,
       targetAxis: target,
       notes: notes.trim() || undefined,
+      axialLength: axialLength ? parseFloat(axialLength) : undefined,
       k1Power: k1Power ? parseFloat(k1Power) : undefined,
       k1Axis: k1Axis ? parseInt(k1Axis, 10) : undefined,
       k2Power: k2Power ? parseFloat(k2Power) : undefined,
@@ -114,6 +118,9 @@ export default function EyeRecordModal({ visible, existing, onSave, onClose }: P
               placeholder="e.g. 90" placeholderTextColor="#AAAAAA" keyboardType="number-pad" />
 
             <Text style={styles.sectionTitle}>Corneal Biometry (optional)</Text>
+            <Text style={styles.label}>Axial Length (mm)</Text>
+            <TextInput style={styles.input} value={axialLength} onChangeText={setAxialLength}
+              placeholder="e.g. 23.50" placeholderTextColor="#AAAAAA" keyboardType="decimal-pad" />
             <View style={styles.row}>
               <View style={styles.half}>
                 <Text style={styles.label}>K1 Flat (D)</Text>

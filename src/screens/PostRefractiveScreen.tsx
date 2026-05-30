@@ -8,7 +8,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 import { getPatient, updateEyeRecord } from '../storage/patients';
 import {
-  runAllMethods, noHistoryConsensus,
+  runAllMethods, noHistoryConsensus, srktPower, roundQtr,
   PostRefNoHistoryInput, PostRefHistoryInput, PostRefResult, ProcedureType,
 } from '../utils/postRefractiveCalc';
 
@@ -40,6 +40,11 @@ export default function PostRefractiveScreen() {
   const [atlasRingMean,  setAtlasRingMean]  = useState('');
   const [effRP,          setEffRP]          = useState('');
 
+  // ── Biometry ───────────────────────────────────────────────────────────
+  const [axialLength, setAxialLength] = useState('');
+  const [aConst, setAConst]           = useState('118.0');
+  const [targetRx, setTargetRx]       = useState('0.00');
+
   // ── Results ────────────────────────────────────────────────────────────
   const [results, setResults] = useState<PostRefResult[]>([]);
   const [consensus, setConsensus] = useState<{ meanKFlat: number; meanKSteep: number; meanK: number } | null>(null);
@@ -50,6 +55,7 @@ export default function PostRefractiveScreen() {
       getPatient(params.patientId).then(p => {
         const eye = p?.eyes.find(e => e.id === params.eyeId);
         if (!eye) return;
+        if (eye.axialLength) setAxialLength(String(eye.axialLength));
         if (eye.k1Power) setKFlat(String(eye.k1Power));
         if (eye.k2Power) setKSteep(String(eye.k2Power));
         if (eye.postRefractiveType) setProcedure(eye.postRefractiveType as ProcedureType);
@@ -104,8 +110,10 @@ export default function PostRefractiveScreen() {
       const p   = await getPatient(params.patientId);
       const eye = p?.eyes.find(e => e.id === params.eyeId);
       if (!eye) return;
+      const AL = parseFloat(axialLength);
       await updateEyeRecord(params.patientId, {
         ...eye,
+        axialLength: !isNaN(AL) ? AL : eye.axialLength,
         k1Power: consensus.meanKFlat,
         k2Power: consensus.meanKSteep,
       });
@@ -263,6 +271,39 @@ export default function PostRefractiveScreen() {
         </>
       )}
 
+      {/* Biometry */}
+      <Text style={s.sectionHeader}>Biometry (for IOL Power)</Text>
+      <View style={s.card}>
+        <View style={s.row}>
+          <View style={s.half}>
+            <Text style={s.label}>Axial Length (mm)</Text>
+            <TextInput style={s.input} value={axialLength} onChangeText={setAxialLength}
+              keyboardType="decimal-pad" placeholder="e.g. 23.50" placeholderTextColor="#AAA" />
+          </View>
+          <View style={s.half}>
+            <Text style={s.label}>A-Constant</Text>
+            <TextInput style={s.input} value={aConst} onChangeText={setAConst}
+              keyboardType="decimal-pad" placeholder="e.g. 118.0" placeholderTextColor="#AAA" />
+          </View>
+        </View>
+        <View style={[s.row, { marginTop: 10 }]}>
+          <View style={s.half}>
+            <Text style={s.label}>Target Rx (D)</Text>
+            <TextInput style={s.input} value={targetRx} onChangeText={setTargetRx}
+              keyboardType="numbers-and-punctuation" placeholder="0.00" placeholderTextColor="#AAA" />
+          </View>
+          <View style={s.half}>
+            <Text style={s.label}>Formula</Text>
+            <View style={[s.input, { justifyContent: 'center' }]}>
+              <Text style={{ color: '#888060', fontSize: 14 }}>SRK/T</Text>
+            </View>
+          </View>
+        </View>
+        <Text style={s.hint}>
+          Common A-constants: AcrySof SA60AT 118.4 · Tecnis ZCB00 119.3 · CT LUCIA 611P 118.8
+        </Text>
+      </View>
+
       <TouchableOpacity style={s.calcBtn} onPress={handleCalculate}>
         <Text style={s.calcBtnText}>Calculate All Methods</Text>
       </TouchableOpacity>
@@ -300,8 +341,71 @@ export default function PostRefractiveScreen() {
             </>
           )}
 
+          {/* IOL Power Results */}
+          {(() => {
+            const AL  = parseFloat(axialLength);
+            const AC  = parseFloat(aConst);
+            const tRx = parseFloat(targetRx) || 0;
+            if (!isNaN(AL) && AL > 15 && AL < 36 && !isNaN(AC)) {
+              const iolRows = results.map(r => {
+                const baseIOL = srktPower(r.adjustedMeanK, AL, AC, tRx);
+                const finalIOL = roundQtr(baseIOL + (r.iolPowerAdjustment ?? 0));
+                return { method: r.methodName, requiresHistory: r.requiresHistory, iol: finalIOL, adj: r.iolPowerAdjustment };
+              });
+              const noHxIOLs = iolRows.filter(x => !x.requiresHistory).map(x => x.iol);
+              const consensusIOL = noHxIOLs.length
+                ? roundQtr(noHxIOLs.reduce((a, b) => a + b, 0) / noHxIOLs.length)
+                : null;
+              const safeIOL = noHxIOLs.length ? Math.max(...noHxIOLs) : null;
+
+              return (
+                <>
+                  <Text style={s.sectionHeader}>IOL Power Results (SRK/T)</Text>
+                  <View style={s.iolConsensusCard}>
+                    <Text style={s.iolConsensusLabel}>No-History Consensus (Mean)</Text>
+                    <Text style={s.iolConsensusNum}>
+                      {consensusIOL !== null ? `${consensusIOL} D` : '—'}
+                    </Text>
+                    {safeIOL !== null && safeIOL !== consensusIOL && (
+                      <Text style={s.iolSafeLabel}>
+                        Conservative (highest): {safeIOL} D  — recommended to avoid hyperopic surprise
+                      </Text>
+                    )}
+                  </View>
+                  <View style={s.iolTable}>
+                    <View style={s.iolTableHeader}>
+                      <Text style={[s.iolCol1, s.iolHeaderText]}>Method</Text>
+                      <Text style={[s.iolCol2, s.iolHeaderText]}>IOL (D)</Text>
+                      <Text style={[s.iolCol3, s.iolHeaderText]}>Adj</Text>
+                    </View>
+                    {iolRows.map((row, i) => (
+                      <View key={i} style={[s.iolTableRow, i % 2 === 0 && s.iolTableRowAlt]}>
+                        <View style={s.iolCol1}>
+                          <Text style={s.iolMethodText}>{row.method}</Text>
+                          <Text style={[s.iolBadge, { color: row.requiresHistory ? '#4488DD' : '#C8A84B' }]}>
+                            {row.requiresHistory ? 'HISTORY' : 'NO HX'}
+                          </Text>
+                        </View>
+                        <Text style={[s.iolCol2, s.iolValueText]}>{row.iol} D</Text>
+                        <Text style={[s.iolCol3, s.iolAdjText]}>
+                          {row.adj !== undefined
+                            ? `${row.adj >= 0 ? '+' : ''}${row.adj}`
+                            : '—'}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+                  <Text style={s.hint}>
+                    IOL power rounded to nearest 0.25 D. Adjust ±0.5 D per surgeon preference.
+                  </Text>
+                </>
+              );
+            }
+            return null;
+          })()}
+
           {/* Method breakdown */}
-          <Text style={s.sectionHeader}>Method Breakdown</Text>
+          <Text style={s.sectionHeader}>K Adjustment Breakdown</Text>
           {results.map((r, i) => (
             <View key={i} style={s.resultCard}>
               <View style={s.resultHeader}>
@@ -491,6 +595,33 @@ const s = StyleSheet.create({
     alignItems: 'center', marginTop: 16,
   },
   applyBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
+
+  // IOL power table
+  iolConsensusCard: {
+    backgroundColor: '#0d1a2e', borderRadius: 12, padding: 16,
+    borderWidth: 1.5, borderColor: '#4488DD', marginBottom: 12,
+  },
+  iolConsensusLabel: { color: '#88AADD', fontSize: 10, textTransform: 'uppercase', letterSpacing: 1 },
+  iolConsensusNum: { color: '#FFFFFF', fontSize: 32, fontWeight: '700', marginVertical: 4 },
+  iolSafeLabel: { color: '#88AADD', fontSize: 11, marginTop: 4, fontStyle: 'italic' },
+  iolTable: {
+    backgroundColor: '#F8F6EF', borderRadius: 12, overflow: 'hidden',
+    borderWidth: 1, borderColor: '#DDD5BB', marginBottom: 6,
+  },
+  iolTableHeader: {
+    flexDirection: 'row', backgroundColor: '#EDE9DE',
+    paddingHorizontal: 12, paddingVertical: 8, alignItems: 'center',
+  },
+  iolHeaderText: { color: '#888060', fontSize: 10, fontWeight: '700', textTransform: 'uppercase' },
+  iolTableRow: { flexDirection: 'row', paddingHorizontal: 12, paddingVertical: 10, alignItems: 'center' },
+  iolTableRowAlt: { backgroundColor: '#F0EDE4' },
+  iolCol1: { flex: 3, flexDirection: 'column' },
+  iolCol2: { flex: 2, textAlign: 'right' },
+  iolCol3: { flex: 1, textAlign: 'right' },
+  iolMethodText: { color: '#1A1200', fontSize: 12, fontWeight: '600' },
+  iolBadge: { fontSize: 9, fontWeight: '700', marginTop: 1 },
+  iolValueText: { color: '#1A1200', fontSize: 16, fontWeight: '700', textAlign: 'right' },
+  iolAdjText: { color: '#888060', fontSize: 11, textAlign: 'right' },
 
   disclaimer: {
     backgroundColor: '#FFF0EE', borderRadius: 10, padding: 14,

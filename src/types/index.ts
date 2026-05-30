@@ -17,6 +17,7 @@ export interface EyeRecord {
   notes?: string;
   date: string;
   // Corneal biometry
+  axialLength?: number;   // axial length (mm)
   k1Power?: number;       // flat K (D)
   k1Axis?: number;        // flat meridian axis 0–180°
   k2Power?: number;       // steep K (D), axis = k1Axis + 90

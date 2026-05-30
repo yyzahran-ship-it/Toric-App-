@@ -337,6 +337,60 @@ export function adjustedEffRP(
 }
 
 // ══════════════════════════════════════════════════════════════════════════
+// SRK/T IOL POWER FORMULA
+// Retzlaff JA, Sanders DR, Kraff MC. JCRS 1990;16:333-40.
+// ══════════════════════════════════════════════════════════════════════════
+
+/** Round to nearest 0.25 D (standard IOL step) */
+export function roundQtr(d: number): number {
+  return Math.round(d * 4) / 4;
+}
+
+/**
+ * SRK/T: IOL power for emmetropia (or targetRx at spectacle plane).
+ * @param meanK  Mean keratometry (D)
+ * @param AL     Axial length (mm)
+ * @param AConst A-constant (e.g. 118.0 for AcrySof SA60AT)
+ * @param targetRx  Target spectacle refraction (D, default 0 = emmetropia)
+ */
+export function srktPower(
+  meanK: number,
+  AL: number,
+  AConst: number,
+  targetRx = 0,
+): number {
+  // AL correction for long eyes
+  const Lcor = AL <= 24.2
+    ? AL
+    : -3.446 + 1.716 * AL - 0.0237 * AL * AL;
+
+  // Optical axial length
+  const Lopt = 0.97971 * Lcor + 0.65696;
+
+  // Corneal radius (mm)
+  const R = 337.5 / meanK;
+
+  // Corneal height (sagitta of 7mm chord)
+  const H = R - Math.sqrt(R * R - 12.25);
+
+  // Estimated lens position (ELP)
+  const SF  = AConst / 0.9704 - 65.60;
+  const ELP = SF + H;
+
+  const n = 1.336;
+
+  // Vergence formula (Retzlaff 1990)
+  const IOL_emme = (1000 * n * (n * R - (n - 1) * Lopt))
+                 / ((Lopt - ELP) * (n * R - (n - 1) * ELP));
+
+  if (targetRx === 0) return IOL_emme;
+
+  // Adjust for target refraction (vertex 12 mm correction)
+  const rxCornea = targetRx / (1 - 0.012 * targetRx);
+  return IOL_emme + rxCornea;
+}
+
+// ══════════════════════════════════════════════════════════════════════════
 // CONSENSUS: average K of all no-history methods (ASCRS/ESCRS approach)
 // ══════════════════════════════════════════════════════════════════════════
 export function noHistoryConsensus(results: PostRefResult[]): {
