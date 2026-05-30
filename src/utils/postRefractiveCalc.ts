@@ -10,6 +10,14 @@
 //             r_corr = 331.5/(−5.1625×r_meas + 82.2603 − 0.35)
 // [WKM]       Wang L, Koch DD. JCRS 2003;29:2039-42.
 //             K_adj = (Atlas_central × 1.114) − 6.1
+// [Maloney]   Maloney RK. Central topography method.
+//             K_adj = 1.1141 × TKPO-CTR − 5.5
+// [Savini]    Savini G, Barboni P, Zanini M. JCRS 2006.
+//             K_adj = 1.114 × KtPO − 4.98
+// [DblK-NoHx] Aramberri J. JCRS 2003;29:2049-52 (no-history version).
+//             ELP from K=43.5 D; IOL power from post-op K
+// [DblK-Hx]  Aramberri J. JCRS 2003;29:2049-52 (with-history version).
+//             ELP from pre-op K; IOL power from post-op K
 // [History]   Holladay JT. Refract Corneal Surg 1989;5:203.
 // [Masket]    Masket S, Masket SE. JCRS 2006;32:430-34.
 //             IOL_adj = (−0.326 × ΔRx) + 0.101
@@ -39,7 +47,7 @@ export interface PostRefHistoryInput extends PostRefNoHistoryInput {
   lasikRx?: number;     // Refractive change performed (D, negative = myopic)
   vertexDistance?: number; // Default 0.012 m
   // Optional topography inputs
-  atlasCentralPower?: number; // Atlas axial map central K (D) — for WKM
+  atlasCentralPower?: number; // Atlas/topography central K (D) — for WKM, Savini, Maloney
   atlasRingMean0_3?: number;  // Atlas 0–3mm ring mean (D) — for Adjusted Atlas
   effRP?: number;             // EyeSys EffRP (D) — for Adjusted EffRP
 }
@@ -52,6 +60,8 @@ export interface PostRefResult {
   adjustedKSteep: number;
   adjustedMeanK: number;
   iolPowerAdjustment?: number; // D added to standard formula IOL power
+  /** K to use for ELP in Double-K methods (Aramberri). undefined = same as adjustedMeanK */
+  elpK?: number;
   reference: string;
   formula: string;
   warning?: string;
@@ -337,6 +347,113 @@ export function adjustedEffRP(
 }
 
 // ══════════════════════════════════════════════════════════════════════════
+// 11. MALONEY CENTRAL TOPOGRAPHY METHOD  (no history)
+//     K_adj = 1.1141 × TKPO-CTR − 5.5
+//     Ref: Maloney RK. / Hoffer KJ, IOL Power 2011, Ch.32.
+//     Note: WKM revised the constant from −5.5 to −6.1 (Koch & Wang 2003).
+// ══════════════════════════════════════════════════════════════════════════
+export function maloneyMethod(
+  input: PostRefNoHistoryInput,
+  topoCentral?: number,
+): PostRefResult {
+  const meanK    = (input.kFlat + input.kSteep) / 2;
+  const sourceK  = topoCentral ?? meanK;
+  const isTopoK  = topoCentral != null;
+
+  const kAdj  = sourceK * 1.1141 - 5.5;
+  const ratio = kAdj / sourceK;
+  const kFlatAdj  = input.kFlat  * ratio;
+  const kSteepAdj = input.kSteep * ratio;
+
+  return {
+    method: 'maloney',
+    methodName: 'Maloney Central Topography',
+    requiresHistory: false,
+    adjustedKFlat:  round2(kFlatAdj),
+    adjustedKSteep: round2(kSteepAdj),
+    adjustedMeanK:  round2(kAdj),
+    reference: 'Maloney RK / Hoffer KJ, IOL Power 2011',
+    formula: 'K_adj = 1.1141 × TKPO-CTR − 5.5',
+    warning: isTopoK ? undefined : 'Topographic central K preferred; SimK used as fallback.',
+  };
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// 12. SAVINI-BARBONI-ZANINI  (no history, topography-based)
+//     K_adj = 1.114 × KtPO − 4.98
+//     Ref: Savini G, Barboni P, Zanini M. JCRS 2006;32:217-22.
+// ══════════════════════════════════════════════════════════════════════════
+export function saviniBarboniZanini(
+  input: PostRefNoHistoryInput,
+  topoCentral?: number,
+): PostRefResult {
+  const meanK    = (input.kFlat + input.kSteep) / 2;
+  const sourceK  = topoCentral ?? meanK;
+  const isTopoK  = topoCentral != null;
+
+  const kAdj  = sourceK * 1.114 - 4.98;
+  const ratio = kAdj / sourceK;
+  const kFlatAdj  = input.kFlat  * ratio;
+  const kSteepAdj = input.kSteep * ratio;
+
+  return {
+    method: 'savini',
+    methodName: 'Savini-Barboni-Zanini',
+    requiresHistory: false,
+    adjustedKFlat:  round2(kFlatAdj),
+    adjustedKSteep: round2(kSteepAdj),
+    adjustedMeanK:  round2(kAdj),
+    reference: 'Savini G et al. JCRS 2006;32:217-22',
+    formula: 'K_adj = 1.114 × KtPO − 4.98',
+    warning: isTopoK ? undefined : 'Topographic central SimK preferred; manual K used as fallback.',
+  };
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// 13. DOUBLE-K METHOD (ARAMBERRI) — NO-HISTORY VERSION
+//     ELP calculated with assumed normal K = 43.5 D
+//     IOL power calculated with post-op K
+//     Ref: Aramberri J. JCRS 2003;29:2049-52.
+//     Fixes the formula error: SRK/T ELP error = +1.72 D (Hoffer 2011, Ch.32).
+//     Note: elpK is stored separately; use srktPowerDoubleK() for IOL calc.
+// ══════════════════════════════════════════════════════════════════════════
+export function aramberriDoubleKNoHx(input: PostRefNoHistoryInput): PostRefResult {
+  return {
+    method: 'double-k-nohx',
+    methodName: 'Double-K No History (Aramberri)',
+    requiresHistory: false,
+    adjustedKFlat:  round2(input.kFlat),
+    adjustedKSteep: round2(input.kSteep),
+    adjustedMeanK:  round2((input.kFlat + input.kSteep) / 2),
+    elpK: 43.5,  // assumed average pre-refractive K
+    reference: 'Aramberri J, JCRS 2003;29:2049-52',
+    formula: 'ELP from K=43.5 D (assumed normal); IOL power from post-op K',
+    warning: 'Assumes pre-refractive K=43.5 D. More accurate if actual pre-op K is known.',
+  };
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// 14. DOUBLE-K METHOD (ARAMBERRI) — WITH HISTORY
+//     ELP calculated with actual pre-op K
+//     IOL power calculated with post-op K
+//     Ref: Aramberri J. JCRS 2003;29:2049-52.
+// ══════════════════════════════════════════════════════════════════════════
+export function aramberriDoubleKHx(input: PostRefHistoryInput): PostRefResult {
+  const preOpMeanK = round2((input.preOpKFlat + input.preOpKSteep) / 2);
+  return {
+    method: 'double-k-hx',
+    methodName: 'Double-K With History (Aramberri)',
+    requiresHistory: true,
+    adjustedKFlat:  round2(input.kFlat),
+    adjustedKSteep: round2(input.kSteep),
+    adjustedMeanK:  round2((input.kFlat + input.kSteep) / 2),
+    elpK: preOpMeanK,   // actual pre-op K used for ELP
+    reference: 'Aramberri J, JCRS 2003;29:2049-52',
+    formula: `ELP from pre-op K=${preOpMeanK} D; IOL power from post-op K`,
+  };
+}
+
+// ══════════════════════════════════════════════════════════════════════════
 // SRK/T IOL POWER FORMULA
 // Retzlaff JA, Sanders DR, Kraff MC. JCRS 1990;16:333-40.
 // ══════════════════════════════════════════════════════════════════════════
@@ -390,13 +507,50 @@ export function srktPower(
   return IOL_emme + rxCornea;
 }
 
+/**
+ * SRK/T Double-K: IOL power with separate K values for ELP and optics.
+ * Implements the Aramberri (2003) correction for post-refractive eyes.
+ * @param meanKPost  Post-op K used for IOL power vergence (D)
+ * @param elpK       Pre-op (or assumed normal) K used for ELP calculation (D)
+ */
+export function srktPowerDoubleK(
+  meanKPost: number,
+  elpK: number,
+  AL: number,
+  AConst: number,
+  targetRx = 0,
+): number {
+  const Lcor = AL <= 24.2
+    ? AL
+    : -3.446 + 1.716 * AL - 0.0237 * AL * AL;
+  const Lopt = 0.97971 * Lcor + 0.65696;
+
+  // ELP from elpK (pre-op or assumed normal K)
+  const R_elp = 337.5 / elpK;
+  const H_elp = R_elp - Math.sqrt(R_elp * R_elp - 12.25);
+  const Csf   = 0.62467 * AConst - 68.747;
+  const ELP   = H_elp + Csf;
+
+  // IOL power vergence from post-op K
+  const R_post = 337.5 / meanKPost;
+  const n = 1.336;
+  const IOL_emme = (1000 * n * (n * R_post - (n - 1) * Lopt))
+                 / ((Lopt - ELP) * (n * R_post - (n - 1) * ELP));
+
+  if (targetRx === 0) return IOL_emme;
+  const rxCornea = targetRx / (1 - 0.012 * targetRx);
+  return IOL_emme + rxCornea;
+}
+
 // ══════════════════════════════════════════════════════════════════════════
 // CONSENSUS: average K of all no-history methods (ASCRS/ESCRS approach)
+// Double-K methods are excluded — they don't adjust K, they adjust the ELP.
 // ══════════════════════════════════════════════════════════════════════════
 export function noHistoryConsensus(results: PostRefResult[]): {
   meanKFlat: number; meanKSteep: number; meanK: number;
 } {
-  const noHx = results.filter(r => !r.requiresHistory && r.adjustedMeanK > 0);
+  // Exclude Double-K methods: they keep post-op K unchanged (ELP adjustment only)
+  const noHx = results.filter(r => !r.requiresHistory && r.adjustedMeanK > 0 && r.elpK == null);
   if (!noHx.length) return { meanKFlat: 0, meanKSteep: 0, meanK: 0 };
   return {
     meanKFlat:  round2(noHx.reduce((s, r) => s + r.adjustedKFlat,  0) / noHx.length),
@@ -414,12 +568,17 @@ export function runAllMethods(
 ): PostRefResult[] {
   const results: PostRefResult[] = [];
 
-  // No-history methods (always run)
+  // No-history K-correction methods
   results.push(shammasNoHistory(noHxInput));
   if (noHxInput.procedure !== 'RK') {
     results.push(haigisL(noHxInput));
   }
   results.push(wangKochMaloney(noHxInput, hxInput?.atlasCentralPower));
+  results.push(maloneyMethod(noHxInput, hxInput?.atlasCentralPower));
+  results.push(saviniBarboniZanini(noHxInput, hxInput?.atlasCentralPower));
+
+  // No-history Double-K (ELP correction)
+  results.push(aramberriDoubleKNoHx(noHxInput));
 
   // History-based methods
   if (hxInput) {
@@ -428,6 +587,7 @@ export function runAllMethods(
     results.push(modifiedMasket(hxInput));
     results.push(feizMannis(hxInput));
     results.push(latkanyFlatK(hxInput));
+    results.push(aramberriDoubleKHx(hxInput));  // Double-K with actual pre-op K
 
     const atlas = adjustedAtlas(hxInput);
     if (atlas) results.push(atlas);

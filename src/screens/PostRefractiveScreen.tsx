@@ -8,7 +8,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 import { getPatient, updateEyeRecord } from '../storage/patients';
 import {
-  runAllMethods, noHistoryConsensus, srktPower, roundQtr,
+  runAllMethods, noHistoryConsensus, srktPower, srktPowerDoubleK, roundQtr,
   PostRefNoHistoryInput, PostRefHistoryInput, PostRefResult, ProcedureType,
 } from '../utils/postRefractiveCalc';
 
@@ -348,11 +348,14 @@ export default function PostRefractiveScreen() {
             const tRx = parseFloat(targetRx) || 0;
             if (!isNaN(AL) && AL > 15 && AL < 36 && !isNaN(AC)) {
               const iolRows = results.map(r => {
-                const baseIOL = srktPower(r.adjustedMeanK, AL, AC, tRx);
+                const baseIOL = r.elpK != null
+                  ? srktPowerDoubleK(r.adjustedMeanK, r.elpK, AL, AC, tRx)
+                  : srktPower(r.adjustedMeanK, AL, AC, tRx);
                 const finalIOL = roundQtr(baseIOL + (r.iolPowerAdjustment ?? 0));
-                return { method: r.methodName, requiresHistory: r.requiresHistory, iol: finalIOL, adj: r.iolPowerAdjustment };
+                const isDoubleK = r.elpK != null;
+                return { method: r.methodName, requiresHistory: r.requiresHistory, iol: finalIOL, adj: r.iolPowerAdjustment, isDoubleK };
               });
-              const noHxIOLs = iolRows.filter(x => !x.requiresHistory).map(x => x.iol);
+              const noHxIOLs = iolRows.filter(x => !x.requiresHistory && !x.isDoubleK).map(x => x.iol);
               const consensusIOL = noHxIOLs.length
                 ? roundQtr(noHxIOLs.reduce((a, b) => a + b, 0) / noHxIOLs.length)
                 : null;
@@ -382,8 +385,8 @@ export default function PostRefractiveScreen() {
                       <View key={i} style={[s.iolTableRow, i % 2 === 0 && s.iolTableRowAlt]}>
                         <View style={s.iolCol1}>
                           <Text style={s.iolMethodText}>{row.method}</Text>
-                          <Text style={[s.iolBadge, { color: row.requiresHistory ? '#4488DD' : '#C8A84B' }]}>
-                            {row.requiresHistory ? 'HISTORY' : 'NO HX'}
+                          <Text style={[s.iolBadge, { color: row.isDoubleK ? '#AA44AA' : row.requiresHistory ? '#4488DD' : '#C8A84B' }]}>
+                            {row.isDoubleK ? '2K-ELP' : row.requiresHistory ? 'HISTORY' : 'NO HX'}
                           </Text>
                         </View>
                         <Text style={[s.iolCol2, s.iolValueText]}>{row.iol} D</Text>
@@ -460,11 +463,20 @@ export default function PostRefractiveScreen() {
             </Text>
           </TouchableOpacity>
 
+          <View style={s.barrettBox}>
+            <Text style={s.barrettTitle}>Barrett True-K</Text>
+            <Text style={s.barrettText}>
+              The Barrett True-K formula is proprietary (APACRS/Asia Pacific) and cannot be reproduced
+              here. Use it at: apacrs.org/barrett_true_K — it is among the highest-accuracy methods
+              for post-myopic LASIK/PRK and should be included in your final IOL selection.
+            </Text>
+          </View>
+
           <View style={s.disclaimer}>
             <Text style={s.disclaimerText}>
-              ⚕ Clinical decision support only. Cross-reference with the ASCRS Post-Refractive
-              IOL Calculator (iolcalc.ascrs.org) and ESCRS Calculator before finalising IOL selection.
-              Barrett True-K requires the online calculators as it is a proprietary algorithm.
+              ⚕ Clinical decision support only. 2K-ELP methods (Aramberri Double-K) correct the
+              ELP formula error that causes +1.7 D hyperopic shift with SRK/T after myopic LASIK.
+              Cross-reference with ASCRS iolcalc.ascrs.org and ESCRS calculators before finalising.
             </Text>
           </View>
         </>
@@ -622,6 +634,13 @@ const s = StyleSheet.create({
   iolBadge: { fontSize: 9, fontWeight: '700', marginTop: 1 },
   iolValueText: { color: '#1A1200', fontSize: 16, fontWeight: '700', textAlign: 'right' },
   iolAdjText: { color: '#888060', fontSize: 11, textAlign: 'right' },
+
+  barrettBox: {
+    backgroundColor: '#F0EDF8', borderRadius: 10, padding: 14,
+    borderWidth: 1, borderColor: '#AA88CC', marginTop: 12,
+  },
+  barrettTitle: { color: '#5522AA', fontSize: 12, fontWeight: '700', marginBottom: 4 },
+  barrettText: { color: '#442288', fontSize: 11, lineHeight: 16 },
 
   disclaimer: {
     backgroundColor: '#FFF0EE', borderRadius: 10, padding: 14,

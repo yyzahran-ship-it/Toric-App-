@@ -15,6 +15,10 @@ import {
   shammasNoHistory,
   haigisL,
   wangKochMaloney,
+  maloneyMethod,
+  saviniBarboniZanini,
+  aramberriDoubleKNoHx,
+  aramberriDoubleKHx,
   clinicalHistoryMethod,
   masketFormula,
   modifiedMasket,
@@ -25,6 +29,7 @@ import {
   noHistoryConsensus,
   runAllMethods,
   srktPower,
+  srktPowerDoubleK,
   roundQtr,
 } from '../postRefractiveCalc';
 
@@ -226,6 +231,77 @@ describe('Adjusted EffRP  (K_adj = EffRP − 0.15 × ΔMR − 0.05)', () => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
+describe('Maloney Central Topography  (K_adj = 1.1141 × TKPO-CTR − 5.5)', () => {
+  test('uses topographic central K', () => {
+    const r = maloneyMethod(BASE_NO_HX, 40.91);
+    near(r.adjustedMeanK, 40.09, 0.03);   // 1.1141 × 40.91 − 5.5
+    expect(r.warning).toBeUndefined();
+  });
+
+  test('falls back to SimK with warning', () => {
+    const r = maloneyMethod(BASE_NO_HX);   // SimK mean = 39.0
+    near(r.adjustedMeanK, 37.95, 0.03);   // 1.1141 × 39.0 − 5.5
+    expect(r.warning).toMatch(/SimK/);
+  });
+
+  test('no history required', () => {
+    expect(maloneyMethod(BASE_NO_HX).requiresHistory).toBe(false);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+describe('Savini-Barboni-Zanini  (K_adj = 1.114 × KtPO − 4.98)', () => {
+  test('uses topographic central K', () => {
+    const r = saviniBarboniZanini(BASE_NO_HX, 40.91);
+    near(r.adjustedMeanK, 40.59, 0.03);   // 1.114 × 40.91 − 4.98
+    expect(r.warning).toBeUndefined();
+  });
+
+  test('falls back to SimK with warning', () => {
+    const r = saviniBarboniZanini(BASE_NO_HX);   // SimK mean = 39.0
+    near(r.adjustedMeanK, 38.47, 0.03);          // 1.114 × 39.0 − 4.98
+    expect(r.warning).toMatch(/SimK/);
+  });
+
+  test('no history required', () => {
+    expect(saviniBarboniZanini(BASE_NO_HX).requiresHistory).toBe(false);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+describe('Double-K No History (Aramberri)  (elpK = 43.5 D assumed)', () => {
+  test('keeps post-op K unchanged, sets elpK = 43.5', () => {
+    const r = aramberriDoubleKNoHx(BASE_NO_HX);
+    expect(r.adjustedMeanK).toBe(39.0);
+    expect(r.elpK).toBe(43.5);
+    expect(r.requiresHistory).toBe(false);
+  });
+
+  test('srktPowerDoubleK > srktPower with same post-op K (corrects +1.72 D formula error)', () => {
+    const r = aramberriDoubleKNoHx(BASE_NO_HX);
+    const standard = srktPower(r.adjustedMeanK, 24.0, 118.0);
+    const doubleK  = srktPowerDoubleK(r.adjustedMeanK, r.elpK!, 24.0, 118.0);
+    expect(doubleK).toBeGreaterThan(standard);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+describe('Double-K With History (Aramberri)  (elpK = actual pre-op K)', () => {
+  test('keeps post-op K unchanged, uses actual pre-op mean K for ELP', () => {
+    const r = aramberriDoubleKHx(BASE_HX);
+    expect(r.adjustedMeanK).toBe(39.0);   // post-op K unchanged
+    expect(r.elpK).toBe(44.5);            // (preOpKFlat=44 + preOpKSteep=45) / 2
+    expect(r.requiresHistory).toBe(true);
+  });
+
+  test('history version has higher elpK than no-history assumed 43.5', () => {
+    const noHx   = aramberriDoubleKNoHx(BASE_NO_HX);
+    const withHx = aramberriDoubleKHx(BASE_HX);
+    expect(withHx.elpK!).toBeGreaterThan(noHx.elpK!);   // 44.5 > 43.5
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
 describe('SRK/T IOL Power  (Retzlaff 1990)  ELP = H + 0.62467A − 68.747', () => {
   // Clinically expected: normal eye ~20-22 D
   test('normal eye baseline (K=43.5, AL=23.5, A=118.0)', () => {
@@ -269,38 +345,43 @@ describe('SRK/T IOL Power  (Retzlaff 1990)  ELP = H + 0.62467A − 68.747', () =
 
 // ─────────────────────────────────────────────────────────────────────────────
 describe('noHistoryConsensus', () => {
-  test('averages Shammas and Haigis-L K values', () => {
+  test('averages all 5 no-history K-adjustment methods (excludes Double-K)', () => {
     const res = runAllMethods(BASE_NO_HX);
     const c = noHistoryConsensus(res);
-    const sh = shammasNoHistory(BASE_NO_HX);
-    const hl = haigisL(BASE_NO_HX);
-    const wk = wangKochMaloney(BASE_NO_HX);
-    const expectedMeanK = (sh.adjustedMeanK + hl.adjustedMeanK + wk.adjustedMeanK) / 3;
+    const sh  = shammasNoHistory(BASE_NO_HX);
+    const hl  = haigisL(BASE_NO_HX);
+    const wk  = wangKochMaloney(BASE_NO_HX);
+    const mal = maloneyMethod(BASE_NO_HX);
+    const sav = saviniBarboniZanini(BASE_NO_HX);
+    const expectedMeanK = (sh.adjustedMeanK + hl.adjustedMeanK + wk.adjustedMeanK +
+                           mal.adjustedMeanK + sav.adjustedMeanK) / 5;
     near(c.meanK, expectedMeanK, 0.05);
   });
 
-  test('excludes history-based methods', () => {
+  test('excludes history-based and Double-K methods', () => {
     const res = runAllMethods(BASE_NO_HX, BASE_HX);
     const c = noHistoryConsensus(res);
-    const noHxResults = res.filter(r => !r.requiresHistory);
-    const expectedMean = noHxResults.reduce((s, r) => s + r.adjustedMeanK, 0) / noHxResults.length;
+    const noHxKAdj = res.filter(r => !r.requiresHistory && r.elpK == null);
+    const expectedMean = noHxKAdj.reduce((s, r) => s + r.adjustedMeanK, 0) / noHxKAdj.length;
     near(c.meanK, expectedMean, 0.02);
   });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
 describe('runAllMethods integration', () => {
-  test('no-history: returns Shammas + Haigis-L + WKM', () => {
+  test('no-history: returns 6 methods (shammas, haigis-l, wkm, maloney, savini, double-k-nohx)', () => {
     const res = runAllMethods(BASE_NO_HX);
-    expect(res.map(r => r.method)).toEqual(['shammas', 'haigis-l', 'wkm']);
+    expect(res.map(r => r.method)).toEqual([
+      'shammas', 'haigis-l', 'wkm', 'maloney', 'savini', 'double-k-nohx',
+    ]);
   });
 
-  test('with history: returns 8 methods (no topo inputs)', () => {
+  test('with history: returns 12 methods (no topo inputs)', () => {
     const res = runAllMethods(BASE_NO_HX, BASE_HX);
-    expect(res).toHaveLength(8);
+    expect(res).toHaveLength(12);
   });
 
-  test('with topo inputs: returns 10 methods', () => {
+  test('with topo inputs: returns 14 methods', () => {
     const hxTopo = {
       ...BASE_HX,
       atlasRingMean0_3: 40.50,
@@ -308,7 +389,7 @@ describe('runAllMethods integration', () => {
       atlasCentralPower: 40.91,
     };
     const res = runAllMethods(BASE_NO_HX, hxTopo);
-    expect(res).toHaveLength(10);
+    expect(res).toHaveLength(14);
   });
 
   test('no-history consensus meanK < original mean K (post-LASIK adjustment)', () => {
@@ -318,10 +399,11 @@ describe('runAllMethods integration', () => {
     expect(c.meanK).toBeLessThan(originalMean);  // all methods reduce K
   });
 
-  // ASCRS/ESCRS consistency check: no-history methods should cluster within ±1.5D
-  test('ASCRS/ESCRS consistency: no-history K spread ≤ 1.5 D', () => {
+  // ASCRS/ESCRS consistency check: K-adjustment methods should cluster within ±1.5D
+  test('ASCRS/ESCRS consistency: no-history K-adjustment spread ≤ 1.5 D', () => {
     const res = runAllMethods(BASE_NO_HX);
-    const meanKs = res.filter(r => !r.requiresHistory).map(r => r.adjustedMeanK);
+    // Exclude Double-K methods — they keep post-op K unchanged (not K-adjustment)
+    const meanKs = res.filter(r => !r.requiresHistory && r.elpK == null).map(r => r.adjustedMeanK);
     const spread = Math.max(...meanKs) - Math.min(...meanKs);
     expect(spread).toBeLessThanOrEqual(1.5);
   });
