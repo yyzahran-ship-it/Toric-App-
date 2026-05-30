@@ -597,6 +597,70 @@ export function srktPowerDoubleK(
 }
 
 // ══════════════════════════════════════════════════════════════════════════
+// ADDITIONAL IOL POWER FORMULAS
+// Same thin-lens vergence equation as SRK/T but with different ELP models.
+// AL is used directly here (no SRK/T optical-path correction).
+// ══════════════════════════════════════════════════════════════════════════
+
+function vergenceIOL(meanK: number, AL: number, ELP: number, targetRx = 0): number {
+  const n = 1.336;
+  const R = 337.5 / meanK;
+  const IOL_emme = (1000 * n * (n * R - (n - 1) * AL))
+                 / ((AL - ELP) * (n * R - (n - 1) * ELP));
+  if (targetRx === 0) return IOL_emme;
+  return IOL_emme + targetRx / (1 - 0.012 * targetRx);
+}
+
+/**
+ * Hoffer Q: ELP = pACD + 0.3 × (L − 23.5)
+ * Ref: Hoffer KJ. J Cataract Refract Surg 1993;19:700-712.
+ */
+export function hofferQPower(meanK: number, AL: number, pACD: number, targetRx = 0): number {
+  return vergenceIOL(meanK, AL, pACD + 0.3 * (AL - 23.5), targetRx);
+}
+
+/**
+ * Holladay 1: ELP = H + SF  (H = corneal sagitta, same structure as SRK/T with Csf)
+ * Ref: Holladay JT et al. J Cataract Refract Surg 1988;14:17-24.
+ */
+export function holladay1Power(meanK: number, AL: number, SF: number, targetRx = 0): number {
+  const R = 337.5 / meanK;
+  const H = R - Math.sqrt(R * R - 12.25);
+  return vergenceIOL(meanK, AL, H + SF, targetRx);
+}
+
+/** Double-K Holladay 1: H computed from elpK (pre-op K), vergence from post-op K */
+export function holladay1PowerDoubleK(
+  meanKPost: number, elpK: number, AL: number, SF: number, targetRx = 0,
+): number {
+  const R_elp = 337.5 / elpK;
+  const H_elp = R_elp - Math.sqrt(R_elp * R_elp - 12.25);
+  return vergenceIOL(meanKPost, AL, H_elp + SF, targetRx);
+}
+
+/**
+ * Haigis: d = a0 + a1 × ACD_measured + a2 × AL
+ * Defaults: a1=0.4, a2=0.1 (Haigis 1993 regression).
+ * a0 can be derived from A-constant: a0 = 0.62467×A − 72.434
+ * Ref: Haigis W. Eur J Implant Refract Surg 1993;5:210-11.
+ */
+export function haigisIOLPower(
+  meanK: number, AL: number, measuredACD: number,
+  a0: number, a1 = 0.4, a2 = 0.1, targetRx = 0,
+): number {
+  return vergenceIOL(meanK, AL, a0 + a1 * measuredACD + a2 * AL, targetRx);
+}
+
+/** A-constant → approximate Holladay 1 SF (Holladay 1988 regression) */
+export function aConstToSF(A: number): number { return 0.5663 * A - 65.60; }
+
+/** A-constant → approximate Hoffer Q pACD (Hoffer 1993 regression) */
+export function aConstToPACD(A: number): number { return 0.58357 * A - 63.896; }
+
+/** A-constant → approximate Haigis a0 */
+export function aConstToHaigisA0(A: number): number { return 0.62467 * A - 72.434; }
+
+// ══════════════════════════════════════════════════════════════════════════
 // CONSENSUS: average K of all no-history methods (ASCRS/ESCRS approach)
 // Double-K methods are excluded — they don't adjust K, they adjust the ELP.
 // ══════════════════════════════════════════════════════════════════════════

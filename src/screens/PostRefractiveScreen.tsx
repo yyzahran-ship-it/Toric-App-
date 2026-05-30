@@ -9,6 +9,8 @@ import { RootStackParamList } from '../types';
 import { getPatient, updateEyeRecord } from '../storage/patients';
 import {
   runAllMethods, noHistoryConsensus, srktPower, srktPowerDoubleK, roundQtr,
+  hofferQPower, holladay1Power, holladay1PowerDoubleK, haigisIOLPower,
+  aConstToSF, aConstToPACD, aConstToHaigisA0,
   PostRefNoHistoryInput, PostRefHistoryInput, PostRefResult, ProcedureType,
 } from '../utils/postRefractiveCalc';
 
@@ -706,70 +708,113 @@ export default function PostRefractiveScreen() {
             </>
           )}
 
-          {/* IOL Power Results */}
+          {/* IOL Power Results — multiple formulas */}
           {(() => {
             const AL  = parseFloat(axialLength);
             const AC  = parseFloat(aConst);
             const tRx = parseFloat(targetRx) || 0;
-            if (!isNaN(AL) && AL > 15 && AL < 36 && !isNaN(AC)) {
-              const iolRows = results.map(r => {
-                const baseIOL = r.elpK != null
-                  ? srktPowerDoubleK(r.adjustedMeanK, r.elpK, AL, AC, tRx)
-                  : srktPower(r.adjustedMeanK, AL, AC, tRx);
-                const finalIOL = roundQtr(baseIOL + (r.iolPowerAdjustment ?? 0));
-                const isDoubleK = r.elpK != null;
-                return { method: r.methodName, requiresHistory: r.requiresHistory, iol: finalIOL, adj: r.iolPowerAdjustment, isDoubleK };
-              });
-              const noHxIOLs = iolRows.filter(x => !x.requiresHistory && !x.isDoubleK).map(x => x.iol);
-              const consensusIOL = noHxIOLs.length
-                ? roundQtr(noHxIOLs.reduce((a, b) => a + b, 0) / noHxIOLs.length)
-                : null;
-              const safeIOL = noHxIOLs.length ? Math.max(...noHxIOLs) : null;
+            if (isNaN(AL) || AL <= 15 || AL >= 36 || isNaN(AC)) return null;
 
-              return (
-                <>
-                  <Text style={s.sectionHeader}>IOL Power Results (SRK/T)</Text>
-                  <View style={s.iolConsensusCard}>
-                    <Text style={s.iolConsensusLabel}>No-History Consensus (Mean)</Text>
-                    <Text style={s.iolConsensusNum}>
-                      {consensusIOL !== null ? `${consensusIOL} D` : '—'}
-                    </Text>
-                    {safeIOL !== null && safeIOL !== consensusIOL && (
-                      <Text style={s.iolSafeLabel}>
-                        Conservative (highest): {safeIOL} D  — recommended to avoid hyperopic surprise
-                      </Text>
-                    )}
+            // Formula constants — use explicit entry if available, else derive from A-const
+            const sfDerived    = !sfHolladay;
+            const pACDDerived  = !hofferPACD;
+            const a0Derived    = !haigisA0;
+            const SF_val   = sfHolladay  ? parseFloat(sfHolladay)  : aConstToSF(AC);
+            const pACD_val = hofferPACD  ? parseFloat(hofferPACD)  : aConstToPACD(AC);
+            const a0_val   = haigisA0    ? parseFloat(haigisA0)    : aConstToHaigisA0(AC);
+            const a1_val   = haigisA1    ? parseFloat(haigisA1)    : 0.4;
+            const a2_val   = haigisA2    ? parseFloat(haigisA2)    : 0.1;
+            const ACD_meas = acd ? parseFloat(acd) : null;
+            const hasHaigis = ACD_meas !== null && !isNaN(ACD_meas);
+            const anyDerived = sfDerived || pACDDerived || (hasHaigis && a0Derived);
+
+            const computeAll = (meanK: number, elpK: number | undefined, iolAdj: number) => {
+              const adj = iolAdj;
+              const srkt = roundQtr(
+                (elpK != null ? srktPowerDoubleK(meanK, elpK, AL, AC, tRx)
+                              : srktPower(meanK, AL, AC, tRx)) + adj);
+              const hofferQ = roundQtr(hofferQPower(meanK, AL, pACD_val, tRx) + adj);
+              const holladay1 = roundQtr(
+                (elpK != null ? holladay1PowerDoubleK(meanK, elpK, AL, SF_val, tRx)
+                              : holladay1Power(meanK, AL, SF_val, tRx)) + adj);
+              const haigis = hasHaigis
+                ? roundQtr(haigisIOLPower(meanK, AL, ACD_meas!, a0_val, a1_val, a2_val, tRx) + adj)
+                : null;
+              return { srkt, hofferQ, holladay1, haigis };
+            };
+
+            const iolRows = results.map(r => ({
+              method: r.methodName,
+              requiresHistory: r.requiresHistory,
+              isDoubleK: r.elpK != null,
+              adj: r.iolPowerAdjustment,
+              ...computeAll(r.adjustedMeanK, r.elpK, r.iolPowerAdjustment ?? 0),
+            }));
+
+            const noHxRows = iolRows.filter(x => !x.requiresHistory && !x.isDoubleK);
+            const meanOf = (vals: (number | null)[]) => {
+              const v = vals.filter((n): n is number => n !== null);
+              return v.length ? roundQtr(v.reduce((a, b) => a + b, 0) / v.length) : null;
+            };
+            const cSRKT     = meanOf(noHxRows.map(x => x.srkt));
+            const cHofferQ  = meanOf(noHxRows.map(x => x.hofferQ));
+            const cHolladay = meanOf(noHxRows.map(x => x.holladay1));
+            const cHaigis   = hasHaigis ? meanOf(noHxRows.map(x => x.haigis)) : null;
+
+            return (
+              <>
+                <Text style={s.sectionHeader}>IOL Power Results — Multiple Formulas</Text>
+
+                {/* Consensus card */}
+                <View style={s.iolConsensusCard}>
+                  <Text style={s.iolConsensusLabel}>No-History Consensus (Mean)</Text>
+                  <View style={s.iolFormulaGrid}>
+                    <IolFormulaCell label="SRK/T" value={cSRKT} />
+                    <IolFormulaCell label="Hoffer Q" value={cHofferQ} derived={pACDDerived} />
+                    <IolFormulaCell label="Holladay 1" value={cHolladay} derived={sfDerived} />
+                    {hasHaigis && <IolFormulaCell label="Haigis" value={cHaigis} derived={a0Derived} />}
                   </View>
-                  <View style={s.iolTable}>
-                    <View style={s.iolTableHeader}>
-                      <Text style={[s.iolCol1, s.iolHeaderText]}>Method</Text>
-                      <Text style={[s.iolCol2, s.iolHeaderText]}>IOL (D)</Text>
-                      <Text style={[s.iolCol3, s.iolHeaderText]}>Adj</Text>
-                    </View>
-                    {iolRows.map((row, i) => (
-                      <View key={i} style={[s.iolTableRow, i % 2 === 0 && s.iolTableRowAlt]}>
-                        <View style={s.iolCol1}>
-                          <Text style={s.iolMethodText}>{row.method}</Text>
-                          <Text style={[s.iolBadge, { color: row.isDoubleK ? '#AA44AA' : row.requiresHistory ? '#4488DD' : '#C8A84B' }]}>
-                            {row.isDoubleK ? '2K-ELP' : row.requiresHistory ? 'HISTORY' : 'NO HX'}
-                          </Text>
-                        </View>
-                        <Text style={[s.iolCol2, s.iolValueText]}>{row.iol} D</Text>
-                        <Text style={[s.iolCol3, s.iolAdjText]}>
-                          {row.adj !== undefined
-                            ? `${row.adj >= 0 ? '+' : ''}${row.adj}`
-                            : '—'}
+                  {anyDerived && (
+                    <Text style={s.iolSafeLabel}>
+                      * constant estimated from A-constant — enter specific constants in Biometry for accuracy
+                    </Text>
+                  )}
+                  <Text style={[s.iolSafeLabel, { marginTop: 4 }]}>
+                    Conservative choice: use the highest value to avoid hyperopic surprise
+                  </Text>
+                </View>
+
+                {/* Per-method breakdown */}
+                <View style={s.iolTable}>
+                  <View style={s.iolTableHeader}>
+                    <Text style={[s.iolMethodCol, s.iolHeaderText]}>K Method</Text>
+                    <Text style={[s.iolFormulaCol, s.iolHeaderText]}>SRK/T</Text>
+                    <Text style={[s.iolFormulaCol, s.iolHeaderText]}>Hoffer Q</Text>
+                    <Text style={[s.iolFormulaCol, s.iolHeaderText]}>Holladay 1</Text>
+                    {hasHaigis && <Text style={[s.iolFormulaCol, s.iolHeaderText]}>Haigis</Text>}
+                  </View>
+                  {iolRows.map((row, i) => (
+                    <View key={i} style={[s.iolTableRow, i % 2 === 0 && s.iolTableRowAlt]}>
+                      <View style={s.iolMethodCol}>
+                        <Text style={s.iolMethodText} numberOfLines={2}>{row.method}</Text>
+                        <Text style={[s.iolBadge, { color: row.isDoubleK ? '#AA44AA' : row.requiresHistory ? '#4488DD' : '#C8A84B' }]}>
+                          {row.isDoubleK ? '2K-ELP' : row.requiresHistory ? 'HISTORY' : 'NO HX'}
+                          {row.adj !== undefined ? `  adj ${row.adj >= 0 ? '+' : ''}${row.adj}` : ''}
                         </Text>
                       </View>
-                    ))}
-                  </View>
-                  <Text style={s.hint}>
-                    IOL power rounded to nearest 0.25 D. Adjust ±0.5 D per surgeon preference.
-                  </Text>
-                </>
-              );
-            }
-            return null;
+                      <Text style={[s.iolFormulaCol, s.iolValueText]}>{row.srkt}</Text>
+                      <Text style={[s.iolFormulaCol, s.iolValueText]}>{row.hofferQ}</Text>
+                      <Text style={[s.iolFormulaCol, s.iolValueText]}>{row.holladay1}</Text>
+                      {hasHaigis && <Text style={[s.iolFormulaCol, s.iolValueText]}>{row.haigis ?? '—'}</Text>}
+                    </View>
+                  ))}
+                </View>
+                <Text style={s.hint}>
+                  IOL powers rounded to 0.25 D. All formulas use adjusted K from each method.
+                  {anyDerived ? ' (*) = constant derived from A-constant.' : ''}
+                </Text>
+              </>
+            );
           })()}
 
           {/* Method breakdown */}
@@ -861,6 +906,17 @@ function ResultCell({
     <View style={[s.resultCell, highlight && { borderColor: highlightColor, borderWidth: 1.5 }]}>
       <Text style={s.resultCellLabel}>{label}</Text>
       <Text style={[s.resultCellValue, highlight && { color: highlightColor }]}>{value}</Text>
+    </View>
+  );
+}
+
+function IolFormulaCell({
+  label, value, derived,
+}: { label: string; value: number | null; derived?: boolean }) {
+  return (
+    <View style={s.iolFormulaCell}>
+      <Text style={s.iolFormulaCellLabel}>{label}{derived ? ' *' : ''}</Text>
+      <Text style={s.iolFormulaCellValue}>{value !== null ? `${value} D` : '—'}</Text>
     </View>
   );
 }
@@ -1010,6 +1066,21 @@ const s = StyleSheet.create({
   iolConsensusLabel: { color: '#88AADD', fontSize: 10, textTransform: 'uppercase', letterSpacing: 1 },
   iolConsensusNum: { color: '#FFFFFF', fontSize: 32, fontWeight: '700', marginVertical: 4 },
   iolSafeLabel: { color: '#88AADD', fontSize: 11, marginTop: 4, fontStyle: 'italic' },
+  iolFormulaGrid: {
+    flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginVertical: 10,
+  },
+  iolFormulaCell: {
+    flex: 1, minWidth: 72, alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.07)', borderRadius: 8, padding: 8,
+  },
+  iolFormulaCellLabel: {
+    color: '#88AADD', fontSize: 9, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 3,
+  },
+  iolFormulaCellValue: {
+    color: '#FFFFFF', fontSize: 19, fontWeight: '700',
+  },
+  iolMethodCol: { flex: 2, paddingRight: 6 },
+  iolFormulaCol: { flex: 1.2, textAlign: 'right' as const },
   iolTable: {
     backgroundColor: '#F8F6EF', borderRadius: 12, overflow: 'hidden',
     borderWidth: 1, borderColor: '#DDD5BB', marginBottom: 6,
