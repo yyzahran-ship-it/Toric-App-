@@ -373,9 +373,9 @@ export function srktPower(
   // Corneal height (sagitta of 7mm chord)
   const H = R - Math.sqrt(R * R - 12.25);
 
-  // Estimated lens position (ELP)
-  const SF  = AConst / 0.9704 - 65.60;
-  const ELP = SF + H;
+  // Estimated lens position (ELP): Retzlaff 1990, JCRS 16:333
+  const Csf = 0.62467 * AConst - 68.747;
+  const ELP = H + Csf;
 
   const n = 1.336;
 
