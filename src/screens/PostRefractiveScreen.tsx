@@ -88,6 +88,7 @@ export default function PostRefractiveScreen() {
   const [axialLength, setAxialLength] = useState('');
   const [aConst, setAConst]           = useState('118.0');
   const [targetRx, setTargetRx]       = useState('0.00');
+  const [barrettTrueK, setBarrettTrueK] = useState('');
 
   // ── Results ────────────────────────────────────────────────────────────
   const [results, setResults] = useState<PostRefResult[]>([]);
@@ -711,6 +712,21 @@ export default function PostRefractiveScreen() {
         <Text style={s.hint}>
           Common A-constants: AcrySof SA60AT 118.4 · Tecnis ZCB00 119.3 · CT LUCIA 611P 118.8
         </Text>
+
+        {/* Barrett True-K manual entry */}
+        <View style={s.biometryDivider} />
+        <Text style={s.barrettEntryHeader}>Barrett True-K  (Manual Entry)</Text>
+        <Text style={s.hint}>
+          Barrett True-K is proprietary (APACRS/Graham Barrett). Calculate at apacrs.org/barrett_true_K
+          then enter the recommended IOL power below to include it in your comparison.
+        </Text>
+        <TextInput
+          style={[s.input, { marginTop: 8 }]}
+          value={barrettTrueK} onChangeText={setBarrettTrueK}
+          keyboardType="decimal-pad"
+          placeholder="e.g. 21.50  — enter from APACRS calculator"
+          placeholderTextColor="#AAA"
+        />
       </View>
 
       <TouchableOpacity style={s.calcBtn} onPress={handleCalculate}>
@@ -769,6 +785,8 @@ export default function PostRefractiveScreen() {
             const ACD_meas = acd ? parseFloat(acd) : null;
             const hasHaigis = ACD_meas !== null && !isNaN(ACD_meas);
             const anyDerived = sfDerived || pACDDerived || (hasHaigis && a0Derived);
+            const barrettTrueKVal = barrettTrueK ? parseFloat(barrettTrueK) : null;
+            const hasBarrettTrueK = barrettTrueKVal !== null && !isNaN(barrettTrueKVal);
 
             const computeAll = (meanK: number, elpK: number | undefined, iolAdj: number) => {
               const adj = iolAdj;
@@ -815,6 +833,9 @@ export default function PostRefractiveScreen() {
                     <IolFormulaCell label="Hoffer Q" value={cHofferQ} derived={pACDDerived} />
                     <IolFormulaCell label="Holladay 1" value={cHolladay} derived={sfDerived} />
                     {hasHaigis && <IolFormulaCell label="Haigis" value={cHaigis} derived={a0Derived} />}
+                    {hasBarrettTrueK && (
+                      <IolFormulaCell label="Barrett True-K" value={barrettTrueKVal} barrett />
+                    )}
                   </View>
                   {anyDerived && (
                     <Text style={s.iolSafeLabel}>
@@ -850,6 +871,18 @@ export default function PostRefractiveScreen() {
                       {hasHaigis && <Text style={[s.iolFormulaCol, s.iolValueText]}>{row.haigis ?? '—'}</Text>}
                     </View>
                   ))}
+                  {hasBarrettTrueK && (
+                    <View style={[s.iolTableRow, s.barrettTableRow]}>
+                      <View style={s.iolMethodCol}>
+                        <Text style={[s.iolMethodText, { color: '#5522AA' }]}>Barrett True-K</Text>
+                        <Text style={[s.iolBadge, { color: '#AA88CC' }]}>APACRS · PROPRIETARY</Text>
+                      </View>
+                      <Text style={[s.iolFormulaCol, s.iolValueText, { color: '#5522AA' }]}>{barrettTrueKVal} D</Text>
+                      <Text style={[s.iolFormulaCol, { textAlign: 'right' as const, color: '#AA88CC', fontSize: 12 }]}>—</Text>
+                      <Text style={[s.iolFormulaCol, { textAlign: 'right' as const, color: '#AA88CC', fontSize: 12 }]}>—</Text>
+                      {hasHaigis && <Text style={[s.iolFormulaCol, { textAlign: 'right' as const, color: '#AA88CC', fontSize: 12 }]}>—</Text>}
+                    </View>
+                  )}
                 </View>
                 <Text style={s.hint}>
                   IOL powers rounded to 0.25 D. All formulas use adjusted K from each method.
@@ -915,15 +948,6 @@ export default function PostRefractiveScreen() {
             </Text>
           </TouchableOpacity>
 
-          <View style={s.barrettBox}>
-            <Text style={s.barrettTitle}>Barrett True-K</Text>
-            <Text style={s.barrettText}>
-              The Barrett True-K formula is proprietary (APACRS/Asia Pacific) and cannot be reproduced
-              here. Use it at: apacrs.org/barrett_true_K — it is among the highest-accuracy methods
-              for post-myopic LASIK/PRK and should be included in your final IOL selection.
-            </Text>
-          </View>
-
           <View style={s.disclaimer}>
             <Text style={s.disclaimerText}>
               ⚕ Clinical decision support only. 2K-ELP methods (Aramberri Double-K) correct the
@@ -953,12 +977,16 @@ function ResultCell({
 }
 
 function IolFormulaCell({
-  label, value, derived,
-}: { label: string; value: number | null; derived?: boolean }) {
+  label, value, derived, barrett,
+}: { label: string; value: number | null; derived?: boolean; barrett?: boolean }) {
   return (
-    <View style={s.iolFormulaCell}>
-      <Text style={s.iolFormulaCellLabel}>{label}{derived ? ' *' : ''}</Text>
-      <Text style={s.iolFormulaCellValue}>{value !== null ? `${value} D` : '—'}</Text>
+    <View style={[s.iolFormulaCell, barrett && s.iolFormulaCellBarrett]}>
+      <Text style={[s.iolFormulaCellLabel, barrett && s.iolFormulaCellLabelBarrett]}>
+        {label}{derived ? ' *' : ''}
+      </Text>
+      <Text style={[s.iolFormulaCellValue, barrett && s.iolFormulaCellValueBarrett]}>
+        {value !== null ? `${value} D` : '—'}
+      </Text>
     </View>
   );
 }
@@ -1121,8 +1149,15 @@ const s = StyleSheet.create({
   iolFormulaCellValue: {
     color: '#FFFFFF', fontSize: 19, fontWeight: '700',
   },
+  iolFormulaCellBarrett: {
+    backgroundColor: 'rgba(170,136,204,0.28)',
+    borderWidth: 1, borderColor: 'rgba(170,136,204,0.5)',
+  },
+  iolFormulaCellLabelBarrett: { color: '#DDB8FF' },
+  iolFormulaCellValueBarrett: { color: '#F0E0FF' },
   iolMethodCol: { flex: 2, paddingRight: 6 },
   iolFormulaCol: { flex: 1.2, textAlign: 'right' as const },
+  barrettTableRow: { backgroundColor: '#F0EDF8' },
   iolTable: {
     backgroundColor: '#F8F6EF', borderRadius: 12, overflow: 'hidden',
     borderWidth: 1, borderColor: '#DDD5BB', marginBottom: 6,
@@ -1142,12 +1177,10 @@ const s = StyleSheet.create({
   iolValueText: { color: '#1A1200', fontSize: 16, fontWeight: '700', textAlign: 'right' },
   iolAdjText: { color: '#888060', fontSize: 11, textAlign: 'right' },
 
-  barrettBox: {
-    backgroundColor: '#F0EDF8', borderRadius: 10, padding: 14,
-    borderWidth: 1, borderColor: '#AA88CC', marginTop: 12,
+  barrettEntryHeader: {
+    color: '#5522AA', fontSize: 11, fontWeight: '700',
+    textTransform: 'uppercase' as const, letterSpacing: 0.8, marginBottom: 4,
   },
-  barrettTitle: { color: '#5522AA', fontSize: 12, fontWeight: '700', marginBottom: 4 },
-  barrettText: { color: '#442288', fontSize: 11, lineHeight: 16 },
 
   disclaimer: {
     backgroundColor: '#FFF0EE', borderRadius: 10, padding: 14,
