@@ -38,10 +38,15 @@ export interface PostRefNoHistoryInput {
   kSteep: number;   // Current (post-op) steep K (D)
   procedure: ProcedureType;
   // Optional topography — no pre-op history required
-  pentacamTNP?: number;       // Pentacam TNP_Apex_4.0mm Zone (D) — total corneal power
+  // Myopic LASIK / PRK
+  pentacamTNP?: number;       // Pentacam TNP_Apex_4.0mm Zone (D) — myopic LASIK/PRK
   galileiTCP2?: number;       // Galilei TCP2 (D)
   tomeyACCP?: number;         // Tomey ACCP / Nidek ACP/APP (D)
   atlasCentralPower?: number; // Atlas 9000 4mm zone central K (D)
+  // RK-specific
+  pentacamPWRSF4mm?: number;  // Pentacam PWR_SF_Pupil_4.0mm Zone (D) — sagittal curvature (RK)
+  pentacamCTMin?: number;     // Pentacam CT_MIN — minimum central corneal thickness (µm)
+  avgCentralPower?: number;   // Average Central Power from topo devices (D) — RK, not SimK
 }
 
 export interface PostRefHistoryInput extends PostRefNoHistoryInput {
@@ -53,15 +58,25 @@ export interface PostRefHistoryInput extends PostRefNoHistoryInput {
   vertexDistance?: number; // Default 0.012 m
   // Topography inputs (history-dependent methods)
   atlasRingMean0_3?: number;  // Atlas 0–3mm ring mean (D) — overrides individual ring values
-  atlasRing0mm?: number;      // Atlas ring 0mm value (D)
-  atlasRing1mm?: number;      // Atlas ring 1mm value (D)
-  atlasRing2mm?: number;      // Atlas ring 2mm value (D)
-  atlasRing3mm?: number;      // Atlas ring 3mm value (D)
+  atlasRing0mm?: number;      // Atlas ring 0mm (D) — LASIK/PRK
+  atlasRing1mm?: number;      // Atlas ring 1mm (D)
+  atlasRing2mm?: number;      // Atlas ring 2mm (D)
+  atlasRing3mm?: number;      // Atlas ring 3mm (D)
+  atlasRing4mm?: number;      // Atlas ring 4mm (D) — RK (rings go 1–4mm, not 0–3mm)
   effRP?: number;             // EyeSys EffRP (D)
   // OCT (RTVue or Avanti XR)
   octNetCornealPower?: number;       // Net Corneal Power (D)
   octPosteriorCornealPower?: number; // Posterior Corneal Power (D)
   centralCornealThickness?: number;  // Central pachymetry (µm)
+  // Lens constants (for future Haigis IOL power calculation)
+  haigisA0?: number;          // Haigis a0 (if empty, converted from A-const)
+  haigisA1?: number;          // Haigis a1 (if empty, 0.4 used)
+  haigisA2?: number;          // Haigis a2 (if empty, 0.1 used)
+  sfHolladay1?: number;       // SF (Holladay 1)
+  acd?: number;               // Anterior chamber depth (mm)
+  lensThickness?: number;     // Crystalline lens thickness (mm)
+  wtw?: number;               // White-to-white (mm)
+  keratometricIndex?: number; // Device keratometric index (default 1.3375)
 }
 
 export interface PostRefResult {
@@ -302,11 +317,17 @@ export function latkanyFlatK(input: PostRefHistoryInput): PostRefResult {
   };
 }
 
-/** Compute Atlas 0–3mm ring mean from individual values if direct mean not provided */
+/**
+ * Compute Atlas ring mean from individual values.
+ * LASIK/PRK: uses rings 0–3mm. RK: uses rings 1–4mm. Returns mean of whatever is provided.
+ * atlasRingMean0_3 overrides when set.
+ */
 function resolveAtlasRingMean(input: PostRefHistoryInput): number | undefined {
   if (input.atlasRingMean0_3 != null) return input.atlasRingMean0_3;
-  const vals = [input.atlasRing0mm, input.atlasRing1mm, input.atlasRing2mm, input.atlasRing3mm]
-    .filter((v): v is number => v != null);
+  const vals = [
+    input.atlasRing0mm, input.atlasRing1mm, input.atlasRing2mm,
+    input.atlasRing3mm, input.atlasRing4mm,
+  ].filter((v): v is number => v != null);
   if (!vals.length) return undefined;
   return vals.reduce((a, b) => a + b, 0) / vals.length;
 }
@@ -590,9 +611,16 @@ export function runAllMethods(
 ): PostRefResult[] {
   const results: PostRefResult[] = [];
 
-  // Best available topographic central K — Pentacam TNP preferred (total corneal power)
-  const topoCentral = noHxInput.pentacamTNP ?? noHxInput.galileiTCP2 ?? noHxInput.tomeyACCP ??
-                      noHxInput.atlasCentralPower ?? hxInput?.atlasCentralPower;
+  // Best available topographic central K by priority:
+  // Myopic LASIK: Pentacam TNP (total power) > Galilei TCP2 > Tomey ACCP > Atlas central
+  // RK: Pentacam PWR_SF_Pupil > Average Central Power > Atlas central
+  const topoCentral = noHxInput.pentacamTNP ??
+                      noHxInput.pentacamPWRSF4mm ??
+                      noHxInput.galileiTCP2 ??
+                      noHxInput.tomeyACCP ??
+                      noHxInput.atlasCentralPower ??
+                      noHxInput.avgCentralPower ??
+                      hxInput?.atlasCentralPower;
 
   // No-history K-correction methods
   results.push(shammasNoHistory(noHxInput));
