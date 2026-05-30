@@ -34,6 +34,12 @@ export default function PostRefractiveScreen() {
   const [postOpSEQ, setPostOpSEQ] = useState('');
   const [lasikRx,   setLasikRx]   = useState('');
 
+  // ── Optional topography fields ─────────────────────────────────────────
+  const [showTopo, setShowTopo] = useState(false);
+  const [atlasCentral,   setAtlasCentral]   = useState('');
+  const [atlasRingMean,  setAtlasRingMean]  = useState('');
+  const [effRP,          setEffRP]          = useState('');
+
   // ── Results ────────────────────────────────────────────────────────────
   const [results, setResults] = useState<PostRefResult[]>([]);
   const [consensus, setConsensus] = useState<{ meanKFlat: number; meanKSteep: number; meanK: number } | null>(null);
@@ -80,6 +86,9 @@ export default function PostRefractiveScreen() {
         preOpKFlat: pkF, preOpKSteep: pkS,
         preOpSEQ: preSEQ, postOpSEQ: pstSEQ,
         lasikRx: lasikRx ? parseFloat(lasikRx) : undefined,
+        atlasCentralPower: atlasCentral ? parseFloat(atlasCentral) : undefined,
+        atlasRingMean0_3:  atlasRingMean ? parseFloat(atlasRingMean) : undefined,
+        effRP: effRP ? parseFloat(effRP) : undefined,
       };
     }
 
@@ -223,6 +232,34 @@ export default function PostRefractiveScreen() {
               placeholderTextColor="#AAA" />
             <Text style={s.hint}>Negative for myopic correction. Used by Masket formula.</Text>
           </View>
+
+          {/* Optional topography */}
+          <View style={s.historyToggleRow}>
+            <Text style={s.historyToggleLabel}>Add Topography Values (optional)</Text>
+            <Switch
+              value={showTopo}
+              onValueChange={setShowTopo}
+              trackColor={{ false: '#DDD5BB', true: '#C8A84B' }}
+              thumbColor="#fff"
+            />
+          </View>
+          {showTopo && (
+            <View style={s.card}>
+              <Text style={s.label}>Atlas Central K (D) — for Wang-Koch-Maloney</Text>
+              <TextInput style={s.input} value={atlasCentral} onChangeText={setAtlasCentral}
+                keyboardType="decimal-pad" placeholder="e.g. 40.91 (Atlas axial map central zone)"
+                placeholderTextColor="#AAA" />
+              <Text style={[s.label, { marginTop: 10 }]}>Atlas 0–3mm Ring Mean (D) — for Adjusted Atlas</Text>
+              <TextInput style={s.input} value={atlasRingMean} onChangeText={setAtlasRingMean}
+                keyboardType="decimal-pad" placeholder="e.g. 40.50" placeholderTextColor="#AAA" />
+              <Text style={[s.label, { marginTop: 10 }]}>EyeSys EffRP (D) — for Adjusted EffRP</Text>
+              <TextInput style={s.input} value={effRP} onChangeText={setEffRP}
+                keyboardType="decimal-pad" placeholder="e.g. 41.20" placeholderTextColor="#AAA" />
+              <Text style={s.hint}>
+                Topography values unlock additional methods. If unavailable, SimK is used as fallback.
+              </Text>
+            </View>
+          )}
         </>
       )}
 
