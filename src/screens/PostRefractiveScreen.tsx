@@ -34,11 +34,22 @@ export default function PostRefractiveScreen() {
   const [postOpSEQ, setPostOpSEQ] = useState('');
   const [lasikRx,   setLasikRx]   = useState('');
 
-  // ── Optional topography fields ─────────────────────────────────────────
-  const [showTopo, setShowTopo] = useState(false);
+  // ── Topography fields (no history required) ────────────────────────────
+  const [showTopo,       setShowTopo]       = useState(false);
+  const [pentacamTNP,    setPentacamTNP]    = useState('');
+  const [galileiTCP2,    setGalileiTCP2]    = useState('');
+  const [tomeyACCP,      setTomeyACCP]      = useState('');
   const [atlasCentral,   setAtlasCentral]   = useState('');
+  // History-dependent topography
+  const [atlasRing0mm,   setAtlasRing0mm]   = useState('');
+  const [atlasRing1mm,   setAtlasRing1mm]   = useState('');
+  const [atlasRing2mm,   setAtlasRing2mm]   = useState('');
+  const [atlasRing3mm,   setAtlasRing3mm]   = useState('');
   const [atlasRingMean,  setAtlasRingMean]  = useState('');
   const [effRP,          setEffRP]          = useState('');
+  const [octNetCorneal,  setOctNetCorneal]  = useState('');
+  const [octPosterior,   setOctPosterior]   = useState('');
+  const [cct,            setCct]            = useState('');
 
   // ── Biometry ───────────────────────────────────────────────────────────
   const [axialLength, setAxialLength] = useState('');
@@ -75,7 +86,13 @@ export default function PostRefractiveScreen() {
       return;
     }
 
-    const noHxInput: PostRefNoHistoryInput = { kFlat: kF, kSteep: kS, procedure };
+    const noHxInput: PostRefNoHistoryInput = {
+      kFlat: kF, kSteep: kS, procedure,
+      pentacamTNP:       pentacamTNP  ? parseFloat(pentacamTNP)  : undefined,
+      galileiTCP2:       galileiTCP2  ? parseFloat(galileiTCP2)  : undefined,
+      tomeyACCP:         tomeyACCP    ? parseFloat(tomeyACCP)    : undefined,
+      atlasCentralPower: atlasCentral ? parseFloat(atlasCentral) : undefined,
+    };
 
     let hxInput: PostRefHistoryInput | undefined;
     if (useHistory) {
@@ -91,10 +108,16 @@ export default function PostRefractiveScreen() {
         ...noHxInput,
         preOpKFlat: pkF, preOpKSteep: pkS,
         preOpSEQ: preSEQ, postOpSEQ: pstSEQ,
-        lasikRx: lasikRx ? parseFloat(lasikRx) : undefined,
-        atlasCentralPower: atlasCentral ? parseFloat(atlasCentral) : undefined,
-        atlasRingMean0_3:  atlasRingMean ? parseFloat(atlasRingMean) : undefined,
-        effRP: effRP ? parseFloat(effRP) : undefined,
+        lasikRx:              lasikRx    ? parseFloat(lasikRx)    : undefined,
+        atlasRingMean0_3:     atlasRingMean ? parseFloat(atlasRingMean) : undefined,
+        atlasRing0mm:         atlasRing0mm ? parseFloat(atlasRing0mm) : undefined,
+        atlasRing1mm:         atlasRing1mm ? parseFloat(atlasRing1mm) : undefined,
+        atlasRing2mm:         atlasRing2mm ? parseFloat(atlasRing2mm) : undefined,
+        atlasRing3mm:         atlasRing3mm ? parseFloat(atlasRing3mm) : undefined,
+        effRP:                effRP    ? parseFloat(effRP)    : undefined,
+        octNetCornealPower:   octNetCorneal ? parseFloat(octNetCorneal) : undefined,
+        octPosteriorCornealPower: octPosterior ? parseFloat(octPosterior) : undefined,
+        centralCornealThickness:  cct    ? parseFloat(cct)    : undefined,
       };
     }
 
@@ -184,6 +207,105 @@ export default function PostRefractiveScreen() {
         <Text style={s.hint}>K1 = flat (lower D) · K2 = steep (higher D)</Text>
       </View>
 
+      {/* Topography toggle — available with or without history */}
+      <View style={s.historyToggleRow}>
+        <Text style={s.historyToggleLabel}>Add Topography / OCT Values</Text>
+        <Switch
+          value={showTopo}
+          onValueChange={setShowTopo}
+          trackColor={{ false: '#DDD5BB', true: '#C8A84B' }}
+          thumbColor="#fff"
+        />
+      </View>
+
+      {showTopo && (
+        <>
+          {/* Pentacam */}
+          <View style={s.pentacamCard}>
+            <Text style={s.pentacamTitle}>Pentacam (Oculus)</Text>
+            <Text style={s.label}>TNP_Apex 4.0mm Zone (D)  — Total Net Power</Text>
+            <TextInput style={s.input} value={pentacamTNP} onChangeText={setPentacamTNP}
+              keyboardType="decimal-pad" placeholder="e.g. 38.60" placeholderTextColor="#AAA" />
+            <Text style={s.hint}>
+              Preferred source — includes posterior corneal contribution. Used for WKM, Maloney, Savini.
+            </Text>
+          </View>
+
+          {/* Other topo devices */}
+          <View style={s.card}>
+            <Text style={s.topoDeviceHeader}>Other Topography Devices</Text>
+            <Text style={s.label}>Galilei TCP2 (D)</Text>
+            <TextInput style={s.input} value={galileiTCP2} onChangeText={setGalileiTCP2}
+              keyboardType="decimal-pad" placeholder="e.g. 39.20" placeholderTextColor="#AAA" />
+            <Text style={[s.label, { marginTop: 10 }]}>Tomey ACCP / Nidek ACP/APP (D)</Text>
+            <TextInput style={s.input} value={tomeyACCP} onChangeText={setTomeyACCP}
+              keyboardType="decimal-pad" placeholder="e.g. 39.50" placeholderTextColor="#AAA" />
+            <Text style={[s.label, { marginTop: 10 }]}>Atlas 9000 Central K — 4mm Zone (D)</Text>
+            <TextInput style={s.input} value={atlasCentral} onChangeText={setAtlasCentral}
+              keyboardType="decimal-pad" placeholder="e.g. 40.91" placeholderTextColor="#AAA" />
+            <Text style={s.hint}>
+              Pentacam TNP is preferred when available. Other devices used as fallback in priority order.
+            </Text>
+          </View>
+
+          {/* OCT */}
+          <View style={s.card}>
+            <Text style={s.topoDeviceHeader}>OCT — RTVue / Avanti XR</Text>
+            <View style={s.row}>
+              <View style={s.half}>
+                <Text style={s.label}>Net Corneal Power (D)</Text>
+                <TextInput style={s.input} value={octNetCorneal} onChangeText={setOctNetCorneal}
+                  keyboardType="decimal-pad" placeholder="e.g. 38.90" placeholderTextColor="#AAA" />
+              </View>
+              <View style={s.half}>
+                <Text style={s.label}>Posterior Corneal Power (D)</Text>
+                <TextInput style={s.input} value={octPosterior} onChangeText={setOctPosterior}
+                  keyboardType="decimal-pad" placeholder="e.g. -6.10" placeholderTextColor="#AAA" />
+              </View>
+            </View>
+            <Text style={[s.label, { marginTop: 10 }]}>Central Corneal Thickness (µm)</Text>
+            <TextInput style={s.input} value={cct} onChangeText={setCct}
+              keyboardType="decimal-pad" placeholder="e.g. 520" placeholderTextColor="#AAA" />
+          </View>
+
+          {/* Atlas Ring Values — only useful with history (Adjusted Atlas method) */}
+          {useHistory && (
+            <View style={s.card}>
+              <Text style={s.topoDeviceHeader}>Atlas Ring Values 0–3mm (for Adjusted Atlas)</Text>
+              <Text style={s.hint}>Enter individual ring values or the pre-computed 0–3mm mean:</Text>
+              <View style={s.row}>
+                <View style={s.quarter}>
+                  <Text style={s.label}>0mm (D)</Text>
+                  <TextInput style={s.input} value={atlasRing0mm} onChangeText={setAtlasRing0mm}
+                    keyboardType="decimal-pad" placeholder="—" placeholderTextColor="#AAA" />
+                </View>
+                <View style={s.quarter}>
+                  <Text style={s.label}>1mm (D)</Text>
+                  <TextInput style={s.input} value={atlasRing1mm} onChangeText={setAtlasRing1mm}
+                    keyboardType="decimal-pad" placeholder="—" placeholderTextColor="#AAA" />
+                </View>
+                <View style={s.quarter}>
+                  <Text style={s.label}>2mm (D)</Text>
+                  <TextInput style={s.input} value={atlasRing2mm} onChangeText={setAtlasRing2mm}
+                    keyboardType="decimal-pad" placeholder="—" placeholderTextColor="#AAA" />
+                </View>
+                <View style={s.quarter}>
+                  <Text style={s.label}>3mm (D)</Text>
+                  <TextInput style={s.input} value={atlasRing3mm} onChangeText={setAtlasRing3mm}
+                    keyboardType="decimal-pad" placeholder="—" placeholderTextColor="#AAA" />
+                </View>
+              </View>
+              <Text style={[s.label, { marginTop: 10 }]}>0–3mm Ring Mean (D)  — overrides individual values above</Text>
+              <TextInput style={s.input} value={atlasRingMean} onChangeText={setAtlasRingMean}
+                keyboardType="decimal-pad" placeholder="e.g. 40.50 (optional shortcut)" placeholderTextColor="#AAA" />
+              <Text style={[s.label, { marginTop: 10 }]}>EyeSys EffRP (D)  — for Adjusted EffRP</Text>
+              <TextInput style={s.input} value={effRP} onChangeText={setEffRP}
+                keyboardType="decimal-pad" placeholder="e.g. 41.20" placeholderTextColor="#AAA" />
+            </View>
+          )}
+        </>
+      )}
+
       {/* History toggle */}
       <View style={s.historyToggleRow}>
         <Text style={s.historyToggleLabel}>Include Pre-Op History</Text>
@@ -240,34 +362,6 @@ export default function PostRefractiveScreen() {
               placeholderTextColor="#AAA" />
             <Text style={s.hint}>Negative for myopic correction. Used by Masket formula.</Text>
           </View>
-
-          {/* Optional topography */}
-          <View style={s.historyToggleRow}>
-            <Text style={s.historyToggleLabel}>Add Topography Values (optional)</Text>
-            <Switch
-              value={showTopo}
-              onValueChange={setShowTopo}
-              trackColor={{ false: '#DDD5BB', true: '#C8A84B' }}
-              thumbColor="#fff"
-            />
-          </View>
-          {showTopo && (
-            <View style={s.card}>
-              <Text style={s.label}>Atlas Central K (D) — for Wang-Koch-Maloney</Text>
-              <TextInput style={s.input} value={atlasCentral} onChangeText={setAtlasCentral}
-                keyboardType="decimal-pad" placeholder="e.g. 40.91 (Atlas axial map central zone)"
-                placeholderTextColor="#AAA" />
-              <Text style={[s.label, { marginTop: 10 }]}>Atlas 0–3mm Ring Mean (D) — for Adjusted Atlas</Text>
-              <TextInput style={s.input} value={atlasRingMean} onChangeText={setAtlasRingMean}
-                keyboardType="decimal-pad" placeholder="e.g. 40.50" placeholderTextColor="#AAA" />
-              <Text style={[s.label, { marginTop: 10 }]}>EyeSys EffRP (D) — for Adjusted EffRP</Text>
-              <TextInput style={s.input} value={effRP} onChangeText={setEffRP}
-                keyboardType="decimal-pad" placeholder="e.g. 41.20" placeholderTextColor="#AAA" />
-              <Text style={s.hint}>
-                Topography values unlock additional methods. If unavailable, SimK is used as fallback.
-              </Text>
-            </View>
-          )}
         </>
       )}
 
@@ -550,6 +644,20 @@ const s = StyleSheet.create({
     borderWidth: 1, borderColor: '#DDD5BB', marginTop: 16,
   },
   historyToggleLabel: { color: '#1A1200', fontSize: 14, fontWeight: '600' },
+
+  pentacamCard: {
+    backgroundColor: '#F0EDF8', borderRadius: 12, padding: 14,
+    borderWidth: 1.5, borderColor: '#AA88CC', marginTop: 8,
+  },
+  pentacamTitle: {
+    color: '#5522AA', fontSize: 12, fontWeight: '700',
+    textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8,
+  },
+  topoDeviceHeader: {
+    color: '#888060', fontSize: 11, fontWeight: '700',
+    textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8,
+  },
+  quarter: { flex: 1 },
 
   calcBtn: {
     backgroundColor: '#C8A84B', borderRadius: 12, paddingVertical: 15,

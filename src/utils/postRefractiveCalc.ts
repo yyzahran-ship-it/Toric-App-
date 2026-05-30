@@ -37,6 +37,11 @@ export interface PostRefNoHistoryInput {
   kFlat: number;    // Current (post-op) flat K (D)
   kSteep: number;   // Current (post-op) steep K (D)
   procedure: ProcedureType;
+  // Optional topography — no pre-op history required
+  pentacamTNP?: number;       // Pentacam TNP_Apex_4.0mm Zone (D) — total corneal power
+  galileiTCP2?: number;       // Galilei TCP2 (D)
+  tomeyACCP?: number;         // Tomey ACCP / Nidek ACP/APP (D)
+  atlasCentralPower?: number; // Atlas 9000 4mm zone central K (D)
 }
 
 export interface PostRefHistoryInput extends PostRefNoHistoryInput {
@@ -46,10 +51,17 @@ export interface PostRefHistoryInput extends PostRefNoHistoryInput {
   postOpSEQ: number;
   lasikRx?: number;     // Refractive change performed (D, negative = myopic)
   vertexDistance?: number; // Default 0.012 m
-  // Optional topography inputs
-  atlasCentralPower?: number; // Atlas/topography central K (D) — for WKM, Savini, Maloney
-  atlasRingMean0_3?: number;  // Atlas 0–3mm ring mean (D) — for Adjusted Atlas
-  effRP?: number;             // EyeSys EffRP (D) — for Adjusted EffRP
+  // Topography inputs (history-dependent methods)
+  atlasRingMean0_3?: number;  // Atlas 0–3mm ring mean (D) — overrides individual ring values
+  atlasRing0mm?: number;      // Atlas ring 0mm value (D)
+  atlasRing1mm?: number;      // Atlas ring 1mm value (D)
+  atlasRing2mm?: number;      // Atlas ring 2mm value (D)
+  atlasRing3mm?: number;      // Atlas ring 3mm value (D)
+  effRP?: number;             // EyeSys EffRP (D)
+  // OCT (RTVue or Avanti XR)
+  octNetCornealPower?: number;       // Net Corneal Power (D)
+  octPosteriorCornealPower?: number; // Posterior Corneal Power (D)
+  centralCornealThickness?: number;  // Central pachymetry (µm)
 }
 
 export interface PostRefResult {
@@ -290,6 +302,15 @@ export function latkanyFlatK(input: PostRefHistoryInput): PostRefResult {
   };
 }
 
+/** Compute Atlas 0–3mm ring mean from individual values if direct mean not provided */
+function resolveAtlasRingMean(input: PostRefHistoryInput): number | undefined {
+  if (input.atlasRingMean0_3 != null) return input.atlasRingMean0_3;
+  const vals = [input.atlasRing0mm, input.atlasRing1mm, input.atlasRing2mm, input.atlasRing3mm]
+    .filter((v): v is number => v != null);
+  if (!vals.length) return undefined;
+  return vals.reduce((a, b) => a + b, 0) / vals.length;
+}
+
 // ══════════════════════════════════════════════════════════════════════════
 // 9. ADJUSTED ATLAS 0-3mm  (topography + history required)
 //    K_adj = Atlas_0-3_mean − (0.2 × ΔMR)
@@ -298,11 +319,12 @@ export function latkanyFlatK(input: PostRefHistoryInput): PostRefResult {
 export function adjustedAtlas(
   input: PostRefHistoryInput,
 ): PostRefResult | null {
-  if (input.atlasRingMean0_3 == null) return null;
+  const ringMean = resolveAtlasRingMean(input);
+  if (ringMean == null) return null;
 
   const dMR = input.lasikRx ?? (input.preOpSEQ - input.postOpSEQ);
-  const kAdj = input.atlasRingMean0_3 - (0.2 * dMR);
-  const ratio = kAdj / input.atlasRingMean0_3;
+  const kAdj = ringMean - (0.2 * dMR);
+  const ratio = kAdj / ringMean;
   const kFlatAdj  = input.kFlat  * ratio;
   const kSteepAdj = input.kSteep * ratio;
 
@@ -314,7 +336,7 @@ export function adjustedAtlas(
     adjustedKSteep: round2(kSteepAdj),
     adjustedMeanK:  round2(kAdj),
     reference: 'Wang et al. / ASCRS Calculator',
-    formula: `K_adj = ${input.atlasRingMean0_3} − (0.2 × ${round2(dMR)}) = ${round2(kAdj)} D`,
+    formula: `K_adj = ${round2(ringMean)} − (0.2 × ${round2(dMR)}) = ${round2(kAdj)} D`,
   };
 }
 
@@ -568,14 +590,18 @@ export function runAllMethods(
 ): PostRefResult[] {
   const results: PostRefResult[] = [];
 
+  // Best available topographic central K — Pentacam TNP preferred (total corneal power)
+  const topoCentral = noHxInput.pentacamTNP ?? noHxInput.galileiTCP2 ?? noHxInput.tomeyACCP ??
+                      noHxInput.atlasCentralPower ?? hxInput?.atlasCentralPower;
+
   // No-history K-correction methods
   results.push(shammasNoHistory(noHxInput));
   if (noHxInput.procedure !== 'RK') {
     results.push(haigisL(noHxInput));
   }
-  results.push(wangKochMaloney(noHxInput, hxInput?.atlasCentralPower));
-  results.push(maloneyMethod(noHxInput, hxInput?.atlasCentralPower));
-  results.push(saviniBarboniZanini(noHxInput, hxInput?.atlasCentralPower));
+  results.push(wangKochMaloney(noHxInput, topoCentral));
+  results.push(maloneyMethod(noHxInput, topoCentral));
+  results.push(saviniBarboniZanini(noHxInput, topoCentral));
 
   // No-history Double-K (ELP correction)
   results.push(aramberriDoubleKNoHx(noHxInput));
