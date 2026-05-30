@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import {
   View, Text, ScrollView, TextInput, TouchableOpacity,
-  StyleSheet, Switch, Alert,
+  StyleSheet, Switch, Alert, Linking,
 } from 'react-native';
 import { useFocusEffect, useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -715,16 +715,25 @@ export default function PostRefractiveScreen() {
 
         {/* Barrett True-K manual entry */}
         <View style={s.biometryDivider} />
-        <Text style={s.barrettEntryHeader}>Barrett True-K  (Manual Entry)</Text>
+        <View style={s.barrettEntryRow}>
+          <Text style={s.barrettEntryHeader}>Barrett True-K  (APACRS)</Text>
+          <TouchableOpacity
+            style={s.barrettLaunchBtn}
+            onPress={() => Linking.openURL('https://calc.apacrs.org/TRueKToric105/truektoric.aspx')}
+          >
+            <Text style={s.barrettLaunchBtnText}>Open Calculator ↗</Text>
+          </TouchableOpacity>
+        </View>
         <Text style={s.hint}>
-          Barrett True-K is proprietary (APACRS/Graham Barrett). Calculate at apacrs.org/barrett_true_K
-          then enter the recommended IOL power below to include it in your comparison.
+          Barrett True-K is proprietary (APACRS/Graham Barrett) — the algorithm has not been
+          published. Tap "Open Calculator" to run it on the APACRS site, then enter the
+          recommended IOL power below to include it in your comparison table.
         </Text>
         <TextInput
           style={[s.input, { marginTop: 8 }]}
           value={barrettTrueK} onChangeText={setBarrettTrueK}
           keyboardType="decimal-pad"
-          placeholder="e.g. 21.50  — enter from APACRS calculator"
+          placeholder="e.g. 21.50 D — enter result from APACRS"
           placeholderTextColor="#AAA"
         />
       </View>
@@ -1177,10 +1186,18 @@ const s = StyleSheet.create({
   iolValueText: { color: '#1A1200', fontSize: 16, fontWeight: '700', textAlign: 'right' },
   iolAdjText: { color: '#888060', fontSize: 11, textAlign: 'right' },
 
+  barrettEntryRow: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4,
+  },
   barrettEntryHeader: {
     color: '#5522AA', fontSize: 11, fontWeight: '700',
-    textTransform: 'uppercase' as const, letterSpacing: 0.8, marginBottom: 4,
+    textTransform: 'uppercase' as const, letterSpacing: 0.8,
   },
+  barrettLaunchBtn: {
+    backgroundColor: '#5522AA', borderRadius: 7,
+    paddingVertical: 6, paddingHorizontal: 12,
+  },
+  barrettLaunchBtnText: { color: '#fff', fontSize: 12, fontWeight: '700' },
 
   disclaimer: {
     backgroundColor: '#FFF0EE', borderRadius: 10, padding: 14,
