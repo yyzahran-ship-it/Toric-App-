@@ -58,6 +58,11 @@ export default function PostRefractiveScreen() {
   const [octNetCorneal,    setOctNetCorneal]    = useState('');
   const [octPosterior,     setOctPosterior]     = useState('');
   const [cct,              setCct]              = useState('');
+  // ── Contact Lens Over-Refraction ──────────────────────────────────────
+  const [clBaseCurve,      setClBaseCurve]      = useState('');
+  const [clPower,          setClPower]          = useState('');
+  const [clRxWith,         setClRxWith]         = useState('');
+  const [clRxWithout,      setClRxWithout]      = useState('');
   // ── Extended biometry ─────────────────────────────────────────────────
   const [acd,              setAcd]              = useState('');
   const [lensThick,        setLensThick]        = useState('');
@@ -123,6 +128,11 @@ export default function PostRefractiveScreen() {
       tomeyACCP:          tomeyACCP        ? parseFloat(tomeyACCP)        : undefined,
       atlasCentralPower:  atlasCentral     ? parseFloat(atlasCentral)     : undefined,
       avgCentralPower:    avgCentralPower  ? parseFloat(avgCentralPower)  : undefined,
+      axialLength:        axialLength      ? parseFloat(axialLength)      : undefined,
+      clBaseCurve:        clBaseCurve      ? parseFloat(clBaseCurve)      : undefined,
+      clPower:            clPower          ? parseFloat(clPower)          : undefined,
+      clRefractionWith:   clRxWith         ? parseFloat(clRxWith)         : undefined,
+      clRefractionWithout: clRxWithout     ? parseFloat(clRxWithout)      : undefined,
     };
 
     let hxInput: PostRefHistoryInput | undefined;
@@ -383,6 +393,38 @@ export default function PostRefractiveScreen() {
             <Text style={[s.label, { marginTop: 10 }]}>Central Corneal Thickness (µm)</Text>
             <TextInput style={s.input} value={cct} onChangeText={setCct}
               keyboardType="decimal-pad" placeholder="e.g. 520" placeholderTextColor="#AAA" />
+          </View>
+
+          {/* ── Contact Lens Over-Refraction ── */}
+          <View style={s.card}>
+            <Text style={s.topoDeviceHeader}>Contact Lens Over-Refraction (Ridley Method)</Text>
+            <Text style={s.hint}>
+              Hard PMMA plano CL only — not RGP. K = BCL + PCL + R(with CL) − R(without CL).
+            </Text>
+            <View style={[s.row, { marginTop: 8 }]}>
+              <View style={s.half}>
+                <Text style={s.label}>BCL — Base Curve (D)</Text>
+                <TextInput style={s.input} value={clBaseCurve} onChangeText={setClBaseCurve}
+                  keyboardType="decimal-pad" placeholder="e.g. 43.00" placeholderTextColor="#AAA" />
+              </View>
+              <View style={s.half}>
+                <Text style={s.label}>PCL — CL Power (D)</Text>
+                <TextInput style={s.input} value={clPower} onChangeText={setClPower}
+                  keyboardType="numbers-and-punctuation" placeholder="0.00 (plano)" placeholderTextColor="#AAA" />
+              </View>
+            </View>
+            <View style={[s.row, { marginTop: 10 }]}>
+              <View style={s.half}>
+                <Text style={s.label}>R(with CL) SE (D)</Text>
+                <TextInput style={s.input} value={clRxWith} onChangeText={setClRxWith}
+                  keyboardType="numbers-and-punctuation" placeholder="e.g. -0.50" placeholderTextColor="#AAA" />
+              </View>
+              <View style={s.half}>
+                <Text style={s.label}>R(without CL) SE (D)</Text>
+                <TextInput style={s.input} value={clRxWithout} onChangeText={setClRxWithout}
+                  keyboardType="numbers-and-punctuation" placeholder="e.g. -5.00" placeholderTextColor="#AAA" />
+              </View>
+            </View>
           </View>
 
           {/* ── Atlas Ring Values — history required ── */}

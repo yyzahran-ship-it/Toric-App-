@@ -47,6 +47,13 @@ export interface PostRefNoHistoryInput {
   pentacamPWRSF4mm?: number;  // Pentacam PWR_SF_Pupil_4.0mm Zone (D) — sagittal curvature (RK)
   pentacamCTMin?: number;     // Pentacam CT_MIN — minimum central corneal thickness (µm)
   avgCentralPower?: number;   // Average Central Power from topo devices (D) — RK, not SimK
+  // Ferrara adjusted-index (no history)
+  axialLength?: number;       // Axial length (mm) — enables Ferrara method
+  // Contact Lens Over-Refraction (no history)
+  clBaseCurve?: number;         // BCL: base curve of hard PMMA plano CL (D)
+  clPower?: number;             // PCL: CL power (D); 0 for plano
+  clRefractionWith?: number;    // RCL: manifest refraction WITH CL (SE, D)
+  clRefractionWithout?: number; // RNoCL: manifest refraction WITHOUT CL (SE, D)
 }
 
 export interface PostRefHistoryInput extends PostRefNoHistoryInput {
@@ -106,6 +113,15 @@ export interface PostRefResult {
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
+
+/** Best available topographic central K, falling back to SimK if no device value entered */
+function resolveTopoCentral(input: PostRefNoHistoryInput): { k: number; fromTopo: boolean } {
+  const topoK = input.pentacamTNP ?? input.pentacamPWRSF4mm ?? input.galileiTCP2
+              ?? input.tomeyACCP ?? input.atlasCentralPower ?? input.avgCentralPower;
+  return topoK != null
+    ? { k: topoK, fromTopo: true }
+    : { k: (input.kFlat + input.kSteep) / 2, fromTopo: false };
+}
 
 /** Spectacle → corneal plane refraction (vertex 12 mm) */
 function toCorneaPlane(rxSpec: number, V = 0.012): number {
@@ -508,6 +524,209 @@ export function aramberriDoubleKHx(input: PostRefHistoryInput): PostRefResult {
 }
 
 // ══════════════════════════════════════════════════════════════════════════
+// 15. HAMED-WANG-KOCH  (topography + history)
+//     K_adj = TKPO − (0.15 × RC) − 0.05
+//     TKPO = post-op topographic SimK (falls back to measured SimK)
+//     Ref: Hamed AM, Wang L, Misra M, Koch DD. JCRS 2002.
+// ══════════════════════════════════════════════════════════════════════════
+export function hamedWangKoch(input: PostRefHistoryInput): PostRefResult {
+  const { k: tkpo, fromTopo } = resolveTopoCentral(input);
+  const RC = input.lasikRx ?? (input.preOpSEQ - input.postOpSEQ);
+  const kAdj = tkpo - (0.15 * RC) - 0.05;
+  const ratio = kAdj / tkpo;
+  return {
+    method: 'hamed-wang-koch',
+    methodName: 'Hamed-Wang-Koch',
+    requiresHistory: true,
+    adjustedKFlat:  round2(input.kFlat  * ratio),
+    adjustedKSteep: round2(input.kSteep * ratio),
+    adjustedMeanK:  round2(kAdj),
+    reference: 'Hamed AM, Wang L, Koch DD. JCRS 2002',
+    formula: `K_adj = ${round2(tkpo)} − (0.15×${round2(RC)}) − 0.05 = ${round2(kAdj)} D`,
+    warning: fromTopo ? undefined : 'Topographic post-op SimK preferred; measured K used as fallback.',
+  };
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// 16. SPEICHER-SEITZ METHOD  (pre + post topography, history required)
+//     K_adj = 1.114 × TKPO − 0.114 × TKPRE
+//     Ref: Speicher L. JCRS 2001 / Seitz B et al.
+// ══════════════════════════════════════════════════════════════════════════
+export function speicherSeitz(input: PostRefHistoryInput): PostRefResult {
+  const { k: tkpo, fromTopo } = resolveTopoCentral(input);
+  const tkpre = (input.preOpKFlat + input.preOpKSteep) / 2;
+  const kAdj = 1.114 * tkpo - 0.114 * tkpre;
+  const ratio = kAdj / tkpo;
+  return {
+    method: 'speicher-seitz',
+    methodName: 'Speicher-Seitz',
+    requiresHistory: true,
+    adjustedKFlat:  round2(input.kFlat  * ratio),
+    adjustedKSteep: round2(input.kSteep * ratio),
+    adjustedMeanK:  round2(kAdj),
+    reference: 'Speicher L. JCRS 2001',
+    formula: `K_adj = 1.114×${round2(tkpo)} − 0.114×${round2(tkpre)} = ${round2(kAdj)} D`,
+    warning: fromTopo ? undefined : 'Topographic post-op SimK preferred; measured K used as fallback.',
+  };
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// 17. RONJE METHOD  (history required)
+//     K_adj = K_flatPO + 0.25 × RC
+//     Ref: Ronje C. / Hoffer KJ, IOL Power 2011.
+// ══════════════════════════════════════════════════════════════════════════
+export function ronjeMethod(input: PostRefHistoryInput): PostRefResult {
+  const RC = input.lasikRx ?? (input.preOpSEQ - input.postOpSEQ);
+  const kAdj = input.kFlat + 0.25 * RC;
+  return {
+    method: 'ronje',
+    methodName: 'Ronje Method',
+    requiresHistory: true,
+    adjustedKFlat:  round2(kAdj),
+    adjustedKSteep: round2(kAdj),
+    adjustedMeanK:  round2(kAdj),
+    reference: 'Ronje C. / Hoffer KJ, IOL Power 2011',
+    formula: `K_adj = K_flat(${round2(input.kFlat)}) + 0.25×RC(${round2(RC)}) = ${round2(kAdj)} D`,
+  };
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// 18. SAVINI ADJUSTED REFRACTIVE INDEX  (history, LASIK/PRK only)
+//     K_adj = ((1.338 + 0.0009856 × RCS) − 1) / (KPOr / 1000)
+//     RCS at spectacle plane; KPOr = post-op K in mm (337.5/K)
+//     Ref: Savini G et al. / Hoffer KJ, IOL Power 2011.
+// ══════════════════════════════════════════════════════════════════════════
+export function saviniAdjustedIndex(input: PostRefHistoryInput): PostRefResult | null {
+  if (input.procedure === 'RK') return null; // index change minimal for RK
+  const RCS = input.lasikRx ?? (input.preOpSEQ - input.postOpSEQ);
+  const meanK = (input.kFlat + input.kSteep) / 2;
+  const KPOr = 337.5 / meanK;
+  const newN = 1.338 + 0.0009856 * RCS;
+  const kAdj = (newN - 1) * 1000 / KPOr;
+  const ratio = kAdj / meanK;
+  return {
+    method: 'savini-adj-index',
+    methodName: 'Savini Adjusted Index',
+    requiresHistory: true,
+    adjustedKFlat:  round2(input.kFlat  * ratio),
+    adjustedKSteep: round2(input.kSteep * ratio),
+    adjustedMeanK:  round2(kAdj),
+    reference: 'Savini G et al. (Adjusted Refractive Index) / Hoffer KJ, IOL Power 2011',
+    formula: `n_adj = 1.338 + 0.0009856×${round2(RCS)} = ${round2(newN)}; K_adj = ${round2(kAdj)} D`,
+    warning: 'Optimised for IOLMaster-measured corneal radius.',
+  };
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// 19. CAMELLIN ADJUSTED REFRACTIVE INDEX  (history, LASIK/PRK only)
+//     K_adj = ((1.3319 + 0.00113 × RCS) − 1) / (KPOr / 1000)
+//     Ref: Camellin M. / Hoffer KJ, IOL Power 2011.
+// ══════════════════════════════════════════════════════════════════════════
+export function camellinMethod(input: PostRefHistoryInput): PostRefResult | null {
+  if (input.procedure === 'RK') return null;
+  const RCS = input.lasikRx ?? (input.preOpSEQ - input.postOpSEQ);
+  const meanK = (input.kFlat + input.kSteep) / 2;
+  const KPOr = 337.5 / meanK;
+  const newN = 1.3319 + 0.00113 * RCS;
+  const kAdj = (newN - 1) * 1000 / KPOr;
+  const ratio = kAdj / meanK;
+  return {
+    method: 'camellin',
+    methodName: 'Camellin Adjusted Index',
+    requiresHistory: true,
+    adjustedKFlat:  round2(input.kFlat  * ratio),
+    adjustedKSteep: round2(input.kSteep * ratio),
+    adjustedMeanK:  round2(kAdj),
+    reference: 'Camellin M. (Adjusted Refractive Index) / Hoffer KJ, IOL Power 2011',
+    formula: `n_adj = 1.3319 + 0.00113×${round2(RCS)} = ${round2(newN)}; K_adj = ${round2(kAdj)} D`,
+  };
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// 20. JARADE ADJUSTED REFRACTIVE INDEX  (history, LASIK/PRK only)
+//     K_adj = ((1.3375 + 0.0014 × RCC) − 1) / (KPOr / 1000)
+//     RCC = refractive change vertex-corrected to corneal plane
+//     Ref: Jarade EF et al. / Hoffer KJ, IOL Power 2011.
+// ══════════════════════════════════════════════════════════════════════════
+export function jaradeAdjustedIndex(input: PostRefHistoryInput): PostRefResult | null {
+  if (input.procedure === 'RK') return null;
+  const V = input.vertexDistance ?? 0.012;
+  // RCC: surgical change at corneal plane — negative for myopic correction, matching Savini/Camellin sign
+  const rxSpec = input.lasikRx ?? (input.preOpSEQ - input.postOpSEQ);
+  const RCC = toCorneaPlane(rxSpec, V);
+  const meanK = (input.kFlat + input.kSteep) / 2;
+  const KPOr = 337.5 / meanK;
+  const newN = 1.3375 + 0.0014 * RCC;
+  const kAdj = (newN - 1) * 1000 / KPOr;
+  const ratio = kAdj / meanK;
+  return {
+    method: 'jarade-adj-index',
+    methodName: 'Jarade Adjusted Index',
+    requiresHistory: true,
+    adjustedKFlat:  round2(input.kFlat  * ratio),
+    adjustedKSteep: round2(input.kSteep * ratio),
+    adjustedMeanK:  round2(kAdj),
+    reference: 'Jarade EF et al. (Adjusted Refractive Index) / Hoffer KJ, IOL Power 2011',
+    formula: `n_adj = 1.3375 + 0.0014×RCC(${round2(RCC)}) = ${round2(newN)}; K_adj = ${round2(kAdj)} D`,
+    warning: 'Uses corneal-plane vertex-corrected refractive change (RCC).',
+  };
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// 21. FERRARA ADJUSTED REFRACTIVE INDEX  (no history, LASIK/PRK, requires AL)
+//     n_adj = −0.0006×AL² + 0.0213×AL + 1.1572
+//     K_adj = (n_adj − 1) / (KPOr / 1000)
+//     Ref: Ferrara G. (no-history adjusted refractive index based on AL)
+//          / Hoffer KJ, IOL Power 2011.
+// ══════════════════════════════════════════════════════════════════════════
+export function ferraraMethod(input: PostRefNoHistoryInput): PostRefResult | null {
+  if (input.axialLength == null || input.procedure === 'RK') return null;
+  const AL = input.axialLength;
+  const meanK = (input.kFlat + input.kSteep) / 2;
+  const KPOr = 337.5 / meanK;
+  const newN = -0.0006 * AL * AL + 0.0213 * AL + 1.1572;
+  const kAdj = (newN - 1) * 1000 / KPOr;
+  const ratio = kAdj / meanK;
+  return {
+    method: 'ferrara',
+    methodName: 'Ferrara Adjusted Index',
+    requiresHistory: false,
+    adjustedKFlat:  round2(input.kFlat  * ratio),
+    adjustedKSteep: round2(input.kSteep * ratio),
+    adjustedMeanK:  round2(kAdj),
+    reference: 'Ferrara G. (no-history adj. refractive index) / Hoffer KJ, IOL Power 2011',
+    formula: `n_adj(AL=${AL}) = ${round2(newN)}; K_adj = ${round2(kAdj)} D`,
+    warning: 'Not validated for RK. Uses IOLMaster-measured corneal radius.',
+  };
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// 22. CONTACT LENS OVER-REFRACTION  (no history)
+//     K = BCL + PCL + RCL − RNoCL
+//     BCL = base curve of hard PMMA plano CL (D)
+//     PCL = CL power (D, 0 for plano)
+//     RCL = refraction WITH CL (SE); RNoCL = refraction WITHOUT CL (SE)
+//     Ref: Ridley N (1948) / Soper & Goffman (1974).
+// ══════════════════════════════════════════════════════════════════════════
+export function contactLensMethod(input: PostRefNoHistoryInput): PostRefResult | null {
+  const { clBaseCurve, clRefractionWith, clRefractionWithout } = input;
+  if (clBaseCurve == null || clRefractionWith == null || clRefractionWithout == null) return null;
+  const PCL = input.clPower ?? 0;
+  const kAdj = clBaseCurve + PCL + clRefractionWith - clRefractionWithout;
+  return {
+    method: 'contact-lens',
+    methodName: 'Contact Lens Over-Refraction',
+    requiresHistory: false,
+    adjustedKFlat:  round2(kAdj),
+    adjustedKSteep: round2(kAdj),
+    adjustedMeanK:  round2(kAdj),
+    reference: 'Ridley N (1948) / Soper JW & Goffman J (1974)',
+    formula: `K = BCL(${clBaseCurve}) + PCL(${PCL}) + RCL(${clRefractionWith}) − RNoCL(${clRefractionWithout}) = ${round2(kAdj)} D`,
+    warning: 'Requires hard PMMA plano CL (not RGP). Cannot be used if VA < 20/80.',
+  };
+}
+
+// ══════════════════════════════════════════════════════════════════════════
 // SRK/T IOL POWER FORMULA
 // Retzlaff JA, Sanders DR, Kraff MC. JCRS 1990;16:333-40.
 // ══════════════════════════════════════════════════════════════════════════
@@ -686,9 +905,7 @@ export function runAllMethods(
 ): PostRefResult[] {
   const results: PostRefResult[] = [];
 
-  // Best available topographic central K by priority:
-  // Myopic LASIK: Pentacam TNP (total power) > Galilei TCP2 > Tomey ACCP > Atlas central
-  // RK: Pentacam PWR_SF_Pupil > Average Central Power > Atlas central
+  // Best available topographic central K (priority chain, includes hxInput atlas fallback)
   const topoCentral = noHxInput.pentacamTNP ??
                       noHxInput.pentacamPWRSF4mm ??
                       noHxInput.galileiTCP2 ??
@@ -697,30 +914,49 @@ export function runAllMethods(
                       noHxInput.avgCentralPower ??
                       hxInput?.atlasCentralPower;
 
-  // No-history K-correction methods
+  // ── No-history K-correction methods ─────────────────────────────────────
   results.push(shammasNoHistory(noHxInput));
-  if (noHxInput.procedure !== 'RK') {
-    results.push(haigisL(noHxInput));
-  }
+  if (noHxInput.procedure !== 'RK') results.push(haigisL(noHxInput));
   results.push(wangKochMaloney(noHxInput, topoCentral));
   results.push(maloneyMethod(noHxInput, topoCentral));
   results.push(saviniBarboniZanini(noHxInput, topoCentral));
 
-  // No-history Double-K (ELP correction)
+  // Ferrara adjusted-index (requires axial length; not for RK)
+  const ferrara = ferraraMethod(noHxInput);
+  if (ferrara) results.push(ferrara);
+
+  // Contact lens over-refraction (requires BCL + refraction pair)
+  const cl = contactLensMethod(noHxInput);
+  if (cl) results.push(cl);
+
+  // No-history Double-K (ELP correction — Aramberri)
   results.push(aramberriDoubleKNoHx(noHxInput));
 
-  // History-based methods
+  // ── History-based methods ────────────────────────────────────────────────
   if (hxInput) {
     results.push(clinicalHistoryMethod(hxInput));
     results.push(masketFormula(hxInput));
     results.push(modifiedMasket(hxInput));
     results.push(feizMannis(hxInput));
     results.push(latkanyFlatK(hxInput));
-    results.push(aramberriDoubleKHx(hxInput));  // Double-K with actual pre-op K
+    results.push(aramberriDoubleKHx(hxInput));
 
+    // New history-based methods (Hoffer 2011)
+    results.push(hamedWangKoch(hxInput));
+    results.push(speicherSeitz(hxInput));
+    results.push(ronjeMethod(hxInput));
+
+    // Adjusted refractive index methods — LASIK/PRK only
+    const savAdj = saviniAdjustedIndex(hxInput);
+    if (savAdj) results.push(savAdj);
+    const camellin = camellinMethod(hxInput);
+    if (camellin) results.push(camellin);
+    const jarade = jaradeAdjustedIndex(hxInput);
+    if (jarade) results.push(jarade);
+
+    // Topo-dependent conditional methods
     const atlas = adjustedAtlas(hxInput);
     if (atlas) results.push(atlas);
-
     const effrp = adjustedEffRP(hxInput);
     if (effrp) results.push(effrp);
   }

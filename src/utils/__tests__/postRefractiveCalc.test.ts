@@ -26,6 +26,14 @@ import {
   latkanyFlatK,
   adjustedAtlas,
   adjustedEffRP,
+  hamedWangKoch,
+  speicherSeitz,
+  ronjeMethod,
+  saviniAdjustedIndex,
+  camellinMethod,
+  jaradeAdjustedIndex,
+  ferraraMethod,
+  contactLensMethod,
   noHistoryConsensus,
   runAllMethods,
   srktPower,
@@ -376,12 +384,27 @@ describe('runAllMethods integration', () => {
     ]);
   });
 
-  test('with history: returns 12 methods (no topo inputs)', () => {
-    const res = runAllMethods(BASE_NO_HX, BASE_HX);
-    expect(res).toHaveLength(12);
+  test('no-history with AL: adds Ferrara → 7 methods', () => {
+    const res = runAllMethods({ ...BASE_NO_HX, axialLength: 23.5 });
+    expect(res.find(r => r.method === 'ferrara')).toBeDefined();
+    expect(res).toHaveLength(7);
   });
 
-  test('with topo inputs: returns 14 methods', () => {
+  test('no-history with CL inputs: adds Contact Lens method', () => {
+    const res = runAllMethods({
+      ...BASE_NO_HX,
+      clBaseCurve: 43.0, clPower: 0, clRefractionWith: -0.50, clRefractionWithout: -5.00,
+    });
+    expect(res.find(r => r.method === 'contact-lens')).toBeDefined();
+    expect(res).toHaveLength(7);
+  });
+
+  test('with history: returns 18 methods (LASIK, no topo inputs)', () => {
+    const res = runAllMethods(BASE_NO_HX, BASE_HX);
+    expect(res).toHaveLength(18);
+  });
+
+  test('with topo inputs: returns 20 methods', () => {
     const hxTopo = {
       ...BASE_HX,
       atlasRingMean0_3: 40.50,
@@ -389,7 +412,7 @@ describe('runAllMethods integration', () => {
       atlasCentralPower: 40.91,
     };
     const res = runAllMethods(BASE_NO_HX, hxTopo);
-    expect(res).toHaveLength(14);
+    expect(res).toHaveLength(20);
   });
 
   test('no-history consensus meanK < original mean K (post-LASIK adjustment)', () => {
@@ -422,5 +445,163 @@ describe('runAllMethods integration', () => {
     const shammas = res.find(r => r.method === 'shammas')!;
     const clinHx  = res.find(r => r.method === 'clinical-history')!;
     expect(clinHx.adjustedMeanK).toBeGreaterThan(shammas.adjustedMeanK);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+describe('Hamed-Wang-Koch  (K_adj = TKPO − 0.15×RC − 0.05)', () => {
+  // BASE_HX: kFlat=38.5, kSteep=39.5, meanK=39.0, lasikRx=−4.25
+  // K_adj = 39.0 − (0.15×−4.25) − 0.05 = 39.0 + 0.6375 − 0.05 = 39.59
+  test('standard case uses SimK as fallback (no topo)', () => {
+    const r = hamedWangKoch(BASE_HX);
+    near(r.adjustedMeanK, 39.59, 0.02);
+    expect(r.requiresHistory).toBe(true);
+    expect(r.warning).toMatch(/fallback/);
+  });
+
+  test('uses provided topo central K when available', () => {
+    const hx = { ...BASE_HX, atlasCentralPower: 40.91 };
+    const r = hamedWangKoch(hx);
+    // 40.91 − (0.15×−4.25) − 0.05 = 40.91 + 0.6375 − 0.05 = 41.50
+    near(r.adjustedMeanK, 41.50, 0.02);
+    expect(r.warning).toBeUndefined();
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+describe('Speicher-Seitz  (K_adj = 1.114×TKPO − 0.114×TKPRE)', () => {
+  // BASE_HX: meanK=39.0 (post-op); preOpMeanK=44.5
+  // K_adj = 1.114×39.0 − 0.114×44.5 = 43.45 − 5.07 = 38.37
+  test('standard case', () => {
+    const r = speicherSeitz(BASE_HX);
+    near(r.adjustedMeanK, 38.37, 0.03);
+    expect(r.requiresHistory).toBe(true);
+  });
+
+  test('larger pre-op K → lower adjusted K (pre-op K has negative weight)', () => {
+    const hx2 = { ...BASE_HX, preOpKFlat: 46.0, preOpKSteep: 47.0 }; // preOpMeanK=46.5
+    const r2 = speicherSeitz(hx2);
+    const r1 = speicherSeitz(BASE_HX);
+    expect(r2.adjustedMeanK).toBeLessThan(r1.adjustedMeanK);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+describe('Ronje Method  (K_adj = K_flatPO + 0.25×RC)', () => {
+  // BASE_HX: kFlat=38.5, lasikRx=−4.25
+  // K_adj = 38.5 + 0.25×(−4.25) = 38.5 − 1.0625 = 37.44
+  test('standard myopic case', () => {
+    const r = ronjeMethod(BASE_HX);
+    near(r.adjustedMeanK, 37.44, 0.02);
+    expect(r.requiresHistory).toBe(true);
+  });
+
+  test('kAdj < kFlat for myopic correction (negative RC)', () => {
+    const r = ronjeMethod(BASE_HX);
+    expect(r.adjustedMeanK).toBeLessThan(BASE_NO_HX.kFlat);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+describe('Savini Adjusted Index  (n_adj = 1.338 + 0.0009856×RCS)', () => {
+  // BASE_HX: meanK=39.0, lasikRx=−4.25
+  // n_adj = 1.338 + 0.0009856×(−4.25) = 1.338 − 0.004189 = 1.33381
+  // KPOr = 337.5/39.0 = 8.6538mm; K_adj = 0.33381×1000/8.6538 = 38.57D
+  test('standard case', () => {
+    const r = saviniAdjustedIndex(BASE_HX)!;
+    near(r.adjustedMeanK, 38.57, 0.05);
+    expect(r.requiresHistory).toBe(true);
+  });
+
+  test('returns null for RK procedure', () => {
+    const rkHx = { ...BASE_HX, procedure: 'RK' as const };
+    expect(saviniAdjustedIndex(rkHx)).toBeNull();
+  });
+
+  test('adjusted K < post-op measured K (myopic correction reduces effective index)', () => {
+    const r = saviniAdjustedIndex(BASE_HX)!;
+    const meanK = (BASE_HX.kFlat + BASE_HX.kSteep) / 2;
+    expect(r.adjustedMeanK).toBeLessThan(meanK);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+describe('Camellin Adjusted Index  (n_adj = 1.3319 + 0.00113×RCS)', () => {
+  test('standard case produces result in same range as Savini Adjusted Index (<1D apart)', () => {
+    const savini   = saviniAdjustedIndex(BASE_HX)!;
+    const camellin = camellinMethod(BASE_HX)!;
+    expect(Math.abs(savini.adjustedMeanK - camellin.adjustedMeanK)).toBeLessThan(1.0);
+  });
+
+  test('returns null for RK procedure', () => {
+    const rkHx = { ...BASE_HX, procedure: 'RK' as const };
+    expect(camellinMethod(rkHx)).toBeNull();
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+describe('Jarade Adjusted Index  (n_adj = 1.3375 + 0.0014×RCC)', () => {
+  test('returns null for RK procedure', () => {
+    const rkHx = { ...BASE_HX, procedure: 'RK' as const };
+    expect(jaradeAdjustedIndex(rkHx)).toBeNull();
+  });
+
+  test('adjusted K < post-op measured K for myopic LASIK', () => {
+    const r = jaradeAdjustedIndex(BASE_HX)!;
+    const meanK = (BASE_HX.kFlat + BASE_HX.kSteep) / 2;
+    expect(r.adjustedMeanK).toBeLessThan(meanK);
+    expect(r.requiresHistory).toBe(true);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+describe('Ferrara Adjusted Index  (no history, requires AL)', () => {
+  // AL=23.5: n_adj = −0.0006×552.25 + 0.0213×23.5 + 1.1572 = 1.3264
+  // meanK=39.0, KPOr=337.5/39=8.654mm; K_adj = 0.3264×1000/8.654 = 37.72D
+  test('standard no-history case (AL=23.5, LASIK)', () => {
+    const r = ferraraMethod({ ...BASE_NO_HX, axialLength: 23.5 })!;
+    near(r.adjustedMeanK, 37.72, 0.05);
+    expect(r.requiresHistory).toBe(false);
+  });
+
+  test('returns null when axialLength not provided', () => {
+    expect(ferraraMethod(BASE_NO_HX)).toBeNull();
+  });
+
+  test('returns null for RK procedure', () => {
+    expect(ferraraMethod({ ...BASE_NO_HX, axialLength: 23.5, procedure: 'RK' })).toBeNull();
+  });
+
+  test('longer AL → different adjusted index (AL effect on n_adj)', () => {
+    const r22 = ferraraMethod({ ...BASE_NO_HX, axialLength: 22.0 })!;
+    const r26 = ferraraMethod({ ...BASE_NO_HX, axialLength: 26.0 })!;
+    // Longer eyes have had more myopia corrected → greater n reduction
+    expect(r26.adjustedMeanK).toBeLessThan(r22.adjustedMeanK);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+describe('Contact Lens Over-Refraction  (K = BCL + PCL + RCL − RNoCL)', () => {
+  // BCL=43.0, PCL=0, RCL=−0.50, RNoCL=−5.00 → K = 43.0+0+(−0.50)−(−5.00) = 47.50
+  test('standard case', () => {
+    const r = contactLensMethod({
+      ...BASE_NO_HX,
+      clBaseCurve: 43.0, clPower: 0, clRefractionWith: -0.50, clRefractionWithout: -5.00,
+    })!;
+    expect(r.adjustedMeanK).toBe(47.5);
+    expect(r.requiresHistory).toBe(false);
+  });
+
+  test('plano CL (clPower omitted defaults to 0)', () => {
+    const r = contactLensMethod({
+      ...BASE_NO_HX,
+      clBaseCurve: 43.0, clRefractionWith: -0.50, clRefractionWithout: -5.00,
+    })!;
+    expect(r.adjustedMeanK).toBe(47.5);
+  });
+
+  test('returns null when BCL or refraction values missing', () => {
+    expect(contactLensMethod(BASE_NO_HX)).toBeNull();
+    expect(contactLensMethod({ ...BASE_NO_HX, clBaseCurve: 43.0 })).toBeNull();
   });
 });
