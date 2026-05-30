@@ -65,6 +65,17 @@ export default function PostRefractiveScreen() {
   const [haigisA1,         setHaigisA1]         = useState('');
   const [haigisA2,         setHaigisA2]         = useState('');
   const [keratIndex,       setKeratIndex]       = useState('1.3375');
+  // Modern formula constants (ESCRS)
+  const [barrettAConst,    setBarrettAConst]    = useState('');
+  const [cookeAConst,      setCookeAConst]      = useState('');
+  const [evoAConst,        setEvoAConst]        = useState('');
+  const [hillRBFAConst,    setHillRBFAConst]    = useState('');
+  const [hofferPACD,       setHofferPACD]       = useState('');
+  const [kaneAConst,       setKaneAConst]       = useState('');
+  const [pearlDGSAConst,   setPearlDGSAConst]   = useState('');
+  // Eye flags
+  const [isArgosAL,        setIsArgosAL]        = useState(false);
+  const [isKeratoconus,    setIsKeratoconus]    = useState(false);
 
   // ── Biometry ───────────────────────────────────────────────────────────
   const [axialLength, setAxialLength] = useState('');
@@ -145,6 +156,15 @@ export default function PostRefractiveScreen() {
         lensThickness: lensThick ? parseFloat(lensThick) : undefined,
         wtw:         wtw        ? parseFloat(wtw)        : undefined,
         keratometricIndex: keratIndex ? parseFloat(keratIndex) : undefined,
+        barrettAConst:  barrettAConst  ? parseFloat(barrettAConst)  : undefined,
+        cookeAConst:    cookeAConst    ? parseFloat(cookeAConst)    : undefined,
+        evoAConst:      evoAConst      ? parseFloat(evoAConst)      : undefined,
+        hillRBFAConst:  hillRBFAConst  ? parseFloat(hillRBFAConst)  : undefined,
+        hofferPACD:     hofferPACD     ? parseFloat(hofferPACD)     : undefined,
+        kaneAConst:     kaneAConst     ? parseFloat(kaneAConst)     : undefined,
+        pearlDGSAConst: pearlDGSAConst ? parseFloat(pearlDGSAConst) : undefined,
+        isArgosAL,
+        isKeratoconus,
       };
     }
 
@@ -212,6 +232,40 @@ export default function PostRefractiveScreen() {
             ⚠  Radial keratotomy causes variable, diurnally fluctuating corneal power.
             Calculations are estimates only. Use the highest available keratometry reading and
             consider a conservative (lower) IOL power to avoid hyperopic surprise.
+          </Text>
+        </View>
+      )}
+
+      {/* Eye flags */}
+      <View style={s.flagRow}>
+        <TouchableOpacity
+          style={[s.flagChip, isArgosAL && s.flagChipActive]}
+          onPress={() => setIsArgosAL(v => !v)}
+        >
+          <Text style={[s.flagChipText, isArgosAL && s.flagChipTextActive]}>
+            Argos (SoS) AL
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[s.flagChip, isKeratoconus && s.flagChipActive]}
+          onPress={() => setIsKeratoconus(v => !v)}
+        >
+          <Text style={[s.flagChipText, isKeratoconus && s.flagChipTextActive]}>
+            Keratoconus
+          </Text>
+        </TouchableOpacity>
+      </View>
+      {isArgosAL && (
+        <Text style={s.hint}>
+          Argos (SoS) axial length uses Sum-of-Segments method — more accurate for post-refractive eyes.
+          Enter the Argos AL value in the Axial Length field below.
+        </Text>
+      )}
+      {isKeratoconus && (
+        <View style={s.warningBox}>
+          <Text style={s.warningText}>
+            ⚠  Keratoconus eye — post-refractive K correction methods are not validated for KC.
+            Barrett True-K and Kane have specific KC modes. Consult the ESCRS calculator.
           </Text>
         </View>
       )}
@@ -558,6 +612,58 @@ export default function PostRefractiveScreen() {
           </>
         )}
 
+        {/* Modern formula constants (ESCRS) */}
+        <View style={s.biometryDivider} />
+        <Text style={s.topoDeviceHeader}>Modern Formula Constants  (ESCRS)</Text>
+        <Text style={s.hint}>
+          Barrett, EVO, Hill-RBF, Kane, Pearl DGS — enter from your IOL manufacturer data
+          or optimised constants from ULIB / IOLCon. Leave blank if not available.
+        </Text>
+        <View style={[s.row, { marginTop: 8 }]}>
+          <View style={s.half}>
+            <Text style={s.label}>Barrett A-Constant</Text>
+            <TextInput style={s.input} value={barrettAConst} onChangeText={setBarrettAConst}
+              keyboardType="decimal-pad" placeholder="e.g. 119.36" placeholderTextColor="#AAA" />
+          </View>
+          <View style={s.half}>
+            <Text style={s.label}>Cooke K6 A-Constant</Text>
+            <TextInput style={s.input} value={cookeAConst} onChangeText={setCookeAConst}
+              keyboardType="decimal-pad" placeholder="e.g. 119.20" placeholderTextColor="#AAA" />
+          </View>
+        </View>
+        <View style={[s.row, { marginTop: 10 }]}>
+          <View style={s.half}>
+            <Text style={s.label}>EVO A-Constant</Text>
+            <TextInput style={s.input} value={evoAConst} onChangeText={setEvoAConst}
+              keyboardType="decimal-pad" placeholder="e.g. 119.40" placeholderTextColor="#AAA" />
+          </View>
+          <View style={s.half}>
+            <Text style={s.label}>Hill-RBF A-Constant</Text>
+            <TextInput style={s.input} value={hillRBFAConst} onChangeText={setHillRBFAConst}
+              keyboardType="decimal-pad" placeholder="e.g. 119.30" placeholderTextColor="#AAA" />
+          </View>
+        </View>
+        <View style={[s.row, { marginTop: 10 }]}>
+          <View style={s.half}>
+            <Text style={s.label}>Hoffer® QST  pACD</Text>
+            <TextInput style={s.input} value={hofferPACD} onChangeText={setHofferPACD}
+              keyboardType="decimal-pad" placeholder="e.g. 5.62" placeholderTextColor="#AAA" />
+          </View>
+          <View style={s.half}>
+            <Text style={s.label}>Kane A-Constant</Text>
+            <TextInput style={s.input} value={kaneAConst} onChangeText={setKaneAConst}
+              keyboardType="decimal-pad" placeholder="e.g. 119.22" placeholderTextColor="#AAA" />
+          </View>
+        </View>
+        <View style={[s.row, { marginTop: 10 }]}>
+          <View style={s.half}>
+            <Text style={s.label}>Pearl DGS A-Constant</Text>
+            <TextInput style={s.input} value={pearlDGSAConst} onChangeText={setPearlDGSAConst}
+              keyboardType="decimal-pad" placeholder="e.g. 119.10" placeholderTextColor="#AAA" />
+          </View>
+          <View style={s.half} />
+        </View>
+
         <Text style={s.hint}>
           Common A-constants: AcrySof SA60AT 118.4 · Tecnis ZCB00 119.3 · CT LUCIA 611P 118.8
         </Text>
@@ -809,6 +915,17 @@ const s = StyleSheet.create({
     borderWidth: 1, borderColor: '#DDD5BB', marginTop: 16,
   },
   historyToggleLabel: { color: '#1A1200', fontSize: 14, fontWeight: '600' },
+
+  flagRow: {
+    flexDirection: 'row', gap: 10, marginTop: 12, flexWrap: 'wrap',
+  },
+  flagChip: {
+    borderWidth: 1.5, borderColor: '#DDD5BB', borderRadius: 8,
+    paddingVertical: 7, paddingHorizontal: 14, backgroundColor: '#F8F6EF',
+  },
+  flagChipActive: { backgroundColor: '#1a3a6a', borderColor: '#4488DD' },
+  flagChipText: { color: '#888060', fontSize: 13, fontWeight: '600' },
+  flagChipTextActive: { color: '#AACCFF' },
 
   pentacamCard: {
     backgroundColor: '#F0EDF8', borderRadius: 12, padding: 14,

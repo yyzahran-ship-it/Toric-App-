@@ -77,6 +77,17 @@ export interface PostRefHistoryInput extends PostRefNoHistoryInput {
   lensThickness?: number;     // Crystalline lens thickness (mm)
   wtw?: number;               // White-to-white (mm)
   keratometricIndex?: number; // Device keratometric index (default 1.3375)
+  // Modern formula A-constants (ESCRS: Barrett, Cooke K6, EVO, Hill-RBF, Hoffer QST, Kane, Pearl DGS)
+  barrettAConst?: number;     // Barrett Universal II / True-K A-constant
+  cookeAConst?: number;       // Cooke K6 A-constant
+  evoAConst?: number;         // EVO formula A-constant
+  hillRBFAConst?: number;     // Hill-RBF A-constant
+  hofferPACD?: number;        // Hoffer QST pACD (predicted ACD)
+  kaneAConst?: number;        // Kane formula A-constant
+  pearlDGSAConst?: number;    // Pearl DGS A-constant
+  // Eye flags
+  isArgosAL?: boolean;        // Axial length measured by Zeiss Argos (Sum-of-Segments)
+  isKeratoconus?: boolean;    // Keratoconus eye (some formulas have specific modes)
 }
 
 export interface PostRefResult {
