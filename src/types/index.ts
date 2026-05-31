@@ -58,5 +58,7 @@ export type RootStackParamList = {
   SiaNomogram: undefined;
   BagVsSulcus: undefined;
   BarrettTrueK: undefined;
+  IolCalculators: undefined;
+  IolWebView: { url: string; title: string; subtitle?: string };
   Settings: undefined;
 };

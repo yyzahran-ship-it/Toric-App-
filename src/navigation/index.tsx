@@ -13,6 +13,8 @@ import LandmarkAnnotationScreen from '../screens/LandmarkAnnotationScreen';
 import SiaNomogramScreen from '../screens/SiaNomogramScreen';
 import BagVsSulcusScreen from '../screens/BagVsSulcusScreen';
 import BarrettTrueKScreen from '../screens/BarrettTrueKScreen';
+import IolCalculatorsScreen from '../screens/IolCalculatorsScreen';
+import IolWebViewScreen from '../screens/IolWebViewScreen';
 import PostRefractiveScreen from '../screens/PostRefractiveScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 
@@ -90,6 +92,21 @@ export default function AppNavigator() {
           name="BarrettTrueK"
           component={BarrettTrueKScreen}
           options={{ title: 'Barrett True-K Toric' }}
+        />
+        <Stack.Screen
+          name="IolCalculators"
+          component={IolCalculatorsScreen}
+          options={{
+            title: 'IOL Calculators',
+            headerStyle: { backgroundColor: '#0d0d1a' },
+            headerTintColor: '#C8A84B',
+            headerTitleStyle: { color: '#F0EAD6', fontWeight: '700' },
+          }}
+        />
+        <Stack.Screen
+          name="IolWebView"
+          component={IolWebViewScreen}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="Settings"

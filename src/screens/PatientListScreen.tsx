@@ -60,8 +60,8 @@ export default function PatientListScreen() {
           <TouchableOpacity style={styles.headerBtn} onPress={() => nav.navigate('PostRefractive', {})}>
             <Text style={styles.headerBtnText}>Post-Rx</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.headerBtn, styles.barrettBtn]} onPress={() => nav.navigate('BarrettTrueK')}>
-            <Text style={[styles.headerBtnText, styles.barrettBtnText]}>True-K</Text>
+          <TouchableOpacity style={[styles.headerBtn, styles.calcsBtn]} onPress={() => nav.navigate('IolCalculators')}>
+            <Text style={[styles.headerBtnText, styles.calcsBtnText]}>Calcs</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.settingsBtn} onPress={() => nav.navigate('Settings')}>
             <Text style={styles.settingsIcon}>⚙</Text>
@@ -132,8 +132,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10, paddingVertical: 5,
   },
   headerBtnText: { color: '#C8A84B', fontSize: 12, fontWeight: '700' },
-  barrettBtn: { borderColor: '#7744BB66', backgroundColor: '#1a0d2e' },
-  barrettBtnText: { color: '#DDB8FF' },
+  calcsBtn: { borderColor: '#C8A84B99', backgroundColor: '#1A1200' },
+  calcsBtnText: { color: '#C8A84B' },
   settingsBtn: { paddingBottom: 4, paddingLeft: 8 },
   settingsIcon: { color: '#888060', fontSize: 24 },
   searchRow: { paddingHorizontal: 16, paddingBottom: 12 },
