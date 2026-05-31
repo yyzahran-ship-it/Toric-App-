@@ -96,6 +96,7 @@ export default function PostRefractiveScreen() {
 
   useFocusEffect(
     useCallback(() => {
+      if (!params?.patientId || !params?.eyeId) return;
       getPatient(params.patientId).then(p => {
         const eye = p?.eyes.find(e => e.id === params.eyeId);
         if (!eye) return;
@@ -104,7 +105,7 @@ export default function PostRefractiveScreen() {
         if (eye.k2Power) setKSteep(String(eye.k2Power));
         if (eye.postRefractiveType) setProcedure(eye.postRefractiveType as ProcedureType);
       });
-    }, [params.patientId, params.eyeId])
+    }, [params?.patientId, params?.eyeId])
   );
 
   function handleCalculate() {
@@ -187,6 +188,10 @@ export default function PostRefractiveScreen() {
 
   async function handleApplyToRecord() {
     if (!consensus) return;
+    if (!params?.patientId || !params?.eyeId) {
+      Alert.alert('No Patient', 'Open this calculator from a patient eye record to save results.');
+      return;
+    }
     setSaving(true);
     try {
       const p   = await getPatient(params.patientId);
