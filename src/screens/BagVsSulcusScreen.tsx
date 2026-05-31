@@ -9,10 +9,11 @@ import {
 //            J Cataract Refract Surg 2003;29:756–759.
 // ELP assumptions: bag = 5.20 mm · sulcus = 4.70 mm (0.50 mm more anterior)
 const ROWS = [
-  { label: '≤ +17.0 D',           max: 17.0,  reduction: 0.0 },
-  { label: '+17.5 to +28.0 D',    max: 28.0,  reduction: 0.5 },
-  { label: '+28.5 to +34.0 D',    max: 34.0,  reduction: 1.0 },
-  { label: '≥ +34.5 D',           max: Infinity, reduction: 1.5 },
+  { label: '≤ +9.0 D',            max: 9.0,      reduction: 0.0 },
+  { label: '+9.5 to +17.0 D',     max: 17.0,     reduction: 0.5 },
+  { label: '+17.5 to +28.0 D',    max: 28.0,     reduction: 1.0 },
+  { label: '+28.5 to +34.0 D',    max: 34.0,     reduction: 1.5 },
+  { label: '≥ +34.5 D',           max: Infinity, reduction: 2.0 },
 ];
 
 function getRow(bagPower: number) {
