@@ -56,5 +56,6 @@ export type RootStackParamList = {
   LandmarkAnnotation: { patientId: string; eyeId: string };
   PostRefractive: { patientId: string; eyeId: string };
   SiaNomogram: undefined;
+  BagVsSulcus: undefined;
   Settings: undefined;
 };

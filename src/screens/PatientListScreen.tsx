@@ -54,6 +54,9 @@ export default function PatientListScreen() {
           <TouchableOpacity style={styles.headerBtn} onPress={() => nav.navigate('SiaNomogram')}>
             <Text style={styles.headerBtnText}>SIA</Text>
           </TouchableOpacity>
+          <TouchableOpacity style={styles.headerBtn} onPress={() => nav.navigate('BagVsSulcus')}>
+            <Text style={styles.headerBtnText}>Sulcus</Text>
+          </TouchableOpacity>
           <TouchableOpacity style={styles.settingsBtn} onPress={() => nav.navigate('Settings')}>
             <Text style={styles.settingsIcon}>⚙</Text>
           </TouchableOpacity>

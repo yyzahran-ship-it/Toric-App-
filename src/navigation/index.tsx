@@ -11,6 +11,7 @@ import ToricCalculatorScreen from '../screens/ToricCalculatorScreen';
 import AlpinsAnalysisScreen from '../screens/AlpinsAnalysisScreen';
 import LandmarkAnnotationScreen from '../screens/LandmarkAnnotationScreen';
 import SiaNomogramScreen from '../screens/SiaNomogramScreen';
+import BagVsSulcusScreen from '../screens/BagVsSulcusScreen';
 import PostRefractiveScreen from '../screens/PostRefractiveScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 
@@ -78,6 +79,11 @@ export default function AppNavigator() {
           name="SiaNomogram"
           component={SiaNomogramScreen}
           options={{ title: 'SIA Nomogram' }}
+        />
+        <Stack.Screen
+          name="BagVsSulcus"
+          component={BagVsSulcusScreen}
+          options={{ title: 'Bag vs Sulcus IOL' }}
         />
         <Stack.Screen
           name="Settings"
