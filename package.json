@@ -22,7 +22,8 @@
     "react-native-safe-area-context": "^5.8.0",
     "react-native-screens": "^4.25.2",
     "react-native-svg": "^15.15.5",
-    "react-native-uuid": "^2.0.4"
+    "react-native-uuid": "^2.0.4",
+    "react-native-webview": "^13.16.1"
   },
   "devDependencies": {
     "@react-native-community/cli": "^20.1.3",
@@ -43,9 +44,16 @@
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "node",
-    "testMatch": ["**/__tests__/**/*.test.ts"],
+    "testMatch": [
+      "**/__tests__/**/*.test.ts"
+    ],
     "transform": {
-      "^.+\\.tsx?$": ["ts-jest", { "tsconfig": "src/utils/__tests__/tsconfig.json" }]
+      "^.+\\.tsx?$": [
+        "ts-jest",
+        {
+          "tsconfig": "src/utils/__tests__/tsconfig.json"
+        }
+      ]
     }
   },
   "private": true

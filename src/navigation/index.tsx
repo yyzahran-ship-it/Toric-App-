@@ -12,6 +12,7 @@ import AlpinsAnalysisScreen from '../screens/AlpinsAnalysisScreen';
 import LandmarkAnnotationScreen from '../screens/LandmarkAnnotationScreen';
 import SiaNomogramScreen from '../screens/SiaNomogramScreen';
 import BagVsSulcusScreen from '../screens/BagVsSulcusScreen';
+import BarrettTrueKScreen from '../screens/BarrettTrueKScreen';
 import PostRefractiveScreen from '../screens/PostRefractiveScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 
@@ -84,6 +85,11 @@ export default function AppNavigator() {
           name="BagVsSulcus"
           component={BagVsSulcusScreen}
           options={{ title: 'Bag vs Sulcus IOL' }}
+        />
+        <Stack.Screen
+          name="BarrettTrueK"
+          component={BarrettTrueKScreen}
+          options={{ title: 'Barrett True-K Toric' }}
         />
         <Stack.Screen
           name="Settings"

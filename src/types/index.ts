@@ -57,5 +57,6 @@ export type RootStackParamList = {
   PostRefractive: { patientId?: string; eyeId?: string };
   SiaNomogram: undefined;
   BagVsSulcus: undefined;
+  BarrettTrueK: undefined;
   Settings: undefined;
 };

@@ -719,6 +719,14 @@ export default function PostRefractiveScreen() {
 
       </View>
 
+      {/* Barrett True-K in-app calculator */}
+      <TouchableOpacity style={s.barrettTrueKBtn} onPress={() => nav.navigate('BarrettTrueK')}>
+        <View style={s.barrettTrueKBtnInner}>
+          <Text style={s.barrettTrueKBtnTitle}>Barrett True-K Toric Calculator</Text>
+          <Text style={s.barrettTrueKBtnSub}>Open APACRS calculator in-app →</Text>
+        </View>
+      </TouchableOpacity>
+
       <TouchableOpacity style={s.calcBtn} onPress={handleCalculate}>
         <Text style={s.calcBtnText}>Calculate All Methods</Text>
       </TouchableOpacity>
@@ -1039,6 +1047,16 @@ const s = StyleSheet.create({
   biometryDivider: {
     height: 1, backgroundColor: '#DDD5BB', marginVertical: 12,
   },
+
+  barrettTrueKBtn: {
+    backgroundColor: '#1a0d2e', borderRadius: 12, paddingVertical: 14,
+    paddingHorizontal: 16, marginTop: 12,
+    borderWidth: 1.5, borderColor: '#7744BB',
+    flexDirection: 'row', alignItems: 'center',
+  },
+  barrettTrueKBtnInner: { flex: 1 },
+  barrettTrueKBtnTitle: { color: '#DDB8FF', fontSize: 14, fontWeight: '700' },
+  barrettTrueKBtnSub: { color: 'rgba(221,184,255,0.6)', fontSize: 11, marginTop: 2 },
 
   calcBtn: {
     backgroundColor: '#C8A84B', borderRadius: 12, paddingVertical: 15,
