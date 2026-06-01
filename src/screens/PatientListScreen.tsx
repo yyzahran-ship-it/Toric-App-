@@ -41,7 +41,7 @@ export default function PatientListScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle="light-content" />
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <Image source={require('../../assets/icon.png')} style={styles.logo} resizeMode="contain" />
@@ -74,7 +74,7 @@ export default function PatientListScreen() {
         <TextInput
           style={styles.search}
           placeholder="Search patients or MRN..."
-          placeholderTextColor="#AAAAAA"
+          placeholderTextColor="rgba(255,255,255,0.3)"
           value={query}
           onChangeText={setQuery}
         />
@@ -118,15 +118,15 @@ export default function PatientListScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FFFFFF' },
+  container: { flex: 1, backgroundColor: '#0d0d1a' },
   header: {
     paddingTop: 56, paddingBottom: 16, paddingHorizontal: 20,
-    backgroundColor: '#FFFFFF', flexDirection: 'row',
+    backgroundColor: '#0d0d1a', flexDirection: 'row',
     justifyContent: 'space-between', alignItems: 'center',
   },
   headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  logo: { width: 48, height: 48 },
-  title: { color: '#1A1200', fontSize: 26, fontWeight: 'bold' },
+  logo: { width: 48, height: 48, borderRadius: 8 },
+  title: { color: '#F0EAD6', fontSize: 26, fontWeight: 'bold' },
   subtitle: { color: '#C8A84B', fontSize: 13, marginTop: 1 },
   headerRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   headerBtn: {
@@ -134,44 +134,44 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10, paddingVertical: 5,
   },
   headerBtnText: { color: '#C8A84B', fontSize: 12, fontWeight: '700' },
-  calcsBtn: { borderColor: '#C8A84B99', backgroundColor: '#1A1200' },
+  calcsBtn: { borderColor: '#C8A84B99', backgroundColor: '#16162a' },
   calcsBtnText: { color: '#C8A84B' },
   settingsBtn: { paddingBottom: 4, paddingLeft: 8 },
-  settingsIcon: { color: '#888060', fontSize: 24 },
+  settingsIcon: { color: '#C8A84B', fontSize: 24 },
   shortcutRow: {
     flexDirection: 'row', paddingHorizontal: 16, paddingBottom: 10, gap: 8,
   },
   shortcutBtn: {
-    flex: 1, borderWidth: 1, borderColor: '#C8A84B66', borderRadius: 8,
-    paddingVertical: 7, alignItems: 'center', backgroundColor: '#FAF8F2',
+    flex: 1, borderWidth: 1, borderColor: '#2a2a44', borderRadius: 8,
+    paddingVertical: 7, alignItems: 'center', backgroundColor: '#16162a',
   },
   shortcutBtnText: { color: '#C8A84B', fontSize: 12, fontWeight: '700' },
   searchRow: { paddingHorizontal: 16, paddingBottom: 12 },
   search: {
-    backgroundColor: '#F8F6EF', color: '#1A1200', borderRadius: 10,
+    backgroundColor: '#16162a', color: '#F0EAD6', borderRadius: 10,
     paddingHorizontal: 14, paddingVertical: 10, fontSize: 15,
-    borderWidth: 1, borderColor: '#DDD5BB',
+    borderWidth: 1, borderColor: '#2a2a44',
   },
   list: { paddingHorizontal: 16, paddingBottom: 100 },
   card: {
-    backgroundColor: '#F8F6EF', borderRadius: 12, padding: 16,
+    backgroundColor: '#16162a', borderRadius: 12, padding: 16,
     marginBottom: 10, flexDirection: 'row', alignItems: 'center',
-    borderWidth: 1, borderColor: '#DDD5BB',
+    borderWidth: 1, borderColor: '#2a2a44',
   },
   cardLeft: { flex: 1 },
-  cardName: { color: '#1A1200', fontSize: 17, fontWeight: '600' },
-  cardMrn: { color: '#888060', fontSize: 13, marginTop: 2 },
+  cardName: { color: '#F0EAD6', fontSize: 17, fontWeight: '600' },
+  cardMrn: { color: 'rgba(255,255,255,0.4)', fontSize: 13, marginTop: 2 },
   cardEyes: { color: '#44AAFF', fontSize: 13, marginTop: 4 },
-  chevron: { color: '#888060', fontSize: 22 },
+  chevron: { color: 'rgba(255,255,255,0.3)', fontSize: 22 },
   empty: { alignItems: 'center', marginTop: 80 },
   emptyIcon: { fontSize: 48, marginBottom: 12 },
-  emptyText: { color: '#1A1200', fontSize: 18, fontWeight: '600' },
-  emptyHint: { color: '#888060', fontSize: 14, marginTop: 4 },
+  emptyText: { color: '#F0EAD6', fontSize: 18, fontWeight: '600' },
+  emptyHint: { color: 'rgba(255,255,255,0.4)', fontSize: 14, marginTop: 4 },
   fab: {
     position: 'absolute', bottom: 32, right: 24,
     width: 56, height: 56, borderRadius: 28,
     backgroundColor: '#C8A84B', alignItems: 'center', justifyContent: 'center',
     shadowColor: '#C8A84B', shadowOpacity: 0.5, shadowRadius: 12, elevation: 8,
   },
-  fabText: { color: '#C8C8C8', fontSize: 28, lineHeight: 30 },
+  fabText: { color: '#1a1200', fontSize: 28, lineHeight: 30 },
 });
