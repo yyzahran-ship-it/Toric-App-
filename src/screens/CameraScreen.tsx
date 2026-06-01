@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet, Alert, ActivityIndicator,
+  PanResponder,
 } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as MediaLibrary from 'expo-media-library';
@@ -25,7 +26,6 @@ const R_OUTER3 = 142;
 const R_LABEL = 151;
 const R_INNER = 54;
 
-// TABO axis → SVG: x = cx + r·cos(a), y = cy − r·sin(a)  (y-flipped for SVG)
 const TICKS = Array.from({ length: 72 }, (_, i) => {
   const a = i * 5;
   const isMajor = a % 30 === 0;
@@ -52,34 +52,21 @@ function PremiumDial({ roll }: { roll: number }) {
   const isLevel = Math.abs(roll) <= 3;
   return (
     <Svg width={DIAL} height={DIAL}>
-      {/* Triple accent rings */}
       <Circle cx={dcx} cy={dcy} r={R_OUTER3} stroke="rgba(200,168,75,0.2)" strokeWidth={1} fill="none" />
       <Circle cx={dcx} cy={dcy} r={R_OUTER2} stroke="rgba(200,168,75,0.45)" strokeWidth={1.5} fill="none" />
       <Circle cx={dcx} cy={dcy} r={R_OUTER1} stroke="rgba(200,168,75,0.75)" strokeWidth={2} fill="none" />
-
-      {/* Main guide ring */}
       <Circle cx={dcx} cy={dcy} r={R_MAIN} stroke="#C8A84B" strokeWidth={2.5} fill="rgba(0,0,0,0.12)" />
-
-      {/* Tick marks at every 5° */}
       {TICKS.map((t, i) => (
         <Line key={i} x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2} stroke={t.color} strokeWidth={t.sw} />
       ))}
-
-      {/* Degree labels at TABO 0°–180° */}
       {LABELS.map(({ a, x, y }) => (
         <SvgText key={a} x={x} y={y + 4} textAnchor="middle" fill="#C8A84B" fontSize={10} fontWeight="600">
           {a}°
         </SvgText>
       ))}
-
-      {/* Inner pupil guide (dashed cyan) */}
       <Circle cx={dcx} cy={dcy} r={R_INNER} stroke="rgba(136,204,255,0.55)" strokeWidth={1.5} fill="none" strokeDasharray="6,4" />
-
-      {/* Crosshairs */}
       <Line x1={dcx - R_MAIN} y1={dcy} x2={dcx + R_MAIN} y2={dcy} stroke="rgba(255,255,255,0.3)" strokeWidth={1} />
       <Line x1={dcx} y1={dcy - R_MAIN} x2={dcx} y2={dcy + R_MAIN} stroke="rgba(255,255,255,0.3)" strokeWidth={1} />
-
-      {/* Center readout circle */}
       <Circle cx={dcx} cy={dcy} r={32} fill="rgba(0,0,0,0.65)" stroke={isLevel ? '#44FF88' : '#C8A84B'} strokeWidth={1.5} />
       <SvgText x={dcx} y={dcy - 3} textAnchor="middle" fill={isLevel ? '#44FF88' : '#FFD700'} fontSize={15} fontWeight="700">
         {roll > 0 ? '+' : ''}{roll}°
@@ -102,6 +89,56 @@ export default function CameraScreen() {
   const [saveToGallery, setSaveToGallery] = useState(false);
   const [roll, setRoll] = useState(0);
 
+  // Zoom
+  const [zoom, setZoom] = useState(0);
+  const zoomRef = useRef(0);
+  const lastDistRef = useRef<number | null>(null);
+
+  // Tap-to-focus
+  const [focusPoint, setFocusPoint] = useState<{ x: number; y: number } | null>(null);
+  const focusTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Pinch-to-zoom via PanResponder (2-finger only; single taps pass through)
+  const pinchResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: (e) => e.nativeEvent.touches.length === 2,
+      onMoveShouldSetPanResponder:  (e) => e.nativeEvent.touches.length === 2,
+      onPanResponderGrant: (e) => {
+        const t = e.nativeEvent.touches;
+        if (t.length === 2) {
+          const dx = t[0].pageX - t[1].pageX;
+          const dy = t[0].pageY - t[1].pageY;
+          lastDistRef.current = Math.sqrt(dx * dx + dy * dy);
+        }
+      },
+      onPanResponderMove: (e) => {
+        const t = e.nativeEvent.touches;
+        if (t.length < 2 || lastDistRef.current === null) return;
+        const dx = t[0].pageX - t[1].pageX;
+        const dy = t[0].pageY - t[1].pageY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const delta = (dist - lastDistRef.current) / 400;
+        const newZoom = Math.max(0, Math.min(1, zoomRef.current + delta));
+        zoomRef.current = newZoom;
+        setZoom(newZoom);
+        lastDistRef.current = dist;
+      },
+      onPanResponderRelease:   () => { lastDistRef.current = null; },
+      onPanResponderTerminate: () => { lastDistRef.current = null; },
+    })
+  ).current;
+
+  function handleTapFocus(locationX: number, locationY: number) {
+    setFocusPoint({ x: locationX, y: locationY });
+    if (focusTimerRef.current) clearTimeout(focusTimerRef.current);
+    focusTimerRef.current = setTimeout(() => setFocusPoint(null), 2000);
+  }
+
+  function resetZoom() {
+    zoomRef.current = 0;
+    setZoom(0);
+  }
+
   useEffect(() => {
     if (permission && !permission.granted) requestPermission();
   }, [permission]);
@@ -114,7 +151,10 @@ export default function CameraScreen() {
         setRoll(Math.round(deg));
       }
     });
-    return () => sub.remove();
+    return () => {
+      sub.remove();
+      if (focusTimerRef.current) clearTimeout(focusTimerRef.current);
+    };
   }, []);
 
   async function capture() {
@@ -153,19 +193,54 @@ export default function CameraScreen() {
   }
 
   const isLevel = Math.abs(roll) <= 3;
+  const zoomDisplay = (1 + zoom * 4).toFixed(1);
 
   return (
-    <View style={styles.container}>
-      <CameraView ref={cameraRef} style={styles.camera} facing="back">
+    // Outer View carries the pinch responder so 2-finger events are caught here
+    <View style={styles.container} {...pinchResponder.panHandlers}>
+      <CameraView ref={cameraRef} style={styles.camera} facing="back" zoom={zoom}>
 
-        {/* Premium instrument gauge overlay */}
-        <View style={styles.guide}>
+        {/* Full-screen tap-to-focus layer — sits behind all controls */}
+        <TouchableOpacity
+          style={StyleSheet.absoluteFill}
+          activeOpacity={1}
+          onPress={(e) => handleTapFocus(e.nativeEvent.locationX, e.nativeEvent.locationY)}
+        />
+
+        {/* Dial overlay (non-interactive) */}
+        <View style={styles.guide} pointerEvents="none">
           <PremiumDial roll={roll} />
         </View>
 
+        {/* Focus brackets — appear on tap, fade after 2 s */}
+        {focusPoint && (
+          <View
+            pointerEvents="none"
+            style={[styles.focusContainer, { left: focusPoint.x - 36, top: focusPoint.y - 36 }]}
+          >
+            <View style={[styles.corner, styles.cornerTL]} />
+            <View style={[styles.corner, styles.cornerTR]} />
+            <View style={[styles.corner, styles.cornerBL]} />
+            <View style={[styles.corner, styles.cornerBR]} />
+            <Text style={styles.focusLabel}>AF</Text>
+          </View>
+        )}
+
+        {/* Zoom badge — tap to reset */}
+        {zoom > 0.01 && (
+          <TouchableOpacity style={styles.zoomBadge} onPress={resetZoom}>
+            <Text style={styles.zoomText}>{zoomDisplay}×</Text>
+            <Text style={styles.zoomReset}>↺</Text>
+          </TouchableOpacity>
+        )}
+
         {/* Hint */}
-        <View style={styles.hint}>
-          <Text style={styles.hintText}>Center the eye within the ring</Text>
+        <View style={styles.hint} pointerEvents="none">
+          <Text style={styles.hintText}>
+            {zoom > 0.01
+              ? `${zoomDisplay}× — pinch to zoom · tap to focus`
+              : 'Center eye · pinch to zoom · tap to focus'}
+          </Text>
         </View>
 
         {/* Save to gallery toggle */}
@@ -197,15 +272,37 @@ export default function CameraScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#000' },
   camera: { flex: 1 },
+
   guide: {
     position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
     alignItems: 'center', justifyContent: 'center',
   },
   hint: { position: 'absolute', top: 80, left: 0, right: 0, alignItems: 'center' },
   hintText: {
-    color: 'rgba(255,255,255,0.85)', fontSize: 13,
+    color: 'rgba(255,255,255,0.85)', fontSize: 12,
     backgroundColor: 'rgba(0,0,0,0.5)', paddingHorizontal: 14, paddingVertical: 6, borderRadius: 8,
   },
+
+  // Focus brackets
+  focusContainer: { position: 'absolute', width: 72, height: 72, alignItems: 'center', justifyContent: 'center' },
+  corner: { position: 'absolute', width: 14, height: 14, borderColor: '#44AAFF' },
+  cornerTL: { top: 0, left: 0, borderTopWidth: 2, borderLeftWidth: 2 },
+  cornerTR: { top: 0, right: 0, borderTopWidth: 2, borderRightWidth: 2 },
+  cornerBL: { bottom: 0, left: 0, borderBottomWidth: 2, borderLeftWidth: 2 },
+  cornerBR: { bottom: 0, right: 0, borderBottomWidth: 2, borderRightWidth: 2 },
+  focusLabel: { color: '#44AAFF', fontSize: 8, fontWeight: '700', letterSpacing: 1 },
+
+  // Zoom badge
+  zoomBadge: {
+    position: 'absolute', top: 120, right: 16,
+    backgroundColor: 'rgba(0,0,0,0.6)', borderRadius: 10,
+    paddingHorizontal: 10, paddingVertical: 5,
+    flexDirection: 'row', alignItems: 'center', gap: 5,
+    borderWidth: 1, borderColor: 'rgba(200,168,75,0.5)',
+  },
+  zoomText: { color: '#C8A84B', fontSize: 15, fontWeight: '700' },
+  zoomReset: { color: 'rgba(255,255,255,0.5)', fontSize: 13 },
+
   galleryToggle: {
     position: 'absolute', bottom: 140, alignSelf: 'center',
     flexDirection: 'row', alignItems: 'center', gap: 8,
@@ -217,6 +314,7 @@ const styles = StyleSheet.create({
   },
   toggleDotOn: { backgroundColor: '#44FF88', borderColor: '#44FF88' },
   galleryText: { color: 'rgba(255,255,255,0.85)', fontSize: 13 },
+
   controls: { position: 'absolute', bottom: 50, left: 0, right: 0, alignItems: 'center' },
   shutterBtn: {
     width: 72, height: 72, borderRadius: 36,
@@ -226,6 +324,7 @@ const styles = StyleSheet.create({
   shutterBtnLevel: { borderColor: '#44FF88' },
   shutterInner: { width: 58, height: 58, borderRadius: 29, backgroundColor: 'rgba(200,168,75,0.85)' },
   shutterLevel: { backgroundColor: '#44FF88' },
+
   permContainer: { flex: 1, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center', padding: 32 },
   permText: { color: '#1A1200', fontSize: 16, textAlign: 'center', marginBottom: 20 },
   permBtn: { backgroundColor: '#C8A84B', borderRadius: 10, paddingHorizontal: 24, paddingVertical: 12 },
