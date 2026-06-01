@@ -51,15 +51,6 @@ export default function PatientListScreen() {
           </View>
         </View>
         <View style={styles.headerRight}>
-          <TouchableOpacity style={styles.headerBtn} onPress={() => nav.navigate('SiaNomogram')}>
-            <Text style={styles.headerBtnText}>SIA</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.headerBtn} onPress={() => nav.navigate('BagVsSulcus')}>
-            <Text style={styles.headerBtnText}>Sulcus</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.headerBtn} onPress={() => nav.navigate('PostRefractive', {})}>
-            <Text style={styles.headerBtnText}>Post-Rx</Text>
-          </TouchableOpacity>
           <TouchableOpacity style={[styles.headerBtn, styles.calcsBtn]} onPress={() => nav.navigate('IolCalculators')}>
             <Text style={[styles.headerBtnText, styles.calcsBtnText]}>Calcs</Text>
           </TouchableOpacity>
@@ -67,6 +58,17 @@ export default function PatientListScreen() {
             <Text style={styles.settingsIcon}>⚙</Text>
           </TouchableOpacity>
         </View>
+      </View>
+      <View style={styles.shortcutRow}>
+        <TouchableOpacity style={styles.shortcutBtn} onPress={() => nav.navigate('SiaNomogram')}>
+          <Text style={styles.shortcutBtnText}>SIA</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.shortcutBtn} onPress={() => nav.navigate('BagVsSulcus')}>
+          <Text style={styles.shortcutBtnText}>Sulcus</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.shortcutBtn} onPress={() => nav.navigate('PostRefractive', {})}>
+          <Text style={styles.shortcutBtnText}>Post-Rx</Text>
+        </TouchableOpacity>
       </View>
       <View style={styles.searchRow}>
         <TextInput
@@ -136,6 +138,14 @@ const styles = StyleSheet.create({
   calcsBtnText: { color: '#C8A84B' },
   settingsBtn: { paddingBottom: 4, paddingLeft: 8 },
   settingsIcon: { color: '#888060', fontSize: 24 },
+  shortcutRow: {
+    flexDirection: 'row', paddingHorizontal: 16, paddingBottom: 10, gap: 8,
+  },
+  shortcutBtn: {
+    flex: 1, borderWidth: 1, borderColor: '#C8A84B66', borderRadius: 8,
+    paddingVertical: 7, alignItems: 'center', backgroundColor: '#FAF8F2',
+  },
+  shortcutBtnText: { color: '#C8A84B', fontSize: 12, fontWeight: '700' },
   searchRow: { paddingHorizontal: 16, paddingBottom: 12 },
   search: {
     backgroundColor: '#F8F6EF', color: '#1A1200', borderRadius: 10,

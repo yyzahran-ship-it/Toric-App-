@@ -529,22 +529,26 @@ export function hofferQPower(meanK: number, AL: number, pACD: number, targetRx =
 
 /**
  * Holladay 1 — Holladay JT et al. JCRS 1988;14:17-24.
- * ELP = H + SF  (H = corneal height; half-chord = 2.75 mm → 7.5625)
- * Uses measured AL directly.
+ * ELP = CCT + H_wtw + SF
+ * H_wtw uses WHITE-TO-WHITE chord (corneal diameter ~11.5 mm), NOT pupil size.
+ * WTW half-chord = 5.75 mm → 5.75² = 33.0625
+ * CCT = 0.56 mm (mean central corneal thickness, constant in Holladay 1)
+ * Uses measured AL directly (no SRK/T optical-path correction).
  */
 export function holladay1Power(meanK: number, AL: number, SF: number, targetRx = 0): number {
-  const R = 337.5 / meanK;
-  const H = R - Math.sqrt(R * R - 7.5625);
-  return vergenceIOL(meanK, AL, H + SF, targetRx);
+  const R    = 337.5 / meanK;
+  const H    = R - Math.sqrt(R * R - 33.0625); // WTW half-chord = 5.75 mm
+  const CCT  = 0.56;
+  return vergenceIOL(meanK, AL, CCT + H + SF, targetRx);
 }
 
-/** Holladay 1 Double-K: H from elpK (pre-op K); vergence from post-op K. */
+/** Holladay 1 Double-K: ELP from elpK; vergence from post-op K. */
 export function holladay1PowerDoubleK(
   meanKPost: number, elpK: number, AL: number, SF: number, targetRx = 0,
 ): number {
   const R_elp = 337.5 / elpK;
-  const H_elp = R_elp - Math.sqrt(R_elp * R_elp - 7.5625);
-  return vergenceIOL(meanKPost, AL, H_elp + SF, targetRx);
+  const H_elp = R_elp - Math.sqrt(R_elp * R_elp - 33.0625);
+  return vergenceIOL(meanKPost, AL, 0.56 + H_elp + SF, targetRx);
 }
 
 /**

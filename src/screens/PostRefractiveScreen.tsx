@@ -227,9 +227,7 @@ export default function PostRefractiveScreen() {
 
         const hofferQ = isIolAdj
           ? roundQtr(hofferQPower(mk, AL, pACD_val, tRx) + adj)
-          : ek != null
-            ? roundQtr(hofferQPower(mk, AL, pACD_val, tRx))  // Hoffer Q: no separate ELP-K option
-            : roundQtr(hofferQPower(mk, AL, pACD_val, tRx));
+          : roundQtr(hofferQPower(mk, AL, pACD_val, tRx));
 
         const holladay1 = isIolAdj
           ? roundQtr(holladay1Power(mk, AL, SF_val, tRx) + adj)
@@ -625,70 +623,59 @@ export default function PostRefractiveScreen() {
                 <Text style={s.iolNote}>Conservative choice: use the highest value to avoid hyperopic surprise</Text>
               </View>
 
-              {/* Per-method K breakdown */}
+              {/* K Adjustment — compact table */}
               <Text style={s.sectionHeader}>K Adjustment — Per Method</Text>
-
-              {/* K-adjustment methods */}
-              {results.filter(r => r.iolPowerAdjustment == null).map((r, i) => (
-                <View key={i} style={s.methodCard}>
-                  <View style={s.methodCardHeader}>
-                    <View style={[s.badge,
-                      r.elpK != null ? s.badgeDoubleK
-                        : r.requiresHistory ? s.badgeHistory
-                        : s.badgeNoHx
-                    ]}>
-                      <Text style={[s.badgeText,
-                        r.elpK != null ? { color: '#DDB8FF' }
-                          : r.requiresHistory ? { color: '#AACCFF' }
-                          : { color: '#C8A84B' }
+              <View style={s.kTable}>
+                <View style={[s.kTableRow, s.kTableHeaderRow]}>
+                  <Text style={[s.kTColMethod, s.kTHeaderText]}>Method</Text>
+                  <Text style={[s.kTColNum, s.kTHeaderText]}>K1 (D)</Text>
+                  <Text style={[s.kTColNum, s.kTHeaderText]}>K2 (D)</Text>
+                  <Text style={[s.kTColNum, s.kTHeaderText]}>Mean (D)</Text>
+                </View>
+                {results.filter(r => r.iolPowerAdjustment == null).map((r, i) => (
+                  <View key={i} style={[s.kTableRow, i % 2 === 1 && s.kTableRowAlt]}>
+                    <View style={s.kTColMethod}>
+                      <Text style={s.kTMethodText} numberOfLines={2}>{r.methodName}</Text>
+                      <Text style={[
+                        s.kTBadge,
+                        r.elpK != null ? s.kTBadgeDK
+                          : r.requiresHistory ? s.kTBadgeHx
+                          : s.kTBadgeNH,
                       ]}>
-                        {r.elpK != null ? 'DOUBLE-K' : r.requiresHistory ? 'WITH HISTORY' : 'NO HISTORY'}
+                        {r.elpK != null ? 'DK' : r.requiresHistory ? 'HX' : 'NH'}
                       </Text>
                     </View>
-                    <Text style={s.methodName}>{r.methodName}</Text>
+                    <Text style={s.kTColNum}>{r.adjustedKFlat}</Text>
+                    <Text style={s.kTColNum}>{r.adjustedKSteep}</Text>
+                    <Text style={[s.kTColNum, s.kTMeanK]}>{r.adjustedMeanK}</Text>
                   </View>
-                  <View style={s.kGrid}>
-                    <KCell label="K1 Adj" value={`${r.adjustedKFlat} D`} />
-                    <KCell label="K2 Adj" value={`${r.adjustedKSteep} D`} />
-                    <KCell label="Mean K" value={`${r.adjustedMeanK} D`} highlight />
-                  </View>
-                  <Text style={s.methodFormula}>{r.formula}</Text>
-                  <Text style={s.methodRef}>📚 {r.reference}</Text>
-                  {r.warning && <Text style={s.methodWarning}>⚠ {r.warning}</Text>}
-                </View>
-              ))}
+                ))}
+              </View>
 
-              {/* IOL power adjustment methods */}
+              {/* IOL Power Adjustments — compact table */}
               {results.some(r => r.iolPowerAdjustment != null) && (
                 <>
-                  <Text style={s.sectionHeader}>IOL Power Adjustment Methods</Text>
+                  <Text style={s.sectionHeader}>IOL Power Adjustment (With History)</Text>
                   <View style={s.infoBox}>
                     <Text style={s.infoText}>
-                      These methods provide an adjustment to ADD to a standard-formula IOL power
-                      (e.g. SRK/T with regular K). Example: SRK/T = 21.0 D + Masket +1.4 D → use 22.5 D.
+                      Add to a standard-formula IOL power calculated with the regular (non-adjusted) K.
+                      Example: SRK/T = 21.0 D + Masket +1.4 D → use 22.5 D.
                     </Text>
                   </View>
-                  {results.filter(r => r.iolPowerAdjustment != null).map((r, i) => {
-                    const row = iolBlock.rows.find(x => x.method === r.methodName);
-                    return (
-                      <View key={i} style={s.methodCard}>
-                        <View style={s.methodCardHeader}>
-                          <View style={[s.badge, s.badgeHistory]}>
-                            <Text style={[s.badgeText, { color: '#AACCFF' }]}>WITH HISTORY</Text>
-                          </View>
-                          <Text style={s.methodName}>{r.methodName}</Text>
-                        </View>
-                        <View style={s.kGrid}>
-                          <KCell label="IOL Adj" value={`${(r.iolPowerAdjustment ?? 0) >= 0 ? '+' : ''}${r.iolPowerAdjustment} D`} highlight highlightColor="#44AAFF" />
-                          {row && <KCell label="SRK/T total" value={`${row.srkt} D`} />}
-                          {row && <KCell label="Holladay 1" value={`${row.holladay1} D`} />}
-                        </View>
-                        <Text style={s.methodFormula}>{r.formula}</Text>
-                        <Text style={s.methodRef}>📚 {r.reference}</Text>
-                        {r.warning && <Text style={s.methodWarning}>⚠ {r.warning}</Text>}
+                  <View style={s.kTable}>
+                    <View style={[s.kTableRow, s.kTableHeaderRow]}>
+                      <Text style={[s.kTColMethod, s.kTHeaderText]}>Method</Text>
+                      <Text style={[s.kTColNum, s.kTHeaderText]}>IOL Adj (D)</Text>
+                    </View>
+                    {results.filter(r => r.iolPowerAdjustment != null).map((r, i) => (
+                      <View key={i} style={[s.kTableRow, i % 2 === 1 && s.kTableRowAlt]}>
+                        <Text style={[s.kTColMethod, s.kTMethodText]}>{r.methodName}</Text>
+                        <Text style={[s.kTColNum, s.kTIolAdj]}>
+                          {(r.iolPowerAdjustment ?? 0) >= 0 ? '+' : ''}{r.iolPowerAdjustment}
+                        </Text>
                       </View>
-                    );
-                  })}
+                    ))}
+                  </View>
                 </>
               )}
             </>
@@ -698,29 +685,27 @@ export default function PostRefractiveScreen() {
           {!iolBlock && results.length > 0 && (
             <>
               <Text style={s.sectionHeader}>Adjusted K — All Methods</Text>
-              {results.map((r, i) => (
-                <View key={i} style={s.methodCard}>
-                  <View style={s.methodCardHeader}>
-                    <View style={[s.badge, r.requiresHistory ? s.badgeHistory : s.badgeNoHx]}>
-                      <Text style={[s.badgeText, r.requiresHistory ? { color: '#AACCFF' } : { color: '#C8A84B' }]}>
-                        {r.requiresHistory ? 'WITH HISTORY' : 'NO HISTORY'}
-                      </Text>
-                    </View>
-                    <Text style={s.methodName}>{r.methodName}</Text>
-                  </View>
-                  <View style={s.kGrid}>
-                    <KCell label="K1 Adj" value={`${r.adjustedKFlat} D`} />
-                    <KCell label="K2 Adj" value={`${r.adjustedKSteep} D`} />
-                    <KCell label="Mean K" value={`${r.adjustedMeanK} D`} highlight />
-                    {r.iolPowerAdjustment != null && (
-                      <KCell label="IOL Adj" value={`${r.iolPowerAdjustment >= 0 ? '+' : ''}${r.iolPowerAdjustment} D`}
-                        highlight highlightColor="#44AAFF" />
-                    )}
-                  </View>
-                  <Text style={s.methodFormula}>{r.formula}</Text>
-                  {r.warning && <Text style={s.methodWarning}>⚠ {r.warning}</Text>}
+              <View style={s.kTable}>
+                <View style={[s.kTableRow, s.kTableHeaderRow]}>
+                  <Text style={[s.kTColMethod, s.kTHeaderText]}>Method</Text>
+                  <Text style={[s.kTColNum, s.kTHeaderText]}>K1 (D)</Text>
+                  <Text style={[s.kTColNum, s.kTHeaderText]}>K2 (D)</Text>
+                  <Text style={[s.kTColNum, s.kTHeaderText]}>Mean (D)</Text>
                 </View>
-              ))}
+                {results.map((r, i) => (
+                  <View key={i} style={[s.kTableRow, i % 2 === 1 && s.kTableRowAlt]}>
+                    <View style={s.kTColMethod}>
+                      <Text style={s.kTMethodText} numberOfLines={2}>{r.methodName}</Text>
+                      {r.iolPowerAdjustment != null && (
+                        <Text style={[s.kTBadge, s.kTBadgeHx]}>ADJ</Text>
+                      )}
+                    </View>
+                    <Text style={s.kTColNum}>{r.adjustedKFlat}</Text>
+                    <Text style={s.kTColNum}>{r.adjustedKSteep}</Text>
+                    <Text style={[s.kTColNum, s.kTMeanK]}>{r.adjustedMeanK}</Text>
+                  </View>
+                ))}
+              </View>
             </>
           )}
 
@@ -768,17 +753,6 @@ function IolCell({ label, value }: { label: string; value: number | null }) {
   );
 }
 
-function KCell({
-  label, value, highlight = false, highlightColor = '#C8A84B',
-}: { label: string; value: string; highlight?: boolean; highlightColor?: string }) {
-  return (
-    <View style={[s.kCell, highlight && { borderColor: highlightColor, borderWidth: 1.5 }]}>
-      <Text style={s.kCellLabel}>{label}</Text>
-      <Text style={[s.kCellValue, highlight && { color: highlightColor }]}>{value}</Text>
-    </View>
-  );
-}
-
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFFFFF' },
   content:   { padding: 16 },
@@ -819,9 +793,9 @@ const s = StyleSheet.create({
     textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8,
   },
   divider: { height: 1, backgroundColor: '#DDD5BB', marginVertical: 12 },
-  row:  { flexDirection: 'row', gap: 12 },
-  half: { flex: 1 },
-  third: { flex: 1 },
+  row:     { flexDirection: 'row', gap: 12 },
+  half:    { flex: 1 },
+  third:   { flex: 1 },
   quarter: { flex: 1 },
   label: {
     color: '#888060', fontSize: 11, textTransform: 'uppercase',
@@ -881,12 +855,40 @@ const s = StyleSheet.create({
   iolCellValue: { color: '#FFFFFF', fontSize: 19, fontWeight: '700' },
   iolNote: { color: '#88AADD', fontSize: 10, fontStyle: 'italic', marginTop: 4 },
 
-  // Method cards
-  methodCard: {
-    backgroundColor: '#F8F6EF', borderRadius: 12, padding: 14,
-    borderWidth: 1, borderColor: '#DDD5BB', marginBottom: 10,
+  // Compact K table
+  kTable: {
+    borderRadius: 10, overflow: 'hidden',
+    borderWidth: 1, borderColor: '#DDD5BB', marginBottom: 4,
   },
-  methodCardHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 },
+  kTableRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8, paddingHorizontal: 10 },
+  kTableHeaderRow: { backgroundColor: '#E8E4D8' },
+  kTableRowAlt: { backgroundColor: '#F8F6EF' },
+  kTHeaderText: {
+    color: '#888060', fontSize: 10, fontWeight: '700', textTransform: 'uppercase',
+  },
+  kTColMethod: { flex: 2, paddingRight: 6 },
+  kTColNum: {
+    flex: 1, textAlign: 'center',
+    color: '#1A1200', fontSize: 13, fontWeight: '600',
+  },
+  kTMethodText: { color: '#1A1200', fontSize: 12, fontWeight: '600' },
+  kTBadge: {
+    fontSize: 9, fontWeight: '700', borderRadius: 3, paddingHorizontal: 4,
+    paddingVertical: 1, alignSelf: 'flex-start', marginTop: 2,
+  },
+  kTBadgeNH: { backgroundColor: '#C8A84B22', color: '#AA8830' },
+  kTBadgeHx: { backgroundColor: '#4488DD22', color: '#4488DD' },
+  kTBadgeDK: { backgroundColor: '#7744BB22', color: '#9966DD' },
+  kTMeanK: { color: '#C8A84B', fontWeight: '700' },
+  kTIolAdj: { color: '#44AAFF', fontWeight: '700', textAlign: 'center' },
+
+  infoBox: {
+    backgroundColor: '#EEF6FF', borderRadius: 10, padding: 12,
+    borderWidth: 1, borderColor: '#BBDDFF', marginBottom: 8,
+  },
+  infoText: { color: '#1a3a6a', fontSize: 12, lineHeight: 17 },
+
+  // Badges (used in some badge styles above)
   badge: {
     borderRadius: 5, paddingHorizontal: 8, paddingVertical: 3, borderWidth: 1,
   },
@@ -894,24 +896,6 @@ const s = StyleSheet.create({
   badgeHistory: { backgroundColor: '#4488DD22', borderColor: '#4488DD' },
   badgeDoubleK: { backgroundColor: '#7744BB22', borderColor: '#7744BB' },
   badgeText: { fontSize: 9, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5 },
-  methodName:    { color: '#1A1200', fontSize: 14, fontWeight: '600' },
-  methodFormula: { color: '#888060', fontSize: 11, fontStyle: 'italic', marginBottom: 4, marginTop: 8 },
-  methodRef:     { color: '#888060', fontSize: 10 },
-  methodWarning: { color: '#AA6600', fontSize: 10, marginTop: 4, fontStyle: 'italic' },
-
-  kGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  kCell: {
-    flex: 1, minWidth: 70, backgroundColor: '#FFFFFF',
-    borderRadius: 8, padding: 10, borderWidth: 1, borderColor: '#DDD5BB', alignItems: 'center',
-  },
-  kCellLabel: { color: '#888060', fontSize: 9, textTransform: 'uppercase', marginBottom: 3 },
-  kCellValue: { color: '#1A1200', fontSize: 16, fontWeight: '700' },
-
-  infoBox: {
-    backgroundColor: '#EEF6FF', borderRadius: 10, padding: 12,
-    borderWidth: 1, borderColor: '#BBDDFF', marginBottom: 10,
-  },
-  infoText: { color: '#1a3a6a', fontSize: 12, lineHeight: 17 },
 
   applyBtn: {
     backgroundColor: '#2A8A44', borderRadius: 12, paddingVertical: 15,
