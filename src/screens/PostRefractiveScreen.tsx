@@ -709,6 +709,51 @@ export default function PostRefractiveScreen() {
                 );
               })()}
 
+              {/* IOL Power Summary — Max / Average / Min across K-adjustment methods */}
+              {iolBlock.rows.filter(r => !r.isIolAdj).length >= 2 && (() => {
+                const iolRows  = iolBlock.rows.filter(r => !r.isIolAdj);
+                const srktVals     = iolRows.map(r => r.srkt).filter((v): v is number => v !== null);
+                const hofferVals   = iolRows.map(r => r.hofferQ).filter((v): v is number => v !== null);
+                const holladay1Vals = iolRows.map(r => r.holladay1).filter((v): v is number => v !== null);
+                const avg = (vals: number[]) =>
+                  vals.length ? +(vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(2) : null;
+                const fmt = (v: number | null) => v !== null ? `${v} D` : '—';
+                return (
+                  <>
+                    <Text style={s.sectionHeader}>IOL Power — Summary Across Methods</Text>
+                    <View style={s.iolSummaryCard}>
+                      <View style={s.iolSumRow}>
+                        <View style={s.iolSumLabelCol} />
+                        <Text style={[s.iolSumCol, s.iolSumHeader]}>SRK/T</Text>
+                        <Text style={[s.iolSumCol, s.iolSumHeader]}>Hoffer Q</Text>
+                        <Text style={[s.iolSumCol, s.iolSumHeader]}>Holladay</Text>
+                      </View>
+                      <View style={s.iolSumRow}>
+                        <Text style={[s.iolSumLabelCol, s.iolSumRowLabel, { color: '#FF9944' }]}>Max</Text>
+                        <Text style={[s.iolSumCol, s.iolSumMax]}>{fmt(srktVals.length ? Math.max(...srktVals) : null)}</Text>
+                        <Text style={[s.iolSumCol, s.iolSumMax]}>{fmt(hofferVals.length ? Math.max(...hofferVals) : null)}</Text>
+                        <Text style={[s.iolSumCol, s.iolSumMax]}>{fmt(holladay1Vals.length ? Math.max(...holladay1Vals) : null)}</Text>
+                      </View>
+                      <View style={s.iolSumRow}>
+                        <Text style={[s.iolSumLabelCol, s.iolSumRowLabel, { color: '#C8A84B' }]}>Avg</Text>
+                        <Text style={[s.iolSumCol, s.iolSumAvg]}>{fmt(avg(srktVals))}</Text>
+                        <Text style={[s.iolSumCol, s.iolSumAvg]}>{fmt(avg(hofferVals))}</Text>
+                        <Text style={[s.iolSumCol, s.iolSumAvg]}>{fmt(avg(holladay1Vals))}</Text>
+                      </View>
+                      <View style={s.iolSumRow}>
+                        <Text style={[s.iolSumLabelCol, s.iolSumRowLabel, { color: '#44AAFF' }]}>Min</Text>
+                        <Text style={[s.iolSumCol, s.iolSumMin]}>{fmt(srktVals.length ? Math.min(...srktVals) : null)}</Text>
+                        <Text style={[s.iolSumCol, s.iolSumMin]}>{fmt(hofferVals.length ? Math.min(...hofferVals) : null)}</Text>
+                        <Text style={[s.iolSumCol, s.iolSumMin]}>{fmt(holladay1Vals.length ? Math.min(...holladay1Vals) : null)}</Text>
+                      </View>
+                      <Text style={s.iolSumHint}>
+                        Conservative choice: use the highest value across formulas to avoid hyperopic surprise
+                      </Text>
+                    </View>
+                  </>
+                );
+              })()}
+
               {/* IOL Power Adjustments — compact table */}
               {results.some(r => r.iolPowerAdjustment != null) && (
                 <>
@@ -961,6 +1006,21 @@ const s = StyleSheet.create({
   kSummaryMin:   { color: '#44AAFF' },
   kSummaryLabel: { color: 'rgba(255,255,255,0.45)', fontSize: 10, marginTop: 3 },
   kSummaryHint:  { color: 'rgba(255,255,255,0.35)', fontSize: 10, fontStyle: 'italic' },
+
+  // IOL power summary table
+  iolSummaryCard: {
+    backgroundColor: '#0d1a2e', borderRadius: 12, padding: 14,
+    borderWidth: 1.5, borderColor: '#4488DD55',
+  },
+  iolSumRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 5 },
+  iolSumLabelCol: { width: 36 },
+  iolSumCol: { flex: 1, textAlign: 'center', fontSize: 14, fontWeight: '700' },
+  iolSumHeader: { color: '#4488DD', fontSize: 9, fontWeight: '700', textTransform: 'uppercase' },
+  iolSumRowLabel: { fontSize: 10, fontWeight: '700', textTransform: 'uppercase' },
+  iolSumMax: { color: '#FF9944' },
+  iolSumAvg: { color: '#C8A84B' },
+  iolSumMin: { color: '#44AAFF' },
+  iolSumHint: { color: 'rgba(255,255,255,0.35)', fontSize: 10, fontStyle: 'italic', marginTop: 6 },
 
   infoBox: {
     backgroundColor: '#EEF6FF', borderRadius: 10, padding: 12,
