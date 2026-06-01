@@ -672,6 +672,43 @@ export default function PostRefractiveScreen() {
                 })}
               </View>
 
+              {/* Mean K Summary — Max / Min / Average across all K-adjustment methods */}
+              {(() => {
+                const kRows = results.filter(r => r.iolPowerAdjustment == null);
+                const meanKs = kRows.map(r => r.adjustedMeanK);
+                if (meanKs.length < 2) return null;
+                const maxK  = Math.max(...meanKs);
+                const minK  = Math.min(...meanKs);
+                const avgK  = +(meanKs.reduce((a, b) => a + b, 0) / meanKs.length).toFixed(2);
+                const spread = +(maxK - minK).toFixed(2);
+                return (
+                  <>
+                    <Text style={s.sectionHeader}>Mean K — Summary Across Methods</Text>
+                    <View style={s.kSummaryCard}>
+                      <View style={s.kSummaryRow}>
+                        <View style={s.kSummaryCell}>
+                          <Text style={[s.kSummaryValue, s.kSummaryMax]}>{maxK}</Text>
+                          <Text style={s.kSummaryLabel}>Maximum (D)</Text>
+                        </View>
+                        <View style={s.kSummarySep} />
+                        <View style={s.kSummaryCell}>
+                          <Text style={[s.kSummaryValue, s.kSummaryAvg]}>{avgK}</Text>
+                          <Text style={s.kSummaryLabel}>Average (D)</Text>
+                        </View>
+                        <View style={s.kSummarySep} />
+                        <View style={s.kSummaryCell}>
+                          <Text style={[s.kSummaryValue, s.kSummaryMin]}>{minK}</Text>
+                          <Text style={s.kSummaryLabel}>Minimum (D)</Text>
+                        </View>
+                      </View>
+                      <Text style={s.kSummaryHint}>
+                        Spread: {spread} D across {meanKs.length} methods · Use maximum to avoid hyperopic surprise
+                      </Text>
+                    </View>
+                  </>
+                );
+              })()}
+
               {/* IOL Power Adjustments — compact table */}
               {results.some(r => r.iolPowerAdjustment != null) && (
                 <>
@@ -909,6 +946,21 @@ const s = StyleSheet.create({
   kTIolHeaderText: { color: '#4488DD', fontSize: 9, fontWeight: '700', textTransform: 'uppercase' },
   kTIolLabel: { color: '#44AAFF', fontSize: 9, fontWeight: '700', textTransform: 'uppercase' },
   kTIolSub: { color: '#44AAFF', fontWeight: '700' },
+
+  // Mean K summary card
+  kSummaryCard: {
+    backgroundColor: '#1a1400', borderRadius: 12, padding: 16,
+    borderWidth: 1.5, borderColor: '#C8A84B66',
+  },
+  kSummaryRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
+  kSummaryCell: { flex: 1, alignItems: 'center' },
+  kSummarySep: { width: 1, height: 44, backgroundColor: 'rgba(200,168,75,0.25)' },
+  kSummaryValue: { color: '#FFFFFF', fontSize: 22, fontWeight: '700' },
+  kSummaryMax:   { color: '#FF9944' },
+  kSummaryAvg:   { color: '#C8A84B' },
+  kSummaryMin:   { color: '#44AAFF' },
+  kSummaryLabel: { color: 'rgba(255,255,255,0.45)', fontSize: 10, marginTop: 3 },
+  kSummaryHint:  { color: 'rgba(255,255,255,0.35)', fontSize: 10, fontStyle: 'italic' },
 
   infoBox: {
     backgroundColor: '#EEF6FF', borderRadius: 10, padding: 12,
