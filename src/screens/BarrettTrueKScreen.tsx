@@ -1,171 +1,141 @@
-import React, { useRef, useState } from 'react';
+import React from 'react';
 import {
-  View, Text, ActivityIndicator, TouchableOpacity, StyleSheet,
+  View, Text, ScrollView, TouchableOpacity, StyleSheet,
 } from 'react-native';
-import { WebView, WebViewNavigation } from 'react-native-webview';
-import { useNavigation } from '@react-navigation/native';
+import * as WebBrowser from 'expo-web-browser';
 
 const BARRETT_URL = 'https://calc.apacrs.org/TRueKToric105/truektoric.aspx';
+const BARRETT_UII_URL = 'https://calc.apacrs.org/barrett_universal2105/';
 
-// Mobile Safari UA so APACRS serves the page (not a bot block)
-const USER_AGENT =
-  'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) ' +
-  'AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1';
+function openCalc(url: string) {
+  WebBrowser.openBrowserAsync(url, {
+    toolbarColor: '#1a0d2e',
+    controlsColor: '#DDB8FF',
+    showTitle: true,
+    enableBarCollapsing: true,
+  });
+}
 
 export default function BarrettTrueKScreen() {
-  const nav = useNavigation();
-  const webRef = useRef<WebView>(null);
-  const [loading,  setLoading]  = useState(true);
-  const [canBack,  setCanBack]  = useState(false);
-  const [canFwd,   setCanFwd]   = useState(false);
-  const [errored,  setErrored]  = useState(false);
-
-  function handleNav(e: WebViewNavigation) {
-    setCanBack(e.canGoBack);
-    setCanFwd(e.canGoForward);
-  }
-
-  function retry() {
-    setErrored(false);
-    setLoading(true);
-    webRef.current?.reload();
-  }
-
   return (
-    <View style={s.container}>
+    <ScrollView style={s.container} contentContainerStyle={s.content}>
 
-      {/* In-app toolbar */}
-      <View style={s.toolbar}>
-        <TouchableOpacity
-          style={[s.toolBtn, !canBack && s.toolBtnDim]}
-          onPress={() => webRef.current?.goBack()}
-          disabled={!canBack}
-        >
-          <Text style={s.toolBtnText}>‹</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[s.toolBtn, !canFwd && s.toolBtnDim]}
-          onPress={() => webRef.current?.goForward()}
-          disabled={!canFwd}
-        >
-          <Text style={s.toolBtnText}>›</Text>
-        </TouchableOpacity>
-        <View style={s.toolbarCenter}>
-          <Text style={s.toolbarTitle}>Barrett True-K Toric</Text>
-          <Text style={s.toolbarUrl}>apacrs.org</Text>
-        </View>
-        <TouchableOpacity style={s.toolBtn} onPress={() => webRef.current?.reload()}>
-          <Text style={s.toolBtnText}>↺</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Info banner — shown while page is loading or always */}
-      <View style={s.infoBanner}>
-        <Text style={s.infoText}>
-          Enter your biometry below and tap <Text style={s.infoBold}>Calculate</Text> to
-          get Barrett True-K IOL power recommendations directly here.
+      <View style={s.banner}>
+        <Text style={s.bannerTitle}>Barrett True-K Toric</Text>
+        <Text style={s.bannerSubtitle}>APACRS — calc.apacrs.org</Text>
+        <Text style={s.bannerDesc}>
+          The reference standard for post-refractive toric IOL power calculation.
+          Combines Barrett True-K corneal correction with toric IOL selection in a
+          single validated workflow.
         </Text>
       </View>
 
-      {/* WebView */}
-      {!errored ? (
-        <WebView
-          ref={webRef}
-          source={{ uri: BARRETT_URL }}
-          userAgent={USER_AGENT}
-          javaScriptEnabled
-          domStorageEnabled
-          sharedCookiesEnabled
-          thirdPartyCookiesEnabled
-          startInLoadingState={false}
-          onLoadStart={() => setLoading(true)}
-          onLoadEnd={() => setLoading(false)}
-          onNavigationStateChange={handleNav}
-          onError={() => { setLoading(false); setErrored(true); }}
-          onHttpError={(e) => {
-            if (e.nativeEvent.statusCode >= 400) {
-              setLoading(false);
-              setErrored(true);
-            }
-          }}
-          style={s.webView}
-        />
-      ) : (
-        <View style={s.errorBox}>
-          <Text style={s.errorIcon}>⚠</Text>
-          <Text style={s.errorTitle}>Could not load Barrett True-K</Text>
-          <Text style={s.errorBody}>
-            The APACRS calculator requires an active internet connection.
-            Check your connection and try again.
-          </Text>
-          <TouchableOpacity style={s.retryBtn} onPress={retry}>
-            <Text style={s.retryBtnText}>Try Again</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+      <TouchableOpacity style={s.primaryBtn} onPress={() => openCalc(BARRETT_URL)} activeOpacity={0.8}>
+        <Text style={s.primaryBtnTitle}>Open Barrett True-K Toric →</Text>
+        <Text style={s.primaryBtnSub}>calc.apacrs.org/TRueKToric105</Text>
+      </TouchableOpacity>
 
-      {/* Loading overlay */}
-      {loading && !errored && (
-        <View style={s.loadingOverlay} pointerEvents="none">
-          <View style={s.loadingCard}>
-            <ActivityIndicator size="large" color="#C8A84B" />
-            <Text style={s.loadingText}>Loading Barrett True-K…</Text>
-            <Text style={s.loadingHint}>calc.apacrs.org</Text>
+      <TouchableOpacity style={s.secondaryBtn} onPress={() => openCalc(BARRETT_UII_URL)} activeOpacity={0.8}>
+        <Text style={s.secondaryBtnTitle}>Open Barrett Universal II →</Text>
+        <Text style={s.secondaryBtnSub}>calc.apacrs.org/barrett_universal2105</Text>
+      </TouchableOpacity>
+
+      <Text style={s.sectionHeader}>What You Need</Text>
+      <View style={s.card}>
+        {[
+          ['K1 / K2', 'Flat and steep meridian keratometry (D)'],
+          ['Axis', 'Steep K axis (degrees)'],
+          ['AL', 'Axial length (mm)'],
+          ['ACD', 'Anterior chamber depth (mm)'],
+          ['LT', 'Lens thickness (mm)'],
+          ['WTW', 'White-to-white corneal diameter (mm)'],
+          ['A-constant', 'IOL-specific optimised constant'],
+          ['Pre-op Rx', 'Pre-LASIK/PRK SEQ — if available'],
+          ['Pre-op K', 'Pre-operative keratometry — if available'],
+        ].map(([label, desc]) => (
+          <View key={label} style={s.inputRow}>
+            <Text style={s.inputLabel}>{label}</Text>
+            <Text style={s.inputDesc}>{desc}</Text>
           </View>
-        </View>
-      )}
-    </View>
+        ))}
+      </View>
+
+      <Text style={s.sectionHeader}>Tips</Text>
+      <View style={s.card}>
+        <Text style={s.tipText}>
+          • Enter your adjusted K values from the Post-Rx calculator above if you have
+          them. Barrett True-K also computes its own K correction internally —
+          use whichever gives the higher IOL power.
+        </Text>
+        <Text style={s.tipText}>
+          • For post-LASIK eyes without history, enable the "No History" tab.
+          For eyes with pre-op records, enter pre-op K and refraction for greater accuracy.
+        </Text>
+        <Text style={s.tipText}>
+          • When in doubt, round UP to the next 0.25 D to avoid hyperopic surprise.
+        </Text>
+      </View>
+
+      <View style={s.notice}>
+        <Text style={s.noticeText}>
+          Opens in your device browser — required to pass security checks that block in-app
+          WebViews. Tap the browser's back arrow or close button to return to the app.
+        </Text>
+      </View>
+
+      <View style={{ height: 40 }} />
+    </ScrollView>
   );
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
+  content:   { padding: 16 },
 
-  toolbar: {
-    flexDirection: 'row', alignItems: 'center',
-    backgroundColor: '#F8F6EF', borderBottomWidth: 1, borderBottomColor: '#DDD5BB',
-    paddingHorizontal: 8, paddingVertical: 6, gap: 4,
+  banner: {
+    backgroundColor: '#1a0d2e', borderRadius: 14, padding: 18, marginBottom: 16,
+    borderWidth: 1.5, borderColor: '#7744BB',
   },
-  toolbarCenter: { flex: 1, alignItems: 'center' },
-  toolbarTitle: { color: '#1A1200', fontSize: 13, fontWeight: '700' },
-  toolbarUrl: { color: '#888060', fontSize: 10, marginTop: 1 },
-  toolBtn: {
-    width: 36, height: 36, alignItems: 'center', justifyContent: 'center',
-    borderRadius: 8, backgroundColor: '#EDEADE',
-  },
-  toolBtnDim: { opacity: 0.35 },
-  toolBtnText: { color: '#1A1200', fontSize: 20, fontWeight: '600', lineHeight: 24 },
+  bannerTitle:    { color: '#DDB8FF', fontSize: 18, fontWeight: '800', marginBottom: 3 },
+  bannerSubtitle: { color: 'rgba(221,184,255,0.5)', fontSize: 11, marginBottom: 10 },
+  bannerDesc:     { color: 'rgba(255,255,255,0.65)', fontSize: 12, lineHeight: 17 },
 
-  infoBanner: {
-    backgroundColor: '#0d0d1a', paddingHorizontal: 14, paddingVertical: 8,
+  primaryBtn: {
+    backgroundColor: '#7744BB', borderRadius: 12, padding: 16, marginBottom: 10,
   },
-  infoText: { color: 'rgba(255,255,255,0.65)', fontSize: 11, lineHeight: 16 },
-  infoBold: { color: '#C8A84B', fontWeight: '700' },
+  primaryBtnTitle: { color: '#fff', fontSize: 15, fontWeight: '700' },
+  primaryBtnSub:   { color: 'rgba(255,255,255,0.6)', fontSize: 11, marginTop: 3 },
 
-  webView: { flex: 1 },
+  secondaryBtn: {
+    backgroundColor: '#1a0d2e', borderRadius: 12, padding: 14, marginBottom: 20,
+    borderWidth: 1, borderColor: '#7744BB44',
+  },
+  secondaryBtnTitle: { color: '#DDB8FF', fontSize: 14, fontWeight: '600' },
+  secondaryBtnSub:   { color: 'rgba(221,184,255,0.45)', fontSize: 11, marginTop: 3 },
 
-  loadingOverlay: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(255,255,255,0.92)',
-    alignItems: 'center', justifyContent: 'center',
+  sectionHeader: {
+    color: '#888060', fontSize: 11, fontWeight: '700',
+    textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8, marginTop: 4,
   },
-  loadingCard: {
-    backgroundColor: '#fff', borderRadius: 16, padding: 28, alignItems: 'center',
-    shadowColor: '#000', shadowOpacity: 0.12, shadowRadius: 20, shadowOffset: { width: 0, height: 6 },
-    elevation: 8,
-  },
-  loadingText: { color: '#1A1200', fontSize: 15, fontWeight: '600', marginTop: 14 },
-  loadingHint: { color: '#888060', fontSize: 12, marginTop: 4 },
 
-  errorBox: {
-    flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32,
+  card: {
+    backgroundColor: '#F8F6EF', borderRadius: 12, padding: 14,
+    borderWidth: 1, borderColor: '#DDD5BB', marginBottom: 16,
   },
-  errorIcon: { fontSize: 40, marginBottom: 12 },
-  errorTitle: { color: '#1A1200', fontSize: 17, fontWeight: '700', marginBottom: 8, textAlign: 'center' },
-  errorBody: { color: '#666', fontSize: 13, lineHeight: 19, textAlign: 'center', marginBottom: 24 },
-  retryBtn: {
-    backgroundColor: '#C8A84B', borderRadius: 12,
-    paddingVertical: 13, paddingHorizontal: 32,
+  inputRow: {
+    flexDirection: 'row', alignItems: 'flex-start',
+    paddingVertical: 7, borderBottomWidth: 1, borderBottomColor: '#EEE9D8',
   },
-  retryBtnText: { color: '#fff', fontSize: 15, fontWeight: '700' },
+  inputLabel: { color: '#1A1200', fontSize: 13, fontWeight: '700', width: 80 },
+  inputDesc:  { flex: 1, color: '#666055', fontSize: 13, lineHeight: 17 },
+
+  tipText: {
+    color: '#555044', fontSize: 12, lineHeight: 18, marginBottom: 8,
+  },
+
+  notice: {
+    backgroundColor: '#F0EEE8', borderRadius: 10, padding: 12,
+    borderWidth: 1, borderColor: '#DDD5BB',
+  },
+  noticeText: { color: '#888060', fontSize: 11, lineHeight: 16, fontStyle: 'italic' },
 });

@@ -2,11 +2,8 @@ import React from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet, StatusBar,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import * as WebBrowser from 'expo-web-browser';
 import { RootStackParamList } from '../types';
-
-type Nav = NativeStackNavigationProp<RootStackParamList, 'IolCalculators'>;
 
 interface CalcEntry {
   title: string;
@@ -67,13 +64,12 @@ const WEB_CALCULATORS: CalcEntry[] = [
 ];
 
 export default function IolCalculatorsScreen() {
-  const nav = useNavigation<Nav>();
-
   function open(entry: CalcEntry) {
-    nav.navigate('IolWebView', {
-      url: entry.url,
-      title: entry.title,
-      subtitle: entry.subtitle,
+    WebBrowser.openBrowserAsync(entry.url, {
+      toolbarColor: '#0d0d1a',
+      controlsColor: '#C8A84B',
+      showTitle: true,
+      enableBarCollapsing: true,
     });
   }
 
@@ -102,7 +98,7 @@ export default function IolCalculatorsScreen() {
             </View>
             <Text style={s.cardDesc}>{entry.description}</Text>
             <View style={s.cardFooter}>
-              <Text style={s.openText}>Open in-app →</Text>
+              <Text style={s.openText}>Open in browser →</Text>
             </View>
           </TouchableOpacity>
         ))}
@@ -110,7 +106,8 @@ export default function IolCalculatorsScreen() {
         <View style={s.notice}>
           <Text style={s.noticeIcon}>ℹ</Text>
           <Text style={s.noticeText}>
-            These calculators are hosted by their respective organizations. Results depend on their servers — an active internet connection is required.
+            Opens in your device browser — passes security checks that block in-app WebViews.
+            An active internet connection is required. Tap the back arrow to return to the app.
           </Text>
         </View>
       </ScrollView>
