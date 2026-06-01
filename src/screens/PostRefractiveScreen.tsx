@@ -624,7 +624,7 @@ export default function PostRefractiveScreen() {
               </View>
 
               {/* K Adjustment — compact table */}
-              <Text style={s.sectionHeader}>K Adjustment — Per Method</Text>
+              <Text style={s.sectionHeader}>K Adjustment &amp; IOL Power — Per Method</Text>
               <View style={s.kTable}>
                 <View style={[s.kTableRow, s.kTableHeaderRow]}>
                   <Text style={[s.kTColMethod, s.kTHeaderText]}>Method</Text>
@@ -632,24 +632,44 @@ export default function PostRefractiveScreen() {
                   <Text style={[s.kTColNum, s.kTHeaderText]}>K2 (D)</Text>
                   <Text style={[s.kTColNum, s.kTHeaderText]}>Mean (D)</Text>
                 </View>
-                {results.filter(r => r.iolPowerAdjustment == null).map((r, i) => (
-                  <View key={i} style={[s.kTableRow, i % 2 === 1 && s.kTableRowAlt]}>
-                    <View style={s.kTColMethod}>
-                      <Text style={s.kTMethodText} numberOfLines={2}>{r.methodName}</Text>
-                      <Text style={[
-                        s.kTBadge,
-                        r.elpK != null ? s.kTBadgeDK
-                          : r.requiresHistory ? s.kTBadgeHx
-                          : s.kTBadgeNH,
-                      ]}>
-                        {r.elpK != null ? 'DK' : r.requiresHistory ? 'HX' : 'NH'}
-                      </Text>
+                <View style={[s.kTableRow, s.kTableIolHeaderRow]}>
+                  <View style={s.kTColMethod} />
+                  <Text style={[s.kTColNum, s.kTIolHeaderText]}>SRK/T</Text>
+                  <Text style={[s.kTColNum, s.kTIolHeaderText]}>Hoffer Q</Text>
+                  <Text style={[s.kTColNum, s.kTIolHeaderText]}>Holladay</Text>
+                </View>
+                {results.filter(r => r.iolPowerAdjustment == null).map((r, i) => {
+                  const iolRow = iolBlock.rows.find(x => x.method === r.methodName);
+                  return (
+                    <View key={i} style={[s.kTableMethodBlock, i % 2 === 1 && s.kTableRowAlt]}>
+                      <View style={s.kTableMethodKRow}>
+                        <View style={s.kTColMethod}>
+                          <Text style={s.kTMethodText} numberOfLines={2}>{r.methodName}</Text>
+                          <Text style={[
+                            s.kTBadge,
+                            r.elpK != null ? s.kTBadgeDK
+                              : r.requiresHistory ? s.kTBadgeHx
+                              : s.kTBadgeNH,
+                          ]}>
+                            {r.elpK != null ? 'DK' : r.requiresHistory ? 'HX' : 'NH'}
+                          </Text>
+                        </View>
+                        <Text style={s.kTColNum}>{r.adjustedKFlat}</Text>
+                        <Text style={s.kTColNum}>{r.adjustedKSteep}</Text>
+                        <Text style={[s.kTColNum, s.kTMeanK]}>{r.adjustedMeanK}</Text>
+                      </View>
+                      <View style={s.kTIolDivider} />
+                      <View style={s.kTableMethodIolRow}>
+                        <View style={s.kTColMethod}>
+                          <Text style={s.kTIolLabel}>IOL (D)</Text>
+                        </View>
+                        <Text style={[s.kTColNum, s.kTIolSub]}>{iolRow ? `${iolRow.srkt} D` : '—'}</Text>
+                        <Text style={[s.kTColNum, s.kTIolSub]}>{iolRow ? `${iolRow.hofferQ} D` : '—'}</Text>
+                        <Text style={[s.kTColNum, s.kTIolSub]}>{iolRow ? `${iolRow.holladay1} D` : '—'}</Text>
+                      </View>
                     </View>
-                    <Text style={s.kTColNum}>{r.adjustedKFlat}</Text>
-                    <Text style={s.kTColNum}>{r.adjustedKSteep}</Text>
-                    <Text style={[s.kTColNum, s.kTMeanK]}>{r.adjustedMeanK}</Text>
-                  </View>
-                ))}
+                  );
+                })}
               </View>
 
               {/* IOL Power Adjustments — compact table */}
@@ -881,6 +901,14 @@ const s = StyleSheet.create({
   kTBadgeDK: { backgroundColor: '#7744BB22', color: '#9966DD' },
   kTMeanK: { color: '#C8A84B', fontWeight: '700' },
   kTIolAdj: { color: '#44AAFF', fontWeight: '700', textAlign: 'center' },
+  kTableMethodBlock: {},
+  kTableMethodKRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingTop: 8, paddingBottom: 3 },
+  kTableMethodIolRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingTop: 2, paddingBottom: 8 },
+  kTIolDivider: { height: 1, backgroundColor: 'rgba(68,170,255,0.12)', marginHorizontal: 10 },
+  kTableIolHeaderRow: { backgroundColor: '#0a1525', paddingVertical: 4 },
+  kTIolHeaderText: { color: '#4488DD', fontSize: 9, fontWeight: '700', textTransform: 'uppercase' },
+  kTIolLabel: { color: '#44AAFF', fontSize: 9, fontWeight: '700', textTransform: 'uppercase' },
+  kTIolSub: { color: '#44AAFF', fontWeight: '700' },
 
   infoBox: {
     backgroundColor: '#EEF6FF', borderRadius: 10, padding: 12,
