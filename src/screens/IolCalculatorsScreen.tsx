@@ -75,7 +75,7 @@ export default function IolCalculatorsScreen() {
 
   return (
     <View style={s.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="dark-content" />
       <ScrollView contentContainerStyle={s.content}>
         <Text style={s.sectionLabel}>WEB-BASED CALCULATORS</Text>
         <Text style={s.sectionNote}>All calculators open in-app — no browser required</Text>
@@ -116,41 +116,41 @@ export default function IolCalculatorsScreen() {
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0d0d1a' },
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
   content: { padding: 16, paddingBottom: 48 },
 
   sectionLabel: {
-    color: '#C8A84B', fontSize: 11, fontWeight: '700',
+    color: '#888060', fontSize: 11, fontWeight: '700',
     letterSpacing: 1.2, marginBottom: 4, marginTop: 8,
   },
   sectionNote: {
-    color: 'rgba(255,255,255,0.4)', fontSize: 12, marginBottom: 16,
+    color: '#888060', fontSize: 12, marginBottom: 16,
   },
 
   card: {
-    backgroundColor: '#16162a', borderRadius: 14,
-    borderWidth: 1, borderColor: '#2a2a44',
+    backgroundColor: '#F8F6EF', borderRadius: 14,
+    borderWidth: 1, borderColor: '#DDD5BB',
     padding: 16, marginBottom: 12,
   },
   cardTop: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 8, gap: 8 },
   cardTitles: { flex: 1 },
-  cardTitle: { color: '#F0EAD6', fontSize: 15, fontWeight: '700' },
-  cardSubtitle: { color: 'rgba(255,255,255,0.35)', fontSize: 11, marginTop: 2 },
+  cardTitle: { color: '#1A1200', fontSize: 15, fontWeight: '700' },
+  cardSubtitle: { color: '#888060', fontSize: 11, marginTop: 2 },
   tag: {
     borderRadius: 6, borderWidth: 1,
     paddingHorizontal: 8, paddingVertical: 3, alignSelf: 'flex-start',
   },
   tagText: { fontSize: 10, fontWeight: '700' },
-  cardDesc: { color: 'rgba(255,255,255,0.55)', fontSize: 13, lineHeight: 18, marginBottom: 10 },
+  cardDesc: { color: '#555044', fontSize: 13, lineHeight: 18, marginBottom: 10 },
   cardFooter: { alignItems: 'flex-end' },
   openText: { color: '#C8A84B', fontSize: 12, fontWeight: '700' },
 
   notice: {
     flexDirection: 'row', alignItems: 'flex-start', gap: 10,
-    backgroundColor: '#16162a', borderRadius: 10,
-    borderWidth: 1, borderColor: '#2a2a44',
+    backgroundColor: '#F8F6EF', borderRadius: 10,
+    borderWidth: 1, borderColor: '#DDD5BB',
     padding: 14, marginTop: 8,
   },
   noticeIcon: { color: '#888060', fontSize: 16, marginTop: 1 },
-  noticeText: { flex: 1, color: 'rgba(255,255,255,0.4)', fontSize: 12, lineHeight: 17 },
+  noticeText: { flex: 1, color: '#888060', fontSize: 12, lineHeight: 17 },
 });
