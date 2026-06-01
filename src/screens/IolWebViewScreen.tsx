@@ -61,18 +61,17 @@ export default function IolWebViewScreen() {
           sharedCookiesEnabled
           thirdPartyCookiesEnabled
           startInLoadingState={false}
-          onLoadStart={() => setLoading(true)}
+          onLoadStart={() => { setLoading(true); setErrored(false); }}
           onLoadEnd={() => setLoading(false)}
           onNavigationStateChange={handleNav}
           onError={() => { setLoading(false); setErrored(true); }}
-          onHttpError={e => { if (e.nativeEvent.statusCode >= 400) { setLoading(false); setErrored(true); } }}
           style={s.webView}
         />
       ) : (
         <View style={s.errorBox}>
           <Text style={s.errorIcon}>⚠</Text>
           <Text style={s.errorTitle}>Could not load calculator</Text>
-          <Text style={s.errorBody}>Check your internet connection and try again.</Text>
+          <Text style={s.errorBody}>Network error — check your internet connection and try again.</Text>
           <TouchableOpacity style={s.retryBtn} onPress={retry}>
             <Text style={s.retryBtnText}>Try Again</Text>
           </TouchableOpacity>
