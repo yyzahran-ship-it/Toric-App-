@@ -2,18 +2,13 @@ import React, { useCallback, useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Alert,
 } from 'react-native';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useFocusEffect } from '@react-navigation/native';
 import { getSettings, saveSettings } from '../storage/settings';
 import { IOL_PLATFORMS } from '../utils/toricMath';
-import { RootStackParamList } from '../types';
-
-type Nav = NativeStackNavigationProp<RootStackParamList, 'Settings'>;
 
 const PLATFORM_KEYS = Object.keys(IOL_PLATFORMS);
 
 export default function SettingsScreen() {
-  const navigation = useNavigation<Nav>();
   const [sia, setSia] = useState('0.25');
   const [siaAxis, setSiaAxis] = useState('0');
   const [platform, setPlatform] = useState('acrysof');
@@ -90,21 +85,6 @@ export default function SettingsScreen() {
       <TouchableOpacity style={[s.saveBtn, saved && { backgroundColor: '#2A8A44' }]} onPress={handleSave}>
         <Text style={s.saveBtnText}>{saved ? 'Saved ✓' : 'Save Settings'}</Text>
       </TouchableOpacity>
-
-      {/* ── Help & Tutorial ────────────────────────────── */}
-      <Text style={s.sectionHeader}>Help &amp; Tutorial</Text>
-      <View style={s.card}>
-        <Text style={s.hint}>
-          Watch the step-by-step instructional video for surgical marking with the Zahran Toric Tool.
-        </Text>
-        <TouchableOpacity
-          style={s.tutorialBtn}
-          onPress={() => navigation.navigate('InstructionalVideo')}
-        >
-          <Text style={s.tutorialIcon}>▶</Text>
-          <Text style={s.tutorialBtnText}>Watch Tutorial Video</Text>
-        </TouchableOpacity>
-      </View>
     </ScrollView>
   );
 }
@@ -147,11 +127,4 @@ const s = StyleSheet.create({
     alignItems: 'center', marginTop: 24,
   },
   saveBtnText: { color: '#C8C8C8', fontSize: 16, fontWeight: '700' },
-  tutorialBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    backgroundColor: '#1A1200', borderRadius: 10, paddingVertical: 13,
-    gap: 8, marginTop: 4,
-  },
-  tutorialIcon: { color: '#C8A84B', fontSize: 14 },
-  tutorialBtnText: { color: '#F0EAD6', fontSize: 15, fontWeight: '700' },
 });

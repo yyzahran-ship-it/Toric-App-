@@ -61,5 +61,4 @@ export type RootStackParamList = {
   IolCalculators: undefined;
   IolWebView: { url: string; title: string; subtitle?: string };
   Settings: undefined;
-  InstructionalVideo: undefined;
 };
