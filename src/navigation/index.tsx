@@ -17,6 +17,7 @@ import IolCalculatorsScreen from '../screens/IolCalculatorsScreen';
 import IolWebViewScreen from '../screens/IolWebViewScreen';
 import PostRefractiveScreen from '../screens/PostRefractiveScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import InstructionalVideoScreen from '../screens/InstructionalVideoScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -112,6 +113,16 @@ export default function AppNavigator() {
           name="Settings"
           component={SettingsScreen}
           options={{ title: 'Settings' }}
+        />
+        <Stack.Screen
+          name="InstructionalVideo"
+          component={InstructionalVideoScreen}
+          options={{
+            title: 'Tutorial',
+            headerStyle: { backgroundColor: '#1A1200' },
+            headerTintColor: '#C8A84B',
+            headerTitleStyle: { color: '#F0EAD6', fontWeight: '700' },
+          }}
         />
       </Stack.Navigator>
     </NavigationContainer>
